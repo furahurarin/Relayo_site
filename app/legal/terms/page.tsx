@@ -1,58 +1,188 @@
-// app/(legal)/terms/page.tsx
+// app/legal/terms/page.tsx
+import type { Metadata } from "next";
 import Link from "next/link";
+import { BRAND, CONTACT, CAMPAIGN } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: `利用規約｜${BRAND.name}`,
+  description: `${BRAND.name} の利用規約。${CAMPAIGN.metaDescription}`,
+};
 
 export default function TermsPage() {
+  const EFFECTIVE_DATE = "2025-08-30"; // 施行日（必要に応じて更新）
+
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="mb-4 text-3xl font-bold">利用規約</h1>
-      <p className="mb-6 text-sm text-gray-500">最終更新日：2025-08-28</p>
+    <main className="bg-white py-16">
+      <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <h1 className="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">
+          利用規約
+        </h1>
+        <p className="mb-8 text-sm text-gray-500">施行日：{EFFECTIVE_DATE}</p>
 
-      <h2 className="mt-8 text-xl font-semibold">1. 適用</h2>
-      <p className="mt-2 text-gray-700">
-        本規約は、Relayo（以下「当方」）が提供する制作・保守サービスに適用されます。
-      </p>
+        <div className="prose prose-gray max-w-none">
+          <p className="text-gray-700">
+            この利用規約（以下「本規約」といいます。）は、{BRAND.name}
+            （以下「当方」といいます。）が提供するウェブサイト制作・アプリ開発および関連サービス
+            （以下「本サービス」といいます。）の利用条件を定めるものです。利用者（以下「お客様」といいます。）は、本サービスの利用に先立ち、本規約に同意するものとします。
+          </p>
 
-      <h2 className="mt-8 text-xl font-semibold">2. 申込・契約</h2>
-      <p className="mt-2 text-gray-700">
-        申込はメールで行い、当方の承諾および契約書（特約含む）により成立します。
-      </p>
+          <h2 id="scope" className="mt-10">1. 適用・個別契約</h2>
+          <p>
+            本規約は、本サービスの提供に関し当方とお客様との間に適用されます。発注書・見積書・注文書等（総称して「個別契約」）に別段の定めがある場合は、当該個別契約が優先します。
+            本サービスの提供形態（準委任／請負）は、個別契約にて定めます。
+          </p>
 
-      <h2 className="mt-8 text-xl font-semibold">3. 料金・支払</h2>
-      <p className="mt-2 text-gray-700">
-        料金表に定める金額を、請求書記載の期限までにお支払いください。外部サービス費用は顧客実費です。
-      </p>
+          <h2 id="application">2. 申込み・着手・素材の提供</h2>
+          <ul>
+            <li>お申込みは書面（電子含む）により確定します。</li>
+            <li>
+              当方は、お客様からの必要素材（文言・画像・ロゴ等）が提供されない場合、スケジュールに影響しうることを告知のうえ、作業を一時停止または代替案を提示できます。
+            </li>
+            <li>
+              お客様は、第三者の権利を侵害しない素材を提供するものとし、権利処理はお客様の責任で行うものとします。
+            </li>
+          </ul>
 
-      <h2 className="mt-8 text-xl font-semibold">4. 知的財産</h2>
-      <p className="mt-2 text-gray-700">
-        納品物の権利帰属は契約に従います。テンプレート・ノウハウ等は当方に帰属し、顧客には利用許諾を付与します。
-      </p>
+          <h2 id="deliverables">3. 業務範囲・成果物</h2>
+          <p>
+            業務範囲は個別契約に定めるとおりとし、軽微なテキスト修正等は範囲内とします。設計上の根本的変更・機能追加等は変更管理の対象となり、別途見積りとなります。
+          </p>
 
-      <h2 className="mt-8 text-xl font-semibold">5. 禁止事項</h2>
-      <ul className="ml-5 mt-2 list-disc text-gray-700">
-        <li>法令や公序良俗に反する利用</li>
-        <li>第三者の権利侵害</li>
-        <li>サービス運営を妨害する行為</li>
-      </ul>
+          <h2 id="ip">4. 知的財産権</h2>
+          <ul>
+            <li>
+              成果物のうち、オリジナル部分の著作権は、個別契約の定めに従います（未記載の場合、納品・代金全額受領後に非独占的使用許諾を付与）。
+            </li>
+            <li>
+              テンプレート、ライブラリ、生成AI、外部SaaS等の第三者コンポーネントの権利は各ライセンスに従い、当方は当該権利を譲渡しません。
+            </li>
+          </ul>
 
-      <h2 className="mt-8 text-xl font-semibold">6. 免責</h2>
-      <p className="mt-2 text-gray-700">
-        不可抗力（天災・回線障害・外部SaaSの障害等）による損害について、当方は責を負いません。
-      </p>
+          <h2 id="fees">5. 料金・支払・経費</h2>
+          <ul>
+            <li>料金は見積書に基づき、支払条件は個別契約に従います。</li>
+            <li>
+              ドメイン・サーバ・有料SaaS・有料素材等の外部費用は実費で、お客様負担とします（個別契約で当方立替の場合を除く）。
+            </li>
+            <li>
+              分割・着手金・検収条件等は個別契約に定めます。支払遅延がある場合、作業・公開・権利付与を留保できます。
+            </li>
+          </ul>
 
-      <h2 className="mt-8 text-xl font-semibold">7. 契約の解除</h2>
-      <p className="mt-2 text-gray-700">
-        重大な債務不履行等がある場合、催告のうえ解除できるものとします。
-        キャンペーンの早期解約条件は特約に従います。
-      </p>
+          <h2 id="campaign">6. キャンペーン条件（{CAMPAIGN.name}）</h2>
+          <p>
+            当方は「{CAMPAIGN.name}」を実施する場合があります。主な条件は次のとおりです（詳細はページ記載または個別契約優先）。
+          </p>
+          <ul>
+            <li>適用枠：先着 {CAMPAIGN.seats} 社</li>
+            <li>適用範囲：{CAMPAIGN.scope}</li>
+            <li>特典：制作費 ¥0（諸経費のみ）／保守 {CAMPAIGN.freeCareMonths} ヶ月 ¥0（Lite相当）</li>
+            <li>{CAMPAIGN.freeCancelNote}（無償作業は上限時間内）</li>
+            <li>条件：実績掲載・レビュー協力、素材提出＝KO+7日 ほか</li>
+            <li>外部費用（ドメイン・有料SaaS・有料素材等）は実費負担</li>
+            <li>キャンペーン内容は予告なく変更・終了する場合があります（{CAMPAIGN.note}）。</li>
+          </ul>
 
-      <h2 className="mt-8 text-xl font-semibold">8. 準拠法・裁判管轄</h2>
-      <p className="mt-2 text-gray-700">
-        日本法を準拠法とし、当方所在地を管轄する裁判所を第一審の専属的合意管轄とします。
-      </p>
+          <h2 id="maintenance">7. 保守・運用</h2>
+          <p>
+            保守の範囲・SLA・工数上限等は、保守プラン（Lite/Std/Pro 等）および個別契約に従います。第三者サービスの障害・仕様変更は免責とし、対応は別途見積りとなる場合があります。
+          </p>
 
-      <p className="mt-10 text-sm text-gray-600">
-        お問い合わせ：<Link href="mailto:contact.relayo@gmail.com" className="text-blue-600 underline-offset-2 hover:underline">contact.relayo@gmail.com</Link>
-      </p>
+          <h2 id="subcontract">8. 再委託</h2>
+          <p>当方は、品質・秘密保持を担保したうえで、業務の一部を適切な第三者に再委託することがあります。</p>
+
+          <h2 id="confidential">9. 秘密保持</h2>
+          <p>
+            双方は、契約上知り得た相手方の秘密情報を、契約期間中および終了後も第三者に開示・漏えいしないものとします（公知情報、受領前保有情報、法令等により開示義務がある場合を除く）。
+          </p>
+
+          <h2 id="privacy">10. 個人情報・データの取扱い</h2>
+          <p>
+            個人情報の取扱いは
+            <Link href="/legal/privacy" className="text-blue-600 underline-offset-2 hover:underline">
+              プライバシーポリシー
+            </Link>
+            に従います。受託処理が生じる場合は、必要に応じて個人情報取扱い契約（DPA）を締結します。
+          </p>
+
+          <h2 id="ai">11. 生成AI等の利用</h2>
+          <p>
+            効率・品質向上のため生成AI等を補助的に利用することがあります。著作権・機密保持等に配慮し、ライセンス・利用規約に反しない範囲で運用します。機密素材を入力しないポリシーを遵守します。
+          </p>
+
+          <h2 id="warranty">12. 保証の否認・免責</h2>
+          <ul>
+            <li>
+              本サービスは現状有姿で提供され、特定目的適合性・完全性・有用性等につき明示または黙示の保証を行いません。
+            </li>
+            <li>
+              外部SaaS・ライブラリ・検索エンジン等の仕様変更や障害、OS/ブラウザのアップデート、広告・検索結果の変動等に起因する不具合・成果の変動について、当方は責任を負いません。
+            </li>
+          </ul>
+
+          <h2 id="liability">13. 責任の限定</h2>
+          <p>
+            当方がお客様に負う損害賠償責任は、当方の故意または重過失による場合を除き、現実に発生した直接かつ通常の損害に限られ、その上限は、
+            直近3か月間にお客様が当方に支払った対価の総額または10万円のいずれか低い額とします。
+          </p>
+
+          <h2 id="prohibited">14. 禁止行為</h2>
+          <p>法令違反、公序良俗に反する行為、他者の権利侵害、当方の業務を妨害する行為等を禁止します。</p>
+
+          <h2 id="antisocial">15. 反社会的勢力の排除</h2>
+          <p>
+            双方は、反社会的勢力に該当せず、またこれと関係を有しないことを表明・保証し、違反時には何らの催告なく契約解除できるものとします。
+          </p>
+
+          <h2 id="term">16. 契約期間・解除</h2>
+          <ul>
+            <li>契約期間は個別契約に従います。</li>
+            <li>
+              重大な債務不履行があり、相当期間を定めた催告後も是正されない場合、当方は契約を解除できます。
+            </li>
+            <li>
+              キャンペーンにおける{CAMPAIGN.freeCancelNote}
+              は、個別に定める手続・期間内での解約に限り適用されます（実費は別途）。
+            </li>
+          </ul>
+
+          <h2 id="changes">17. 規約の変更</h2>
+          <p>
+            本規約の変更が必要と当方が判断した場合、当方サイトでの掲示その他相当の方法により通知し、効力を生じます。
+          </p>
+
+          <h2 id="governinglaw">18. 準拠法・裁判管轄</h2>
+          <p>
+            本規約は日本法に準拠します。本サービスに関して紛争が生じた場合、当方の主たる営業所を管轄する裁判所を第一審の専属的合意管轄裁判所とします。
+          </p>
+
+          <h2 id="contact">19. お問い合わせ窓口</h2>
+          <p>
+            本規約に関するお問い合わせは、以下までお願いいたします。
+            <br />
+            <a
+              className="text-blue-600 underline-offset-2 hover:underline"
+              href={CONTACT.mailto}
+              aria-label="規約に関する問い合わせメールを開く"
+              data-umami-event="email_click"
+              data-umami-event-section="legal-terms"
+            >
+              {BRAND.email}
+            </a>
+          </p>
+
+          <hr className="my-10" />
+        </div>
+
+        <div className="mt-10 flex gap-4">
+          <Link href="/legal/privacy" className="text-sm text-blue-600 underline-offset-2 hover:underline">
+            プライバシーポリシーへ
+          </Link>
+          <Link href="/legal/tokusho" className="text-sm text-blue-600 underline-offset-2 hover:underline">
+            特定商取引法に基づく表記へ
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

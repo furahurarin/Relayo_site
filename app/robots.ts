@@ -1,16 +1,10 @@
 // app/robots.ts
 import type { MetadataRoute } from "next";
-
-const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://relayo.example";
+import { BRAND } from "@/lib/constants";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-      },
-    ],
-    sitemap: `${site}/sitemap.xml`,
+    rules: { userAgent: "*", allow: "/" },
+    sitemap: `${BRAND.siteUrl}/sitemap.xml`,
   };
 }

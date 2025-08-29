@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Mail, MapPin, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BRAND, CAMPAIGN, CONTACT } from "@/lib/constants";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -13,11 +14,11 @@ export default function Footer() {
         <div className="grid gap-8 lg:grid-cols-4">
           {/* Company Info */}
           <div className="space-y-4 lg:col-span-2">
-            <h3 className="text-2xl font-bold">Relayo</h3>
+            <h3 className="text-2xl font-bold">{BRAND.name}</h3>
             <p className="max-w-md leading-relaxed text-gray-300">
               全国の中小企業・個人事業主のデジタル化を支援。
               <br className="hidden sm:block" />
-              テンプレ＋AI活用で<strong>短納期・低コスト</strong>のWeb/アプリを構築し、
+              テンプレ＋AI活用で<strong>{CAMPAIGN.ribbonText}</strong>のWeb/アプリを構築し、
               公開後は<strong>運用まで伴走</strong>します（メール中心の非対面ヒアリング）。
             </p>
             <div className="space-y-3">
@@ -32,13 +33,13 @@ export default function Footer() {
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-gray-400" />
                 <a
-                  href="mailto:contact.relayo@gmail.com"
+                  href={CONTACT.mailto}
                   className="text-blue-400 transition-colors hover:text-blue-300"
                   aria-label="メールで相談（メール作成画面を開く）"
                   data-umami-event="email_click"
                   data-umami-event-section="footer-info"
                 >
-                  contact.relayo@gmail.com
+                  {BRAND.email}
                 </a>
               </div>
             </div>
@@ -80,7 +81,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/contact?campaign=launch#get-sheet"
+                  href={CAMPAIGN.sheetHref}
                   className="transition-colors hover:text-white"
                   data-umami-event="cta_sheet"
                   data-umami-event-section="footer-services"
@@ -116,25 +117,24 @@ export default function Footer() {
 
         {/* Campaign note */}
         <div className="mt-10 rounded-md border border-emerald-900/30 bg-emerald-800/10 p-4 text-sm text-emerald-200">
-          <strong className="text-emerald-300">創業応援ローンチ（先着3社）</strong>
-          ：制作費 ¥0（諸経費のみ）＋ 保守3ヶ月 ¥0（Lite相当）／完全無料解約OK。
-          移管・撤去も無償（上限2h）。対象：LP 3–5p・40h上限／条件：実績掲載・レビュー協力、
-          素材提出＝KO+7日。
+          <strong className="text-emerald-300">{CAMPAIGN.name}</strong>
+          ：制作費 ¥0（諸経費のみ）＋ 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）／{CAMPAIGN.freeCancelNote}。
+          対象：{CAMPAIGN.scope}／条件：実績掲載・レビュー協力、素材提出＝KO+7日。
         </div>
 
         {/* CTA + Copy */}
         <div className="mt-12 border-t border-gray-800 pt-8">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <p className="text-sm text-gray-400">© {year} Relayo. All rights reserved.</p>
+            <p className="text-sm text-gray-400">© {year} {BRAND.name}. All rights reserved.</p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg" className="bg-blue-600 text-white hover:bg-blue-700">
                 <a
-                  href="mailto:contact.relayo@gmail.com?subject=%E6%96%99%E9%87%91%E7%9B%B8%E8%AB%87%EF%BC%88%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%9A%E3%83%BC%E3%83%B3%E5%B8%8C%E6%9C%9B%EF%BC%89"
+                  href={CONTACT.mailto}
                   aria-label="メールで相談（メール作成画面を開く）"
                   data-umami-event="email_click"
                   data-umami-event-section="footer-cta"
                 >
-                  メールで相談
+                  {CAMPAIGN.labels.email}
                 </a>
               </Button>
               <Button
@@ -144,12 +144,12 @@ export default function Footer() {
                 className="border-gray-300 hover:bg-gray-800"
               >
                 <Link
-                  href="/contact?campaign=launch#get-sheet"
+                  href={CAMPAIGN.sheetHref}
                   aria-label="診断シートを受け取る"
                   data-umami-event="cta_sheet"
                   data-umami-event-section="footer-cta"
                 >
-                  診断シートを受け取る
+                  {CAMPAIGN.labels.sheet}
                 </Link>
               </Button>
             </div>

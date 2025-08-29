@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Mail, ArrowRight, Megaphone } from "lucide-react";
+import { BRAND, CONTACT, CAMPAIGN } from "@/lib/constants";
 
 export default function HeroSection() {
   return (
@@ -22,8 +23,8 @@ export default function HeroSection() {
                 で最短2–4週で。
               </h1>
               <p className="text-lg leading-relaxed text-gray-600">
-                初期費用を抑え、公開後の月額保守で継続改善。<strong>非対面ヒアリング（メール主導）</strong>
-                で、全国どこでもスピーディに進行します。
+                初期費用を抑え、公開後の月額保守で継続改善。
+                <strong>非対面ヒアリング（メール主導）</strong>で、全国どこでもスピーディに進行します。
               </p>
             </div>
 
@@ -35,13 +36,13 @@ export default function HeroSection() {
                 asChild
               >
                 <a
-                  href="mailto:contact.relayo@gmail.com?subject=%E6%96%99%E9%87%91%E7%9B%B8%E8%AB%87%EF%BC%88%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%9A%E3%83%BC%E3%83%B3%E5%B8%8C%E6%9C%9B%EF%BC%89"
+                  href={CONTACT.mailto}
                   aria-label="メールで相談（メール作成画面を開く）"
                   data-umami-event="email_click"
                   data-umami-event-section="hero"
                 >
                   <Mail className="mr-2 h-5 w-5" />
-                  メールで相談
+                  {CAMPAIGN.labels.email}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </a>
               </Button>
@@ -53,12 +54,12 @@ export default function HeroSection() {
                 asChild
               >
                 <Link
-                  href="/contact?campaign=launch#get-sheet"
+                  href={CAMPAIGN.sheetHref}
                   aria-label="診断シートを受け取る"
                   data-umami-event="cta_sheet"
                   data-umami-event-section="hero"
                 >
-                  診断シートを受け取る
+                  {CAMPAIGN.labels.sheet}
                 </Link>
               </Button>
             </div>
@@ -66,17 +67,19 @@ export default function HeroSection() {
             {/* Campaign Info */}
             <Card className="bg-white/80 p-4 backdrop-blur-sm">
               <div className="flex items-start gap-3">
-                <Megaphone className="mt-0.5 h-5 w-5 text-emerald-600" />
+                <Megaphone className="mt-0.5 h-5 w-5 text-emerald-600" aria-hidden="true" />
                 <div>
                   <p className="text-sm font-semibold text-emerald-800">
-                    創業応援ローンチ（先着3社）
+                    創業応援ローンチ（先着{CAMPAIGN.seats}社）
                   </p>
                   <p className="text-sm text-emerald-900">
-                    <strong>制作費 ¥0（諸経費のみ）＋ 保守3ヶ月 ¥0（Lite相当）</strong>
-                    ／<strong>完全無料解約OK</strong>。移管・撤去も無償（上限2h）。
+                    <strong>
+                      制作費 ¥0（諸経費のみ）＋ 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）
+                    </strong>
+                    ／<strong>{CAMPAIGN.freeCancelNote}</strong>。
                   </p>
                   <p className="text-xs text-emerald-900">
-                    対象：LP 3–5p・40h上限／追加機能は別見積。条件：実績掲載・レビュー協力、素材提出=KO+7日。
+                    対象：{CAMPAIGN.scope}。{CAMPAIGN.note}
                   </p>
                 </div>
               </div>
@@ -85,17 +88,17 @@ export default function HeroSection() {
             {/* Contact Email */}
             <Card className="bg-white/80 p-4 backdrop-blur-sm">
               <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-blue-600" />
+                <Mail className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">お問い合わせ</p>
                   <a
-                    href="mailto:contact.relayo@gmail.com"
+                    href={CONTACT.mailto}
                     className="text-sm text-blue-600 underline-offset-2 hover:underline"
                     aria-label="メールで相談（メール作成画面を開く）"
                     data-umami-event="email_click"
                     data-umami-event-section="hero-contact"
                   >
-                    contact.relayo@gmail.com
+                    {BRAND.email}
                   </a>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 // app/not-found.tsx
 import Link from "next/link";
+import { CAMPAIGN } from "@/lib/constants";
 
 export default function NotFound() {
   return (
@@ -12,20 +13,27 @@ export default function NotFound() {
         <Link
           href="/"
           className="rounded bg-gray-900 px-4 py-2 text-white hover:bg-gray-800"
+          aria-label="ホームへ戻る"
         >
           ホームへ戻る
         </Link>
         <Link
           href="/#pricing"
           className="rounded border border-gray-300 px-4 py-2 hover:bg-gray-50"
+          aria-label="料金を見る"
+          data-umami-event="cta_pricing"
+          data-umami-event-section="not-found"
         >
           料金を見る
         </Link>
         <Link
-          href="/contact?campaign=launch#get-sheet"
+          href={CAMPAIGN.sheetHref}
           className="rounded border border-gray-300 px-4 py-2 hover:bg-gray-50"
+          aria-label="診断シートを受け取る"
+          data-umami-event="cta_sheet"
+          data-umami-event-section="not-found"
         >
-          診断シートを受け取る
+          {CAMPAIGN.labels.sheet}
         </Link>
       </div>
     </main>

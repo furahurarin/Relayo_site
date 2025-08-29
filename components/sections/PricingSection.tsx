@@ -11,8 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star } from "lucide-react";
+import { CAMPAIGN, CONTACT, PLANS } from "@/lib/constants";
 
 type BuildPlan = {
+  code: string; // ★ イベント用コード（PLANS.xxx.code を使用）
   name: string;
   subtitle: string;
   initialPrice: number | string; // Proは "980,000〜" を許容
@@ -26,6 +28,7 @@ type BuildPlan = {
 export default function PricingSection() {
   const buildPlans: BuildPlan[] = [
     {
+      code: PLANS.lp.code,
       name: "LPプラン",
       subtitle: "3–5ページ／最短で公開",
       initialPrice: 198000,
@@ -43,6 +46,7 @@ export default function PricingSection() {
       notes: ["追加機能（予約/会員/決済など）は別見積"],
     },
     {
+      code: PLANS.corporate.code,
       name: "コーポレート",
       subtitle: "8–12ページ／採用・ブログ雛形込み",
       initialPrice: 680000,
@@ -60,6 +64,7 @@ export default function PricingSection() {
       notes: [],
     },
     {
+      code: PLANS.pro.code,
       name: "プロ",
       subtitle: "15–25ページ〜／多言語・拡張対応",
       initialPrice: "980,000〜",
@@ -100,34 +105,38 @@ export default function PricingSection() {
         <Card className="mb-12 border-2 border-emerald-200 bg-emerald-50">
           <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:justify-between sm:text-left">
             <div>
-              <h3 className="text-xl font-bold text-emerald-800">創業応援ローンチ（先着3社）</h3>
+              <h3 className="text-xl font-bold text-emerald-800">
+                創業応援ローンチ（先着{CAMPAIGN.seats}社）
+              </h3>
               <p className="mt-1 text-emerald-900">
-                <strong>制作費 ¥0（諸経費のみ）＋ 保守3ヶ月 ¥0（Lite相当）</strong>／
-                <strong>完全無料解約OK</strong>。移管・撤去も無償（上限2h）。
+                <strong>
+                  制作費 ¥0（諸経費のみ）＋ 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）
+                </strong>
+                ／<strong>{CAMPAIGN.freeCancelNote}</strong>。
               </p>
               <p className="mt-1 text-sm text-emerald-900">
-                対象範囲：LP 3–5p・40h上限／追加機能は別見積。条件：実績掲載・レビュー協力、素材提出=KO+7日。
+                対象範囲：{CAMPAIGN.scope}。{CAMPAIGN.note}
               </p>
             </div>
             <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
                 <a
-                  href="mailto:contact.relayo@gmail.com?subject=%E6%96%99%E9%87%91%E7%9B%B8%E8%AB%87%EF%BC%88%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%9A%E3%83%BC%E3%83%B3%E5%B8%8C%E6%9C%9B%EF%BC%89"
+                  href={CONTACT.mailto}
                   aria-label="メールで相談（メール作成画面を開く）"
                   data-umami-event="email_click"
                   data-umami-event-section="pricing-campaign"
                 >
-                  メールで相談
+                  {CAMPAIGN.labels.email}
                 </a>
               </Button>
               <Button variant="outline" asChild>
                 <Link
-                  href="/contact?campaign=launch#get-sheet"
+                  href={CAMPAIGN.sheetHref}
                   aria-label="診断シートを受け取る"
                   data-umami-event="cta_sheet"
                   data-umami-event-section="pricing-campaign"
                 >
-                  診断シートを受け取る
+                  {CAMPAIGN.labels.sheet}
                 </Link>
               </Button>
             </div>
@@ -138,7 +147,7 @@ export default function PricingSection() {
         <div className="grid gap-8 lg:grid-cols-3">
           {buildPlans.map((plan) => (
             <Card
-              key={plan.name}
+              key={plan.code}
               className={`relative h-full bg-white transition-all duration-300 ${
                 plan.popular
                   ? "scale-105 border-2 border-blue-500 shadow-xl"
@@ -225,13 +234,13 @@ export default function PricingSection() {
                     asChild
                   >
                     <a
-                      href="mailto:contact.relayo@gmail.com?subject=%E6%96%99%E9%87%91%E7%9B%B8%E8%AB%87%EF%BC%88%E3%83%97%E3%83%A9%E3%83%B3%E6%A4%9C%E8%A8%8E%EF%BC%89"
+                      href={CONTACT.mailto}
                       aria-label={`メールで相談（${plan.name}）`}
                       data-umami-event="email_click"
                       data-umami-event-section="pricing-card"
-                      data-umami-event-plan={plan.name}
+                      data-umami-event-plan={plan.code}
                     >
-                      メールで相談
+                      {CAMPAIGN.labels.email}
                     </a>
                   </Button>
                   <Button variant="outline" size="lg" asChild>
@@ -240,9 +249,9 @@ export default function PricingSection() {
                       aria-label={`診断シートを受け取る（${plan.name}）`}
                       data-umami-event="cta_sheet"
                       data-umami-event-section="pricing-card"
-                      data-umami-event-plan={plan.name}
+                      data-umami-event-plan={plan.code}
                     >
-                      診断シートを受け取る
+                      {CAMPAIGN.labels.sheet}
                     </Link>
                   </Button>
                 </div>
@@ -264,7 +273,9 @@ export default function PricingSection() {
                     <span className="text-2xl font-bold">¥{m.monthly.toLocaleString()}</span>
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="text-center text-sm text-gray-600">{m.desc}</CardContent>
+                <CardContent className="text-center text-sm text-gray-600">
+                  {m.desc}
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -286,7 +297,7 @@ export default function PricingSection() {
                   asChild
                 >
                   <a
-                    href="mailto:contact.relayo@gmail.com?subject=%E3%82%AB%E3%82%B9%E3%82%BF%E3%83%A0%E8%A6%81%E4%BB%B6%E3%81%AE%E7%9B%B8%E8%AB%87"
+                    href={CONTACT.mailto}
                     aria-label="カスタム要件の相談メールを開く"
                     data-umami-event="email_click"
                     data-umami-event-section="pricing-custom"
@@ -301,7 +312,7 @@ export default function PricingSection() {
                     data-umami-event="cta_sheet"
                     data-umami-event-section="pricing-custom"
                   >
-                    診断シートを受け取る
+                    {CAMPAIGN.labels.sheet}
                   </Link>
                 </Button>
               </div>
