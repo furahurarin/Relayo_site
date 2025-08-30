@@ -62,15 +62,15 @@ export default function ContactPage() {
       track(EVENTS.SHEET_COPY, { section: "contact" });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // 権限がない場合は無視（手動コピー対応）
+      // クリップボード権限が無い場合は無視（手動コピーで対応）
     }
   };
 
   return (
-    <main className="bg-white py-16">
+    <main className="py-16 bg-white text-gray-900 dark:bg-black dark:text-white">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <h1 className="mb-3 text-3xl font-bold text-gray-900 sm:text-4xl">お問い合わせ</h1>
-        <p className="mb-10 text-gray-600">
+        <h1 className="mb-3 text-3xl font-bold sm:text-4xl">お問い合わせ</h1>
+        <p className="mb-10 text-gray-600 dark:text-gray-300">
           すべてメールで完結する<strong>非対面ヒアリング</strong>で進めます。フォームは不要です。
           下の「メールで相談」から直接メールを送るか、「診断シート」をコピーしてご返信ください。
         </p>
@@ -81,7 +81,7 @@ export default function ContactPage() {
             <CardTitle className="text-xl">メールで相談</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-gray-700">
+            <div className="text-sm text-gray-700 dark:text-gray-200">
               宛先：{" "}
               <a
                 href={CONTACT.mailto}
@@ -110,15 +110,16 @@ export default function ContactPage() {
         </Card>
 
         {/* 2) 診断シート */}
-        <Card className="mb-8" id="get-sheet">
+        {/* スティッキーヘッダーの被り対策：scroll-mt-24 */}
+        <Card className="mb-8 scroll-mt-24" id="get-sheet">
           <CardHeader>
             <CardTitle className="text-xl">非対面ヒアリング｜診断シート</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-3 text-sm text-gray-600">
+            <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
               そのままコピーしてメール本文に貼り付けてください（未定OK／箇条書きで結構です）。
             </p>
-            <pre className="whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-800">
+            <pre className="whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
               {intake}
             </pre>
             <div className="mt-3 flex gap-2">
@@ -135,7 +136,7 @@ export default function ContactPage() {
               </Button>
               <Button asChild variant="secondary">
                 <Link
-                  href="/#faq"
+                  href="/faq" // ← 修正："/#faq" から "/faq" へ
                   aria-label="よくある質問を見る"
                   data-umami-event={EVENTS.CTA_FAQ}
                   data-umami-event-section="contact-sheet"
@@ -155,14 +156,12 @@ export default function ContactPage() {
               {CAMPAIGN.name}（先着{CAMPAIGN.seats}社）
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm text-emerald-900">
+          <CardContent className="space-y-2 text-sm text-emerald-900 dark:text-emerald-200">
             <p>
               <strong>制作費 ¥0（諸経費のみ） × 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）</strong>
               ／<strong>{CAMPAIGN.freeCancelNote}</strong>
             </p>
-            <p>
-              対象範囲：{CAMPAIGN.scope}／条件：実績掲載・レビュー協力、素材提出=KO+7日。
-            </p>
+            <p>対象範囲：{CAMPAIGN.scope}／条件：実績掲載・レビュー協力、素材提出=KO+7日。</p>
           </CardContent>
         </Card>
       </div>

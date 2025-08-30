@@ -14,12 +14,12 @@ export default function TermsPage() {
   return (
     <main className="bg-white py-16">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <h1 className="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">
-          利用規約
-        </h1>
-        <p className="mb-8 text-sm text-gray-500">施行日：{EFFECTIVE_DATE}</p>
+        <h1 className="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">利用規約</h1>
+        <p className="mb-8 text-sm text-gray-500">
+          施行日：<time dateTime={EFFECTIVE_DATE}>{EFFECTIVE_DATE}</time>
+        </p>
 
-        <div className="prose prose-gray max-w-none">
+        <div className="prose prose-zinc max-w-none">
           <p className="text-gray-700">
             この利用規約（以下「本規約」といいます。）は、{BRAND.name}
             （以下「当方」といいます。）が提供するウェブサイト制作・アプリ開発および関連サービス
@@ -43,9 +43,10 @@ export default function TermsPage() {
             </li>
           </ul>
 
-          <h2 id="deliverables">3. 業務範囲・成果物</h2>
+          <h2 id="deliverables">3. 業務範囲・成果物・検収</h2>
           <p>
             業務範囲は個別契約に定めるとおりとし、軽微なテキスト修正等は範囲内とします。設計上の根本的変更・機能追加等は変更管理の対象となり、別途見積りとなります。
+            納品後、個別契約で定める検収期間内にお客様から具体的な不適合指摘がない場合、当該成果物は検収合格とみなします。
           </p>
 
           <h2 id="ip">4. 知的財産権</h2>
@@ -98,11 +99,11 @@ export default function TermsPage() {
 
           <h2 id="privacy">10. 個人情報・データの取扱い</h2>
           <p>
-            個人情報の取扱いは
+            個人情報の取扱いは{" "}
             <Link href="/legal/privacy" className="text-blue-600 underline-offset-2 hover:underline">
               プライバシーポリシー
             </Link>
-            に従います。受託処理が生じる場合は、必要に応じて個人情報取扱い契約（DPA）を締結します。
+            {" "}に従います。受託処理が生じる場合は、必要に応じて個人情報取扱い契約（DPA）を締結します。
           </p>
 
           <h2 id="ai">11. 生成AI等の利用</h2>

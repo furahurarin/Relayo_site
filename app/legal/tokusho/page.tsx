@@ -9,15 +9,18 @@ export const metadata: Metadata = {
 
 export default function TokushoPage() {
   const year = new Date().getFullYear();
+  const UPDATED_AT = "2025-08-30";
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <header className="mb-8 space-y-2">
         <h1 className="text-3xl font-bold text-gray-900">特定商取引法に基づく表記</h1>
-        <p className="text-sm text-gray-600">最終更新日：2025年8月30日</p>
+        <p className="text-sm text-gray-600">
+          最終更新日：<time dateTime={UPDATED_AT}>{UPDATED_AT}</time>
+        </p>
       </header>
 
-      <div className="prose prose-gray max-w-none">
+      <div className="prose prose-zinc max-w-none">
         <dl className="not-prose divide-y divide-gray-100 rounded-md border border-gray-100">
           <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
             <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">販売事業者</dt>
@@ -40,7 +43,7 @@ export default function TokushoPage() {
             <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">電話番号</dt>
             <dd className="col-span-12 text-gray-800 sm:col-span-8">
               迷惑電話防止・記録性確保の観点から、<strong>請求いただいた場合に遅滞なく開示</strong>いたします。<br />
-              お問い合わせは<strong>メール</strong>にてお願いします：
+              お問い合わせは<strong>メール</strong>にてお願いします：{" "}
               <a
                 href={CONTACT.mailto}
                 className="underline"
@@ -76,18 +79,14 @@ export default function TokushoPage() {
           </div>
 
           <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">
-              販売価格・役務の対価
-            </dt>
+            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">販売価格・役務の対価</dt>
             <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              見積書・注文書に記載（税抜表示）。保守費用は別途SLAに基づきます。
+              見積書・注文書に記載（税抜／税込の別を明記）。保守費用は別途SLAに基づきます。
             </dd>
           </div>
 
           <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">
-              追加手数料等の必要料金
-            </dt>
+            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">追加手数料等の必要料金</dt>
             <dd className="col-span-12 text-gray-800 sm:col-span-8">
               ドメイン・ホスティング等の実費、外部SaaS利用料、決済手数料、銀行振込手数料、出張費・交通費（必要な場合）等。
             </dd>
@@ -95,7 +94,9 @@ export default function TokushoPage() {
 
           <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
             <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">支払方法</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">銀行振込（請求書払い）※他の方法は個別相談</dd>
+            <dd className="col-span-12 text-gray-800 sm:col-span-8">
+              銀行振込（請求書払い）※他の方法は個別相談
+            </dd>
           </div>
 
           <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
@@ -128,9 +129,7 @@ export default function TokushoPage() {
           </div>
 
           <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">
-              特典・キャンペーン
-            </dt>
+            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">特典・キャンペーン</dt>
             <dd className="col-span-12 text-gray-800 sm:col-span-8">
               「{CAMPAIGN.name}」：先着{CAMPAIGN.seats}社。内容：制作費¥0（諸経費のみ）＋
               保守{CAMPAIGN.freeCareMonths}ヶ月¥0（Lite相当）／{CAMPAIGN.freeCancelNote}。

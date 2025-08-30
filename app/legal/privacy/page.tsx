@@ -17,7 +17,7 @@ export default function PrivacyPage() {
         </p>
       </header>
 
-      <div className="prose prose-gray max-w-none">
+      <div className="prose prose-zinc max-w-none">
         <p>
           {BRAND.name}（以下「当社」）は、当社の提供するWebサイトおよびWeb/アプリ制作、運用・保守等のサービス（以下「本サービス」）における個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」）を定めます。
         </p>

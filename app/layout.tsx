@@ -2,8 +2,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Header from "@/components/Header"; // ← ファイル名の大文字小文字と一致させてください
+import Footer from "@/components/footer";
 import Analytics from "@/components/analytics/Analytics";
-import { BRAND, CAMPAIGN, CONTACT } from "@/lib/constants";
+// 相対パス（ご要望どおり）
+import { BRAND, CAMPAIGN, CONTACT } from "../lib/constants";
 
 export const metadata: Metadata = {
   title: BRAND.name,
@@ -45,48 +48,6 @@ function CampaignRibbon() {
   );
 }
 
-// シンプルなグローバルナビ
-function TopNav() {
-  return (
-    <header className="sticky top-0 z-40 w-full border-b border-gray-100 bg-white/90 backdrop-blur">
-      <div className="container mx-auto flex items-center justify-between px-4 py-3">
-        <Link href="/" className="text-lg font-bold text-gray-900" aria-label={`${BRAND.name} Home`}>
-          {BRAND.name}
-        </Link>
-        <nav
-          className="hidden items-center gap-6 text-sm text-gray-700 sm:flex"
-          aria-label="Global"
-        >
-          <Link href="/#pricing" className="hover:text-gray-900">
-            料金
-          </Link>
-          <Link href="/#faq" className="hover:text-gray-900">
-            FAQ
-          </Link>
-          {/* 診断シート（計測：cta_sheet） */}
-          <Link
-            href={CAMPAIGN.sheetHref}
-            className="rounded border border-gray-300 px-3 py-1.5 hover:bg-gray-50"
-            data-umami-event="cta_sheet"
-            data-umami-event-section="nav"
-          >
-            {CAMPAIGN.labels.sheet}
-          </Link>
-          {/* メールで相談（計測：email_click） */}
-          <a
-            href={CONTACT.mailto}
-            className="rounded bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
-            data-umami-event="email_click"
-            data-umami-event-section="nav"
-          >
-            {CAMPAIGN.labels.email}
-          </a>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // JSON-LD構造化データ
   const orgJsonLd = {
@@ -110,7 +71,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="ja">
-      <head />
       <body className="antialiased">
         {/* Umami */}
         <Analytics />
@@ -120,8 +80,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify([orgJsonLd, siteJsonLd]) }}
         />
         <CampaignRibbon />
-        <TopNav />
+        <Header />
         {children}
+        <Footer />
       </body>
     </html>
   );
