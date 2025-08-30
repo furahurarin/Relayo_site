@@ -1,11 +1,11 @@
 // app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
+import Script from "next/script";
 import Link from "next/link";
-import Header from "@/components/Header"; // ← ファイル名の大文字小文字と一致させてください
+import Header from "@/components/Header"; // 大文字小文字を統一
 import Footer from "@/components/footer";
 import Analytics from "@/components/analytics/Analytics";
-// 相対パス（ご要望どおり）
 import { BRAND, CAMPAIGN, CONTACT } from "../lib/constants";
 
 export const metadata: Metadata = {
@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   description: CAMPAIGN.metaDescription,
 };
 
-// 上部のキャンペーン帯（薄いグリーン）
 function CampaignRibbon() {
   return (
     <div className="w-full bg-emerald-50 text-emerald-900">
@@ -71,6 +70,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="ja">
+      <head>
+        {/* Cloudflare Turnstile（ボット対策） */}
+        <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+      </head>
       <body className="antialiased">
         {/* Umami */}
         <Analytics />
