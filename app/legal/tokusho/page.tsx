@@ -1,154 +1,62 @@
 // app/legal/tokusho/page.tsx
-import type { Metadata } from "next";
-import { BRAND, CONTACT, CAMPAIGN } from "@/lib/constants";
+import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: `特定商取引法に基づく表記 | ${BRAND.name}`,
-  description: `${BRAND.name}の特定商取引法に基づく表記です。販売事業者、責任者、所在地、連絡先、役務提供条件、代金の支払時期・方法、返品・キャンセル等について記載します。`,
+export const metadata = {
+  title: "特定商取引法に基づく表示｜Relayo",
+  description: "Relayoの特定商取引法に基づく表示ページです。",
 };
 
 export default function TokushoPage() {
-  const year = new Date().getFullYear();
-  const UPDATED_AT = "2025-08-30";
-
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-      <header className="mb-8 space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">特定商取引法に基づく表記</h1>
-        <p className="text-sm text-gray-600">
-          最終更新日：<time dateTime={UPDATED_AT}>{UPDATED_AT}</time>
-        </p>
-      </header>
+    <main className="container mx-auto px-4 py-12 prose prose-neutral">
+      <h1>特定商取引法に基づく表示</h1>
 
-      <div className="prose prose-zinc max-w-none">
-        <dl className="not-prose divide-y divide-gray-100 rounded-md border border-gray-100">
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">販売事業者</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">{BRAND.name}</dd>
-          </div>
+      <h2>事業者情報</h2>
+      <ul>
+        <li>屋号：Relayo（リレイオ）</li>
+        <li>運営責任者：<strong>高橋 輝</strong></li>
+        <li>所在地：請求があった場合に遅滞なく開示します</li>
+        <li>電話番号：請求があった場合に遅滞なく開示します</li>
+        <li>
+          請求方法：件名「特商法開示請求」で{" "}
+          <a href="mailto:contact.relayo@gmail.com">contact.relayo@gmail.com</a>{" "}
+          へご連絡ください。1営業日以内にご案内します。
+        </li>
+      </ul>
 
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">運営責任者</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">（責任者名を記載）</dd>
-          </div>
+      <h2>営業時間</h2>
+      <p>平日 9:00–18:00（年末年始・当社指定日を除く）</p>
 
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">所在地</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              自宅兼事務所のため、<strong>請求いただいた場合に遅滞なく開示</strong>いたします。
-            </dd>
-          </div>
+      <h2>提供サービス</h2>
+      <p>Webサイト制作・運用、デジタル活用支援 ほか</p>
 
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">電話番号</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              迷惑電話防止・記録性確保の観点から、<strong>請求いただいた場合に遅滞なく開示</strong>いたします。<br />
-              お問い合わせは<strong>メール</strong>にてお願いします：{" "}
-              <a
-                href={CONTACT.mailto}
-                className="underline"
-                data-umami-event="email_click"
-                data-umami-event-section="tokusho"
-              >
-                {BRAND.email}
-              </a>
-            </dd>
-          </div>
+      <h2>対価の支払時期・方法</h2>
+      <ul>
+        <li>支払方法：銀行振込（請求書払い）</li>
+        <li>請求サイクル：初期費用は検収時、月額費用は毎月末締め翌月末支払</li>
+      </ul>
 
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">メールアドレス</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              <a
-                href={CONTACT.mailto}
-                className="underline"
-                data-umami-event="email_click"
-                data-umami-event-section="tokusho"
-              >
-                {BRAND.email}
-              </a>
-            </dd>
-          </div>
+      <h2>役務の提供時期</h2>
+      <p>契約締結後、個別見積・合意スケジュールに従い提供します。</p>
 
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">URL</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              <a href={BRAND.siteUrl} className="underline" rel="noopener noreferrer">
-                {BRAND.siteUrl}
-              </a>
-            </dd>
-          </div>
+      <h2>キャンセル・解約・移管</h2>
+      <ul>
+        <li>制作開始前のキャンセル：実費精算（要見積）</li>
+        <li>制作開始後のキャンセル：着手金＋進捗相当額を精算</li>
+        <li>解約：毎月末締め、翌月末日解約（解約受付は当月20日まで）</li>
+        <li>
+          ドメイン・データ移管：手数料と実費を申し受けます。詳細は{" "}
+          <Link href="/legal/terms">利用規約</Link> 第16条をご確認ください。
+        </li>
+      </ul>
 
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">販売価格・役務の対価</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              見積書・注文書に記載（税抜／税込の別を明記）。保守費用は別途SLAに基づきます。
-            </dd>
-          </div>
+      <h2>返品・返金</h2>
+      <p>役務の性質上、提供後の返品・返金はお受けしていません。瑕疵がある場合は契約に基づき対応します。</p>
 
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">追加手数料等の必要料金</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              ドメイン・ホスティング等の実費、外部SaaS利用料、決済手数料、銀行振込手数料、出張費・交通費（必要な場合）等。
-            </dd>
-          </div>
-
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">支払方法</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              銀行振込（請求書払い）※他の方法は個別相談
-            </dd>
-          </div>
-
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">支払時期</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              見積書・注文書に定める期日（例：着手時／中間／検収後 等）。保守は当月または翌月末支払。
-            </dd>
-          </div>
-
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">役務の提供時期</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              個別合意のスケジュールに従います。素材提出の遅延等がある場合は納期を再調整します。
-            </dd>
-          </div>
-
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">返品・キャンセル</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              役務提供の性質上、<strong>検収合格後の返品・返金には応じられません</strong>。検収前のキャンセルは、
-              作業実費・発生費用をご負担いただきます。瑕疵がある場合は契約・SLAに基づき是正します。
-            </dd>
-          </div>
-
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">動作環境</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              対応ブラウザ・端末は提案書・仕様書に準拠（最新版の主要ブラウザを前提）。第三者サービスの仕様変更により動作が変わる場合があります。
-            </dd>
-          </div>
-
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">特典・キャンペーン</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              「{CAMPAIGN.name}」：先着{CAMPAIGN.seats}社。内容：制作費¥0（諸経費のみ）＋
-              保守{CAMPAIGN.freeCareMonths}ヶ月¥0（Lite相当）／{CAMPAIGN.freeCancelNote}。
-              対象範囲：{CAMPAIGN.scope}。状況により予告なく変更・終了する場合があります。
-            </dd>
-          </div>
-
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 sm:px-6">
-            <dt className="col-span-12 text-sm font-semibold text-gray-700 sm:col-span-4">営業時間</dt>
-            <dd className="col-span-12 text-gray-800 sm:col-span-8">
-              平日10:00–18:00（年末年始・当社指定日を除く）。お問い合わせは24時間受付、返信は営業時間内。
-            </dd>
-          </div>
-        </dl>
-
-        <p className="mt-6 text-xs text-gray-500">
-          ※ 本表記は役務（受託制作）に関するものです。個別契約・SLA・変更管理票等の条項が優先される場合があります。{year}年現在。
-        </p>
-      </div>
+      <p className="text-sm text-gray-500">
+        ※詳細は <Link href="/legal/terms">利用規約</Link> および{" "}
+        <Link href="/legal/privacy">プライバシーポリシー</Link> をご確認ください。
+      </p>
     </main>
   );
 }

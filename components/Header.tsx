@@ -1,3 +1,4 @@
+// components/Header.tsx
 "use client";
 
 import Link from "next/link";
@@ -8,10 +9,17 @@ const NAV = [
   { href: "/", label: "ホーム" },
   { href: "/services", label: "サービス" },
   { href: "/pricing", label: "料金" },
+  { href: "/apply", label: "申し込み" }, // 追加
   { href: "/legal/terms", label: "利用規約" },
   { href: "/legal/privacy", label: "プライバシー" },
   { href: "/legal/tokusho", label: "特商法" },
 ];
+
+// Umami（存在時のみ送信）
+const track = (name: string, data?: Record<string, any>) => {
+  if (typeof window === "undefined") return;
+  (window as any)?.umami?.track?.(name, data);
+};
 
 export default function Header() {
   const pathname = usePathname();
@@ -25,7 +33,13 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b bg-white/70 backdrop-blur dark:bg-gray-900/80">
       <div className="container mx-auto h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="text-xl font-bold text-gray-900 dark:text-white">
+        <Link
+          href="/"
+          className="text-xl font-bold text-gray-900 dark:text-white"
+          aria-label="Relayo ホームへ"
+          onClick={() => track("header_logo_click", { to: "home" })}
+          data-umami-event="header_logo_click"
+        >
           Relayo
         </Link>
 
@@ -41,6 +55,11 @@ export default function Header() {
                   ? "font-semibold text-black dark:text-white"
                   : "text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white",
               ].join(" ")}
+              onClick={() =>
+                track("header_nav_click", { to: n.href, label: n.label })
+              }
+              data-umami-event="header_nav_click"
+              data-umami-event-to={n.href}
             >
               {n.label}
             </Link>
@@ -48,15 +67,46 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button asChild variant="secondary" className="rounded-xl">
+          <Button
+            asChild
+            variant="secondary"
+            className="rounded-xl"
+          >
             <a
-              href="mailto:contact.relayo@gmail.com?subject=Relayo%20%E3%81%B8%E3%81%AE%E3%81%94%E7%9B%B8%E8%AB%87&body=%E4%BB%A5%E4%B8%8B%E3%82%92%E3%82%B3%E3%83%94%E3%83%9A%E3%81%97%E3%81%A6%E3%81%94%E5%9B%9E%E7%AD%94%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84%EF%BC%9A%0A1.%20%E4%BC%81%E6%A5%AD%E5%90%8D%2F%E6%A5%AD%E7%A8%AE%0A2.%20%E7%8F%BE%E7%8A%B6%E3%81%AE%E8%AA%BF%E5%AD%90%0A3.%20%E7%9B%AE%E6%A8%99%0A4.%20%E5%AE%9A%E7%A8%BF%2F%E7%84%A1%E5%AE%9A%0A5.%20%E3%81%94%E4%BC%9A%E7%A4%BEURL"
+              href={`mailto:contact.relayo@gmail.com?subject=${encodeURIComponent(
+                "Relayo へのご相談"
+              )}&body=${encodeURIComponent(
+                `以下をご記入のうえご返信ください（未定は未定でOKです）
+会社名／屋号：
+ご担当者名：
+想定ページ数：
+公開希望時期：
+要件（例：予約・問い合わせ・SNS連携 等）：`
+              )}`}
+              aria-label="メールで相談する"
+              onClick={() => track("header_cta_click", { to: "mailto" })}
+              data-umami-event="header_cta_click"
+              data-umami-event-to="mailto"
             >
               メールで相談
             </a>
           </Button>
-          <Button asChild className="rounded-xl">
-            <Link href="/contact#get-sheet">診断シートを受け取る</Link>
+
+          <Button
+            asChild
+            className="rounded-xl"
+          >
+            <Link
+              href="/contact#get-sheet"
+              aria-label="診断シートを受け取る"
+              onClick={() =>
+                track("header_cta_click", { to: "contact_sheet" })
+              }
+              data-umami-event="header_cta_click"
+              data-umami-event-to="contact_sheet"
+            >
+              診断シートを受け取る
+            </Link>
           </Button>
         </div>
       </div>
