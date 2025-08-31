@@ -1,16 +1,16 @@
 // next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // API Routes / Inngest を使うため、静的エクスポートは不可
-  // output: "export" は設定しないこと
+  // API Routes / Inngest を使うため、静的エクスポートは禁止
+  // ※ output: "export" は絶対に入れない
 
   reactStrictMode: true,
   poweredByHeader: false,
 
-  // ビルドは通し、ESLintはCIで実行推奨
+  // ビルドは通し、ESLint は CI 側で実行推奨
   eslint: { ignoreDuringBuilds: true },
 
-  // セキュリティ系ヘッダー（CSPは別途検討）
+  // セキュリティ系ヘッダー（CSP は別途検討）
   async headers() {
     return [
       {
@@ -20,6 +20,8 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          // HSTS（https 配信が前提。全サブドメインにも適用）
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
         ],
       },
     ];

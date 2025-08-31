@@ -1,15 +1,28 @@
 // lib/inngest.ts
+import "server-only";
 import { Inngest } from "inngest";
 
-const id = "relayo-site"; // 任意のアプリ識別子
+/**
+ * Inngest client（本番対応）
+ * - v3では name ではなく id を指定します。
+ * - 本番では INNGEST_EVENT_KEY を要求します。
+ */
+const EVENT_KEY = process.env.INNGEST_EVENT_KEY?.trim();
 
-const eventKey = process.env.INNGEST_EVENT_KEY;
-if (!eventKey) {
-  // 開発中にキー未設定でもAPIを落とさないよう警告のみ
-  console.warn("[inngest] INNGEST_EVENT_KEY is missing; events will be skipped");
+if (process.env.NODE_ENV === "production" && !EVENT_KEY) {
+  throw new Error("INNGEST_EVENT_KEY is required in production");
 }
 
-export const inngest = new Inngest({
-  id,
-  eventKey: eventKey || undefined, // ここが重要。send() が自動でこのキーを使う
-});
+// Dev の HMR での再インスタンス化防止
+const g = globalThis as unknown as { __relayoInngest?: Inngest };
+
+export const inngest =
+  g.__relayoInngest ??
+  new Inngest({
+    id: "relayo-site",      // ← お好みの一意なIDに変更可
+    eventKey: EVENT_KEY,    // 環境変数でもOK（推奨）
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  g.__relayoInngest = inngest;
+}

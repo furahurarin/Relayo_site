@@ -10,13 +10,20 @@ import { Resend } from "resend";
  *  - EMAIL_TO     例: 'contact.relayo@gmail.com'
  */
 
-const apiKey = process.env.RESEND_API_KEY;
-if (!apiKey) throw new Error("RESEND_API_KEY is required");
+const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
+if (!RESEND_API_KEY) {
+  throw new Error("RESEND_API_KEY is required");
+}
+export const resend = new Resend(RESEND_API_KEY);
 
-export const resend = new Resend(apiKey);
+const _FROM = process.env.EMAIL_FROM?.trim();
+if (!_FROM) {
+  throw new Error("EMAIL_FROM is required (e.g. 'Relayo <noreply@relayo.jp>')");
+}
+export const EMAIL_FROM: string = _FROM;
 
-export const EMAIL_FROM = process.env.EMAIL_FROM;
-export const EMAIL_TO = process.env.EMAIL_TO;
-
-if (!EMAIL_FROM) throw new Error("EMAIL_FROM is required (e.g. 'Relayo <noreply@relayo.jp>')");
-if (!EMAIL_TO) throw new Error("EMAIL_TO is required (internal notifications recipient)");
+const _TO = process.env.EMAIL_TO?.trim();
+if (!_TO) {
+  throw new Error("EMAIL_TO is required (internal notifications recipient)");
+}
+export const EMAIL_TO: string = _TO;
