@@ -6,31 +6,36 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (
-        el: string | HTMLElement,
-        opts: {
-          sitekey: string;
-          callback?: (token: string) => void;
-          "error-callback"?: () => void;
-          "expired-callback"?: () => void;
-          theme?: "light" | "dark" | "auto";
-        }
-      ) => void;
-      reset?: (id?: string | HTMLElement) => void;
-    };
-  }
-}
+/**
+ * ✅ 本番用ポイント
+ * - /api/contact に POST（当プロジェクトのサーバー実装に一致）
+ * - Turnstile は explicit render（多重読込防止）＋ widgetId を保持して reset
+ * - 型宣言は types/turnstile.d.ts に集約 → 本ファイルでは declare global を書かない
+ * - サーバー想定のキーにマッピング: tel / message / turnstileToken
+ * - 蜜壺(hp)が埋まっていたら無条件中止
+ */
+
+// Turnstileスクリプト読込（多重読込を防止）
+const loadScript = (src: string) =>
+  new Promise<void>((resolve, reject) => {
+    if (typeof window === "undefined") return resolve();
+    if (document.querySelector(`script[src="${src}"]`)) return resolve();
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.defer = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error(`Failed to load: ${src}`));
+    document.head.appendChild(s);
+  });
 
 const Schema = z.object({
   name: z.string().min(1, "お名前を入力してください"),
   company: z.string().optional(),
   email: z.string().email("メールアドレスの形式が正しくありません"),
-  phone: z.string().optional(),
-  detail: z.string().min(10, "ご要件を具体的にご記入ください（10文字以上）"),
-  cfToken: z.string().min(10, "認証に失敗しました。再度お試しください"),
+  tel: z.string().optional(),
+  message: z.string().min(10, "ご要件を具体的にご記入ください（10文字以上）"),
+  turnstileToken: z.string().min(10, "認証に失敗しました。再度お試しください"),
   agree: z.literal(true, {
     errorMap: () => ({ message: "規約とプライバシーに同意が必要です" }),
   }),
@@ -38,39 +43,65 @@ const Schema = z.object({
 });
 
 export default function ApplicationForm() {
+  // 入力
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState<null | boolean>(null);
   const [error, setError] = useState<string | null>(null);
-  const [cfToken, setCfToken] = useState("");
-  const widgetRef = useRef<HTMLDivElement>(null);
 
-  // Turnstile を描画（レイアウトでスクリプト読込済み）
+  // Turnstile
+  const [token, setToken] = useState("");
+  const siteKey =
+    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
+    process.env.TURNSTILE_SITE_KEY ??
+    "";
+  const widgetRef = useRef<HTMLDivElement | null>(null);
+  const widgetIdRef = useRef<string | null>(null);
+
+  // Turnstile explicit render
   useEffect(() => {
-    let tries = 0;
-    const t = setInterval(() => {
-      if (window.turnstile && widgetRef.current) {
-        window.turnstile.render(widgetRef.current, {
-          sitekey:
-            (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY as string) ||
-            (process.env.TURNSTILE_SITE_KEY as string),
-          callback: (token) => setCfToken(token),
+    let cancelled = false;
+
+    (async () => {
+      try {
+        if (!siteKey) return; // Env 未設定
+        await loadScript(
+          "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+        );
+        if (cancelled || !widgetRef.current) return;
+
+        // 既存ウィジェットがあればリセット（reset は void）
+        if (widgetIdRef.current && (window as any).turnstile?.reset) {
+          (window as any).turnstile.reset(widgetIdRef.current);
+          widgetIdRef.current = null;
+        }
+
+        // 明示レンダリング（戻り値は widgetId: string）
+        const id = (window as any).turnstile?.render?.(widgetRef.current, {
+          sitekey: siteKey,
+          theme: "auto",
+          appearance: "always",
+          action: "application_form",
+          "refresh-expired": "auto",
+          callback: (tkn: string) => setToken(tkn),
           "error-callback": () =>
             setError(
-              "認証エラーが発生しました。ページを再読み込みしてください。"
+              "認証エラーが発生しました。ページを再読み込みしてからお試しください。"
             ),
-          "expired-callback": () => setCfToken(""),
-          theme: "auto",
+          "expired-callback": () => setToken(""),
         });
-        clearInterval(t);
-      } else if (++tries > 50) {
-        clearInterval(t);
+        if (typeof id === "string") widgetIdRef.current = id;
+      } catch (e) {
+        console.error(e);
         setError(
-          "認証スクリプトの読み込みに失敗しました。少し時間をおいてお試しください。"
+          "ボット検証の初期化に失敗しました。時間をおいて再度お試しください。"
         );
       }
-    }, 200);
-    return () => clearInterval(t);
-  }, []);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [siteKey]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,12 +113,19 @@ export default function ApplicationForm() {
       name: String(fd.get("name") || ""),
       company: String(fd.get("company") || ""),
       email: String(fd.get("email") || ""),
-      phone: String(fd.get("phone") || ""),
-      detail: String(fd.get("detail") || ""),
-      cfToken,
+      tel: String(fd.get("tel") || ""),
+      message: String(fd.get("message") || ""),
+      turnstileToken: token,
       agree: fd.get("agree") === "on",
       hp: String(fd.get("hp") || ""),
     };
+
+    // 蜜壺が埋まっていたら中止
+    if (raw.hp) {
+      setLoading(false);
+      setOk(true); // ボットには成功を装う
+      return;
+    }
 
     const parsed = Schema.safeParse(raw);
     if (!parsed.success) {
@@ -96,34 +134,42 @@ export default function ApplicationForm() {
       return;
     }
 
-    // サーバー側のスキーマに合わせてキーをマッピングして送信
+    // サーバー想定のキーで送信
     const payload = {
       name: parsed.data.name,
       email: parsed.data.email,
-      message: parsed.data.detail, // ← detail を message へ
-      ["cf-turnstile-response"]: parsed.data.cfToken, // ← トークン名を合わせる
-      // company / phone / hp / agree は現状サーバーでは未使用
+      company: parsed.data.company || undefined,
+      tel: parsed.data.tel || undefined,
+      message: parsed.data.message,
+      turnstileToken: parsed.data.turnstileToken,
     };
 
     try {
-      const res = await fetch("/api/apply", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const json = await res.json();
+      const json = (await res.json()) as { ok?: boolean; error?: string };
 
       if (res.ok && json.ok) {
         setOk(true);
         (e.currentTarget as HTMLFormElement).reset();
-        setCfToken("");
-        // すべての Turnstile ウィジェットをリセット
-        window.turnstile?.reset?.();
+        setToken("");
+
+        // Turnstile リセット（戻り値は void）
+        if ((window as any).turnstile?.reset && widgetIdRef.current) {
+          (window as any).turnstile.reset(widgetIdRef.current);
+          widgetIdRef.current = null;
+        }
       } else {
-        setError("送信に失敗しました（" + (json.error || "unknown") + "）");
+        throw new Error(json.error || "送信に失敗しました。");
       }
     } catch (err: any) {
-      setError("ネットワークエラーが発生しました。時間をおいて再試行してください。");
+      setError(
+        err?.message ||
+          "ネットワークエラーが発生しました。時間をおいて再試行してください。"
+      );
     } finally {
       setLoading(false);
     }
@@ -150,8 +196,7 @@ export default function ApplicationForm() {
         <CardTitle>お申し込みフォーム</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* onSubmit に変更（action は使用しない） */}
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium mb-1">お名前 *</label>
@@ -159,6 +204,7 @@ export default function ApplicationForm() {
                 name="name"
                 required
                 className="w-full rounded-md border px-3 py-2"
+                autoComplete="name"
               />
             </div>
             <div>
@@ -166,6 +212,7 @@ export default function ApplicationForm() {
               <input
                 name="company"
                 className="w-full rounded-md border px-3 py-2"
+                autoComplete="organization"
               />
             </div>
           </div>
@@ -180,11 +227,16 @@ export default function ApplicationForm() {
                 type="email"
                 required
                 className="w-full rounded-md border px-3 py-2"
+                autoComplete="email"
               />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">電話番号</label>
-              <input name="phone" className="w-full rounded-md border px-3 py-2" />
+              <input
+                name="tel"
+                className="w-full rounded-md border px-3 py-2"
+                autoComplete="tel"
+              />
             </div>
           </div>
 
@@ -193,27 +245,49 @@ export default function ApplicationForm() {
               ご要件・相談内容 *
             </label>
             <textarea
-              name="detail"
+              name="message"
               required
               rows={6}
               className="w-full rounded-md border px-3 py-2"
             />
           </div>
 
-          {/* Turnstile ウィジェット（手動 render） */}
-          <div ref={widgetRef} className="cf-turnstile" />
+          {/* Turnstile（explicit render の描画先） */}
+          {siteKey ? (
+            <div ref={widgetRef} className="cf-turnstile w-[300px] h-[65px]" />
+          ) : (
+            <p className="text-sm text-red-600">
+              NEXT_PUBLIC_TURNSTILE_SITE_KEY が未設定です（本番環境の Env に設定してください）。
+            </p>
+          )}
 
-          {/* 蜜壺（ボット向け。ユーザーには非表示） */}
-          <input name="hp" className="hidden" tabIndex={-1} autoComplete="off" />
+          {/* 蜜壺（ユーザー非表示） */}
+          <input
+            name="hp"
+            className="hidden"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+          />
 
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" name="agree" />
             <span>
-              <a className="underline" href="/legal/terms" target="_blank" rel="noreferrer">
+              <a
+                className="underline"
+                href="/legal/terms"
+                target="_blank"
+                rel="noreferrer"
+              >
                 利用規約
               </a>{" "}
               と{" "}
-              <a className="underline" href="/legal/privacy" target="_blank" rel="noreferrer">
+              <a
+                className="underline"
+                href="/legal/privacy"
+                target="_blank"
+                rel="noreferrer"
+              >
                 プライバシー
               </a>{" "}
               に同意します
@@ -222,7 +296,11 @@ export default function ApplicationForm() {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <Button type="submit" disabled={loading || !cfToken} className="w-full md:w-auto">
+          <Button
+            type="submit"
+            disabled={loading || !token}
+            className="w-full md:w-auto"
+          >
             {loading ? "送信中..." : "送信する"}
           </Button>
         </form>
