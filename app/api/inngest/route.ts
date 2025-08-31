@@ -6,7 +6,14 @@ import { inngest } from "@/lib/inngest";
 import { sendEmails } from "@/inngest/send-emails";
 import { resend, EMAIL_FROM as FROM, EMAIL_TO as ADMIN } from "@/lib/resend";
 
-// application/received → 申込者へ自動返信 & 社内通知 → 24h後フォロー
+/** 必須環境変数の存在チェック（本番のみ厳格） */
+function requireEnvInProd(name: string, value?: string | null) {
+  if (process.env.NODE_ENV === "production" && !value) {
+    throw new Error(`ENV ${name} is missing in production`);
+  }
+}
+
+/** application/received → 申込者へ自動返信 & 社内通知 → 24h後フォロー */
 const sendOnApplication = inngest.createFunction(
   { id: "send-emails-on-application" },
   { event: "application/received" },
@@ -21,18 +28,23 @@ const sendOnApplication = inngest.createFunction(
       ua?: string;
     };
 
+    // 本番で必要な送信元・送信先が未設定なら即時エラー
+    requireEnvInProd("EMAIL_FROM", FROM);
+    requireEnvInProd("EMAIL_TO", ADMIN);
+
     const d = event.data as ApplicationReceived;
 
     const submittedAt = new Date().toLocaleString("ja-JP", {
       timeZone: "Asia/Tokyo",
     });
 
-    // 申請者へ自動返信
+    // 申請者へ自動返信（失敗しても他ステップは継続）
     await step.run("resend:auto-reply", async () => {
+      if (!FROM || !d.email) return;
       await resend.emails.send({
-        from: FROM!,
+        from: FROM,
         to: d.email,
-        replyTo: ADMIN!,
+        replyTo: ADMIN || undefined,
         subject: "【自動返信】お申し込みを受け付けました｜Relayo",
         text: `${d.name} 様
 
@@ -51,15 +63,16 @@ ${d.detail}
 （送信IP：${d.ip || "-"}）
 
 ※本メールは自動送信です。心当たりがない場合は、このメールは破棄してください。
-Relayo（リレヨ）`,
+Relayo（リレイオ）`,
       });
     });
 
     // 社内通知
     await step.run("resend:internal-notify", async () => {
+      if (!FROM || !ADMIN) return;
       await resend.emails.send({
-        from: FROM!,
-        to: ADMIN!,
+        from: FROM,
+        to: ADMIN,
         subject: `【新規申請】${d.name} 様（${d.company || "個人"}）`,
         text: `新規申請を受信しました。
 
@@ -77,12 +90,13 @@ UA：${d.ua || "-"}
       });
     });
 
-    // 24時間後フォロー（不要なら削除OK）
+    // 24時間後フォロー（不要ならこの2ステップを削除可）
     await step.sleep("followup-24h", "24h");
     await step.run("resend:follow-up-internal", async () => {
+      if (!FROM || !ADMIN) return;
       await resend.emails.send({
-        from: FROM!,
-        to: ADMIN!,
+        from: FROM,
+        to: ADMIN,
         subject: `【Follow-up】24h経過：${d.name} 様`,
         text: `対応状況をご確認ください。
 
@@ -93,12 +107,21 @@ UA：${d.ua || "-"}
   }
 );
 
-// Inngest エンドポイント（署名検証ON）
+// ───────────────────────────────────────────────────────────
+// Inngest エンドポイント
+// 本番では署名検証（INNGEST_SIGNING_KEY）を強く推奨
+// ───────────────────────────────────────────────────────────
+const signingKey = process.env.INNGEST_SIGNING_KEY || undefined;
+// 本番で未設定ならログだけ出し、動作は継続（必要なら下行を throw に変更）
+if (process.env.NODE_ENV === "production" && !signingKey) {
+  console.warn("[inngest] INNGEST_SIGNING_KEY is missing in production (verification disabled)");
+}
+
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [
-    sendEmails,        // lead/created → React Email
+    sendEmails,        // lead/created → React Email（別ファイル）
     sendOnApplication, // application/received → テキストメール＋フォロー
   ],
-  signingKey: process.env.INNGEST_SIGNING_KEY,
+  signingKey,         // 署名検証（ある場合のみ有効）
 });
