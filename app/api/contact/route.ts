@@ -23,22 +23,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: false, error: "ENV missing" }, { status: 500 });
     }
 
-    const { name, email, detail, cfToken } = await req.json();
+    const { name, email, detail } = await req.json();
 
-    // Turnstile（使ってなければこのブロックは削除OK）
-    if (process.env.TURNSTILE_SECRET_KEY) {
-      const v = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          secret: process.env.TURNSTILE_SECRET_KEY,
-          response: cfToken ?? "",
-        }),
-      }).then(r => r.json());
-      if (!v?.success) {
-        return NextResponse.json({ ok: false, error: "Captcha validation failed" }, { status: 400 });
-      }
-    }
+    // ✅ Turnstile 検証は一時停止中
+    // if (process.env.TURNSTILE_SECRET_KEY) { ... }
 
     // 申込者へ自動返信
     await sendMail(
