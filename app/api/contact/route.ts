@@ -1,63 +1,62 @@
 // app/api/contact/route.ts
+import { NextResponse } from "next/server";
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
-import { NextRequest, NextResponse } from "next/server";
-import { inngest } from "@/lib/inngest";
+const RESEND_API_KEY = process.env.RESEND_API_KEY!;
+const FROM = process.env.EMAIL_FROM!;
+const ADMIN = process.env.EMAIL_TO!;
 
-type Body = {
-  name: string;
-  email: string;
-  company?: string;
-  tel?: string;
-  message?: string;
-  turnstileToken: string; // フロントの Turnstile onVerify で取得
-};
+async function sendMail(to: string[], subject: string, html: string) {
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: FROM, to, subject, html }),
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error(`Resend ${r.status}: ${JSON.stringify(data)}`);
+  return data;
+}
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as Body;
-    const { name, email, company, tel, message, turnstileToken } = body ?? {};
-
-    if (!name || !email || !turnstileToken) {
-      return NextResponse.json({ ok: false, error: "Bad Request" }, { status: 400 });
+    if (!RESEND_API_KEY || !FROM || !ADMIN) {
+      return NextResponse.json({ ok: false, error: "ENV missing" }, { status: 500 });
     }
 
-    // Turnstile サーバー検証
-    const form = new URLSearchParams();
-    form.append("secret", process.env.TURNSTILE_SECRET_KEY ?? "");
-    form.append("response", turnstileToken);
-    form.append("remoteip", req.headers.get("x-forwarded-for") ?? "");
+    const { name, email, detail, cfToken } = await req.json();
 
-    const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      body: form,
-    }).then(r => r.json() as Promise<{ success: boolean; ["error-codes"]?: string[] }>);
-
-    if (!verify.success) {
-      return NextResponse.json(
-        { ok: false, error: "Turnstile failed", details: verify["error-codes"] },
-        { status: 400 }
-      );
+    // Turnstile（使ってなければこのブロックは削除OK）
+    if (process.env.TURNSTILE_SECRET_KEY) {
+      const v = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: process.env.TURNSTILE_SECRET_KEY,
+          response: cfToken ?? "",
+        }),
+      }).then(r => r.json());
+      if (!v?.success) {
+        return NextResponse.json({ ok: false, error: "Captcha validation failed" }, { status: 400 });
+      }
     }
 
-    // Inngest にイベント送信（send-emails.ts が処理）
-    await inngest.send({
-      name: "application/received",
-      data: {
-        name,
-        email,
-        company,
-        tel,
-        message,
-        referer: req.headers.get("referer") ?? null,
-      },
-    });
+    // 申込者へ自動返信
+    await sendMail(
+      [email],
+      "【Relayo】お問い合わせありがとうございます",
+      `<p>${name} 様</p><p>お問い合わせを受け付けました。担当よりご連絡いたします。</p>`
+    );
 
-    return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json({ ok: false, error: "Server Error" }, { status: 500 });
+    // 社内通知
+    await sendMail(
+      [ADMIN],
+      "【Relayo】新規お問い合わせ",
+      `<p>氏名: ${name}</p><p>メール: ${email}</p><p>内容:</p><pre>${detail ?? ""}</pre>`
+    );
+
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    console.error("contact API error:", e?.message ?? e);
+    return NextResponse.json({ ok: false, error: e?.message ?? "unknown" }, { status: 500 });
   }
 }
