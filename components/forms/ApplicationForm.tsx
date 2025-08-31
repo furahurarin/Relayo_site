@@ -6,9 +6,8 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// ---- 設定フラグ ----
 const REQUIRE_TURNSTILE =
-  (process.env.NEXT_PUBLIC_REQUIRE_TURNSTILE ?? "0") !== "0"; // 0=無効, 1=有効
+  (process.env.NEXT_PUBLIC_REQUIRE_TURNSTILE ?? "0") !== "0";
 const SITE_KEY =
   process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
   process.env.TURNSTILE_SITE_KEY ??
@@ -28,7 +27,6 @@ const loadScript = (src: string) =>
     document.head.appendChild(s);
   });
 
-// バリデーション（Turnstileの必須はフラグで切り替え）
 const Schema = z
   .object({
     name: z.string().min(1, "お名前を入力してください"),
@@ -40,7 +38,7 @@ const Schema = z
     agree: z.literal(true, {
       errorMap: () => ({ message: "規約とプライバシーに同意が必要です" }),
     }),
-    hp: z.string().optional(), // 蜜壺（スパム対策）
+    hp: z.string().optional(),
   })
   .superRefine((val, ctx) => {
     if (REQUIRE_TURNSTILE) {
@@ -55,7 +53,6 @@ const Schema = z
   });
 
 export default function ApplicationForm() {
-  // 入力/状態
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState<null | boolean>(null);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +61,11 @@ export default function ApplicationForm() {
   const [token, setToken] = useState("");
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const pendingExecRef = useRef(false); // execute後に再送信用
 
-  // Turnstile explicit render（必要な時だけ）
   useEffect(() => {
-    if (!REQUIRE_TURNSTILE) return; // 無効なら何もしない
+    if (!REQUIRE_TURNSTILE) return;
     let cancelled = false;
     (async () => {
       try {
@@ -80,19 +78,27 @@ export default function ApplicationForm() {
         );
         if (cancelled || !widgetRef.current) return;
 
-        // 既存ウィジェットがあればリセット
+        // 既存ウィジェットをクリア
         if (widgetIdRef.current && (window as any).turnstile?.reset) {
           (window as any).turnstile.reset(widgetIdRef.current);
           widgetIdRef.current = null;
         }
 
+        // Invisible + execute モード（表示なし）
         const id = (window as any).turnstile?.render?.(widgetRef.current, {
           sitekey: SITE_KEY,
-          theme: "auto",
-          appearance: "always",
+          size: "invisible",
+          appearance: "execute",
           action: "application_form",
           "refresh-expired": "auto",
-          callback: (tkn: string) => setToken(tkn),
+          callback: (tkn: string) => {
+            setToken(tkn);
+            // トークン取得後に pending なら自動再送信
+            if (pendingExecRef.current && formRef.current) {
+              pendingExecRef.current = false;
+              formRef.current.requestSubmit();
+            }
+          },
           "error-callback": () =>
             setError(
               "認証エラーが発生しました。ページを再読み込みしてからお試しください。"
@@ -114,8 +120,18 @@ export default function ApplicationForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+
+    // Invisibleモード：トークンが無ければまず execute して戻る
+    if (REQUIRE_TURNSTILE && !token) {
+      if (widgetIdRef.current && (window as any).turnstile?.execute) {
+        pendingExecRef.current = true;
+        (window as any).turnstile.execute(widgetIdRef.current);
+        return; // callback 後に requestSubmit される
+      }
+    }
+
+    setLoading(true);
 
     const fd = new FormData(e.currentTarget);
     const raw = {
@@ -143,21 +159,16 @@ export default function ApplicationForm() {
       return;
     }
 
-    // ---- サーバー互換性を最大化：両方のキー名を送る ----
-    //  - 一部の実装: detail を期待
-    //  - 別の実装: message を期待
-    //  - tel/phone も両対応
     const payload: Record<string, any> = {
       name: parsed.data.name,
       email: parsed.data.email,
       company: parsed.data.company || undefined,
       tel: parsed.data.tel || undefined,
-      phone: parsed.data.tel || undefined,      // 互換キー
-      message: parsed.data.message,             // パターンA
-      detail: parsed.data.message,              // パターンB
+      phone: parsed.data.tel || undefined, // 互換
+      message: parsed.data.message,
+      detail: parsed.data.message, // 互換
     };
     if (REQUIRE_TURNSTILE) {
-      // API 側のキー名が cfToken / turnstileToken どちらでも拾えるよう両方付与
       payload.cfToken = parsed.data.turnstileToken;
       payload.turnstileToken = parsed.data.turnstileToken;
     }
@@ -172,22 +183,18 @@ export default function ApplicationForm() {
 
       if (res.ok && json.ok) {
         setOk(true);
-        (e.currentTarget as HTMLFormElement).reset();
+        formRef.current?.reset?.();
         setToken("");
 
-        // Turnstile リセット
+        // 次回に備えて invisible を再準備
         if (REQUIRE_TURNSTILE && (window as any).turnstile?.reset && widgetIdRef.current) {
           (window as any).turnstile.reset(widgetIdRef.current);
-          widgetIdRef.current = null;
         }
       } else {
         throw new Error(json.error || "送信に失敗しました。");
       }
     } catch (err: any) {
-      setError(
-        err?.message ||
-          "ネットワークエラーが発生しました。時間をおいて再試行してください。"
-      );
+      setError(err?.message || "ネットワークエラーが発生しました。時間をおいて再試行してください。");
     } finally {
       setLoading(false);
     }
@@ -200,9 +207,7 @@ export default function ApplicationForm() {
           <CardTitle>送信が完了しました</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p>
-            ありがとうございます。自動返信メールをお送りしました。1営業日以内に担当よりご連絡いたします。
-          </p>
+          <p>ありがとうございます。自動返信メールをお送りしました。1営業日以内に担当よりご連絡いたします。</p>
         </CardContent>
       </Card>
     );
@@ -214,94 +219,67 @@ export default function ApplicationForm() {
         <CardTitle>お申し込みフォーム</CardTitle>
       </CardHeader>
       <CardContent>
-        <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+        <form ref={formRef} className="space-y-6" onSubmit={handleSubmit} noValidate>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium mb-1">お名前 *</label>
-              <input
-                name="name"
-                required
-                className="w-full rounded-md border px-3 py-2"
-                autoComplete="name"
-              />
+              <input name="name" required className="w-full rounded-md border px-3 py-2" autoComplete="name" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">会社名</label>
-              <input
-                name="company"
-                className="w-full rounded-md border px-3 py-2"
-                autoComplete="organization"
-              />
+              <input name="company" className="w-full rounded-md border px-3 py-2" autoComplete="organization" />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium mb-1">
-                メールアドレス *
-              </label>
-              <input
-                name="email"
-                type="email"
-                required
-                className="w-full rounded-md border px-3 py-2"
-                autoComplete="email"
-              />
+              <label className="block text-sm font-medium mb-1">メールアドレス *</label>
+              <input name="email" type="email" required className="w-full rounded-md border px-3 py-2" autoComplete="email" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">電話番号</label>
-              <input
-                name="tel"
-                className="w-full rounded-md border px-3 py-2"
-                autoComplete="tel"
-              />
+              <input name="tel" className="w-full rounded-md border px-3 py-2" autoComplete="tel" />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
-              ご要件・相談内容 *
-            </label>
-            <textarea
-              name="message"
-              required
-              rows={6}
-              className="w-full rounded-md border px-3 py-2"
-            />
+            <label className="block text-sm font-medium mb-1">ご要件・相談内容 *</label>
+            <textarea name="message" required rows={6} className="w-full rounded-md border px-3 py-2" />
           </div>
 
-          {/* Turnstile（必要な時だけ表示） */}
+          {/* Turnstile（Invisible。DOMには置くが非表示） */}
           {REQUIRE_TURNSTILE ? (
-            <div ref={widgetRef} className="cf-turnstile w-[300px] h-[65px]" />
+            <div
+              ref={widgetRef}
+              style={{ width: 0, height: 0, overflow: "hidden", position: "absolute", opacity: 0, pointerEvents: "none" }}
+              aria-hidden="true"
+            />
           ) : null}
 
-          {/* 蜜壺（ユーザー非表示） */}
-          <input
-            name="hp"
-            className="hidden"
-            tabIndex={-1}
-            autoComplete="off"
+          {/* 蜜壺（確実に視覚非表示 & フォーカス不可） */}
+          <div
+            style={{
+              position: "absolute",
+              left: "-10000px",
+              top: "auto",
+              width: "1px",
+              height: "1px",
+              overflow: "hidden",
+            }}
             aria-hidden="true"
-          />
+          >
+            <label htmlFor="hp">HP</label>
+            <input id="hp" name="hp" tabIndex={-1} autoComplete="off" />
+          </div>
 
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" name="agree" />
             <span>
-              <a
-                className="underline"
-                href="/legal/terms"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className="underline" href="/legal/terms" target="_blank" rel="noreferrer">
                 利用規約
               </a>{" "}
               と{" "}
-              <a
-                className="underline"
-                href="/legal/privacy"
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className="underline" href="/legal/privacy" target="_blank" rel="noreferrer">
                 プライバシー
               </a>{" "}
               に同意します
@@ -310,12 +288,7 @@ export default function ApplicationForm() {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <Button
-            type="submit"
-            // Turnstile有効時のみ token をボタン活性条件に
-            disabled={loading || (REQUIRE_TURNSTILE && !token)}
-            className="w-full md:w-auto"
-          >
+          <Button type="submit" disabled={loading} className="w-full md:w-auto">
             {loading ? "送信中..." : "送信する"}
           </Button>
         </form>
