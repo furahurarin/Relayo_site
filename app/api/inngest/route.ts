@@ -6,12 +6,12 @@ import { inngest } from "@/lib/inngest";
 import { sendEmails } from "@/inngest/send-emails";
 import { Resend } from "resend";
 
-// Resend セットアップ
+// Resend
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = process.env.EMAIL_FROM ?? "Relayo <onboarding@resend.dev>";
 const ADMIN = process.env.EMAIL_TO!;
 
-// 受付時：申請者へ自動返信 & 社内通知 → 24h後にフォロー
+// application/received → 申込者へ自動返信 & 社内通知 → 24h後フォロー
 const sendOnApplication = inngest.createFunction(
   { id: "send-emails-on-application" },
   { event: "application/received" },
@@ -26,7 +26,9 @@ const sendOnApplication = inngest.createFunction(
       ua?: string;
     };
 
-    const submittedAt = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+    const submittedAt = new Date().toLocaleString("ja-JP", {
+      timeZone: "Asia/Tokyo",
+    });
 
     // 申請者へ自動返信
     await step.run("resend:auto-reply", async () => {
