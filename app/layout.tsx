@@ -3,14 +3,37 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
 import Link from "next/link";
-import Header from "@/components/Header"; // 大文字小文字を統一
-import Footer from "@/components/footer";
+import Header from "@/components/Header";
+import Footer from "@/components/footer"; // ← 大文字に統一
 import Analytics from "@/components/analytics/Analytics";
 import { BRAND, CAMPAIGN, CONTACT } from "../lib/constants";
 
 export const metadata: Metadata = {
-  title: BRAND.name,
+  // ★ これで OG/Twitter 画像解決時の基準URLが本番ドメインになります
+  metadataBase: new URL(BRAND.siteUrl),
+  title: {
+    default: BRAND.name,
+    template: `%s | ${BRAND.name}`,
+  },
   description: CAMPAIGN.metaDescription,
+  openGraph: {
+    title: BRAND.name,
+    description: CAMPAIGN.metaDescription,
+    url: BRAND.siteUrl,
+    siteName: BRAND.name,
+    images: ["/og.png"],
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: BRAND.name,
+    description: CAMPAIGN.metaDescription,
+    images: ["/og.png"],
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 function CampaignRibbon() {
@@ -70,11 +93,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html lang="ja">
-      <head>
-        {/* Cloudflare Turnstile（ボット対策） */}
-        <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-      </head>
       <body className="antialiased">
+        {/* Cloudflare Turnstile（ボット対策） */}
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          strategy="afterInteractive"
+        />
         {/* Umami */}
         <Analytics />
         {/* JSON-LD 構造化データ */}
