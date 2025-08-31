@@ -6,16 +6,15 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-/**
- * ✅ 本番用ポイント
- * - /api/contact に POST（当プロジェクトのサーバー実装に一致）
- * - Turnstile は explicit render（多重読込防止）＋ widgetId を保持して reset
- * - 型宣言は types/turnstile.d.ts に集約 → 本ファイルでは declare global を書かない
- * - サーバー想定のキーにマッピング: tel / message / turnstileToken
- * - 蜜壺(hp)が埋まっていたら無条件中止
- */
+// ---- 設定フラグ ----
+const REQUIRE_TURNSTILE =
+  (process.env.NEXT_PUBLIC_REQUIRE_TURNSTILE ?? "0") !== "0"; // 0=無効, 1=有効
+const SITE_KEY =
+  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
+  process.env.TURNSTILE_SITE_KEY ??
+  "";
 
-// Turnstileスクリプト読込（多重読込を防止）
+// Turnstileスクリプト読込（多重読込防止）
 const loadScript = (src: string) =>
   new Promise<void>((resolve, reject) => {
     if (typeof window === "undefined") return resolve();
@@ -29,55 +28,66 @@ const loadScript = (src: string) =>
     document.head.appendChild(s);
   });
 
-const Schema = z.object({
-  name: z.string().min(1, "お名前を入力してください"),
-  company: z.string().optional(),
-  email: z.string().email("メールアドレスの形式が正しくありません"),
-  tel: z.string().optional(),
-  message: z.string().min(10, "ご要件を具体的にご記入ください（10文字以上）"),
-  turnstileToken: z.string().min(10, "認証に失敗しました。再度お試しください"),
-  agree: z.literal(true, {
-    errorMap: () => ({ message: "規約とプライバシーに同意が必要です" }),
-  }),
-  hp: z.string().optional(), // 蜜壺（スパム対策）
-});
+// バリデーション（Turnstileの必須はフラグで切り替え）
+const Schema = z
+  .object({
+    name: z.string().min(1, "お名前を入力してください"),
+    company: z.string().optional(),
+    email: z.string().email("メールアドレスの形式が正しくありません"),
+    tel: z.string().optional(),
+    message: z.string().min(10, "ご要件を具体的にご記入ください（10文字以上）"),
+    turnstileToken: z.string().optional(),
+    agree: z.literal(true, {
+      errorMap: () => ({ message: "規約とプライバシーに同意が必要です" }),
+    }),
+    hp: z.string().optional(), // 蜜壺（スパム対策）
+  })
+  .superRefine((val, ctx) => {
+    if (REQUIRE_TURNSTILE) {
+      if (!val.turnstileToken || val.turnstileToken.length < 10) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "認証に失敗しました。再度お試しください",
+          path: ["turnstileToken"],
+        });
+      }
+    }
+  });
 
 export default function ApplicationForm() {
-  // 入力
+  // 入力/状態
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState<null | boolean>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Turnstile
   const [token, setToken] = useState("");
-  const siteKey =
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
-    process.env.TURNSTILE_SITE_KEY ??
-    "";
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const widgetIdRef = useRef<string | null>(null);
 
-  // Turnstile explicit render
+  // Turnstile explicit render（必要な時だけ）
   useEffect(() => {
+    if (!REQUIRE_TURNSTILE) return; // 無効なら何もしない
     let cancelled = false;
-
     (async () => {
       try {
-        if (!siteKey) return; // Env 未設定
+        if (!SITE_KEY) {
+          setError("ボット検証キーが未設定です。管理者にお問い合わせください。");
+          return;
+        }
         await loadScript(
           "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         );
         if (cancelled || !widgetRef.current) return;
 
-        // 既存ウィジェットがあればリセット（reset は void）
+        // 既存ウィジェットがあればリセット
         if (widgetIdRef.current && (window as any).turnstile?.reset) {
           (window as any).turnstile.reset(widgetIdRef.current);
           widgetIdRef.current = null;
         }
 
-        // 明示レンダリング（戻り値は widgetId: string）
         const id = (window as any).turnstile?.render?.(widgetRef.current, {
-          sitekey: siteKey,
+          sitekey: SITE_KEY,
           theme: "auto",
           appearance: "always",
           action: "application_form",
@@ -97,11 +107,10 @@ export default function ApplicationForm() {
         );
       }
     })();
-
     return () => {
       cancelled = true;
     };
-  }, [siteKey]);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -115,15 +124,15 @@ export default function ApplicationForm() {
       email: String(fd.get("email") || ""),
       tel: String(fd.get("tel") || ""),
       message: String(fd.get("message") || ""),
-      turnstileToken: token,
+      turnstileToken: REQUIRE_TURNSTILE ? token : "",
       agree: fd.get("agree") === "on",
       hp: String(fd.get("hp") || ""),
     };
 
-    // 蜜壺が埋まっていたら中止
+    // 蜜壺が埋まっていたら中止（成功を装う）
     if (raw.hp) {
       setLoading(false);
-      setOk(true); // ボットには成功を装う
+      setOk(true);
       return;
     }
 
@@ -134,15 +143,24 @@ export default function ApplicationForm() {
       return;
     }
 
-    // サーバー想定のキーで送信
-    const payload = {
+    // ---- サーバー互換性を最大化：両方のキー名を送る ----
+    //  - 一部の実装: detail を期待
+    //  - 別の実装: message を期待
+    //  - tel/phone も両対応
+    const payload: Record<string, any> = {
       name: parsed.data.name,
       email: parsed.data.email,
       company: parsed.data.company || undefined,
       tel: parsed.data.tel || undefined,
-      message: parsed.data.message,
-      turnstileToken: parsed.data.turnstileToken,
+      phone: parsed.data.tel || undefined,      // 互換キー
+      message: parsed.data.message,             // パターンA
+      detail: parsed.data.message,              // パターンB
     };
+    if (REQUIRE_TURNSTILE) {
+      // API 側のキー名が cfToken / turnstileToken どちらでも拾えるよう両方付与
+      payload.cfToken = parsed.data.turnstileToken;
+      payload.turnstileToken = parsed.data.turnstileToken;
+    }
 
     try {
       const res = await fetch("/api/contact", {
@@ -157,8 +175,8 @@ export default function ApplicationForm() {
         (e.currentTarget as HTMLFormElement).reset();
         setToken("");
 
-        // Turnstile リセット（戻り値は void）
-        if ((window as any).turnstile?.reset && widgetIdRef.current) {
+        // Turnstile リセット
+        if (REQUIRE_TURNSTILE && (window as any).turnstile?.reset && widgetIdRef.current) {
           (window as any).turnstile.reset(widgetIdRef.current);
           widgetIdRef.current = null;
         }
@@ -252,14 +270,10 @@ export default function ApplicationForm() {
             />
           </div>
 
-          {/* Turnstile（explicit render の描画先） */}
-          {siteKey ? (
+          {/* Turnstile（必要な時だけ表示） */}
+          {REQUIRE_TURNSTILE ? (
             <div ref={widgetRef} className="cf-turnstile w-[300px] h-[65px]" />
-          ) : (
-            <p className="text-sm text-red-600">
-              NEXT_PUBLIC_TURNSTILE_SITE_KEY が未設定です（本番環境の Env に設定してください）。
-            </p>
-          )}
+          ) : null}
 
           {/* 蜜壺（ユーザー非表示） */}
           <input
@@ -298,7 +312,8 @@ export default function ApplicationForm() {
 
           <Button
             type="submit"
-            disabled={loading || !token}
+            // Turnstile有効時のみ token をボタン活性条件に
+            disabled={loading || (REQUIRE_TURNSTILE && !token)}
             className="w-full md:w-auto"
           >
             {loading ? "送信中..." : "送信する"}
