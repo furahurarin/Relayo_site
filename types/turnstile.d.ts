@@ -1,6 +1,4 @@
-// types/turnstile.d.ts
-export {};
-
+// /types/turnstile.d.ts
 declare global {
   interface Window {
     turnstile?: {
@@ -11,15 +9,19 @@ declare global {
           callback?: (token: string) => void;
           "error-callback"?: () => void;
           "expired-callback"?: () => void;
-          "timeout-callback"?: () => void;
-          "refresh-expired"?: "auto" | "manual" | "never";
-          appearance?: "always" | "execute" | "interaction-only";
-          theme?: "auto" | "light" | "dark";
+          theme?: "light" | "dark" | "auto";
           action?: string;
-        }
-      ) => string;
-      reset?: (id?: string) => void;
-      remove?: (id?: string) => void;
+          appearance?: "always" | "execute" | "interaction-only";
+          "refresh-expired"?: "auto" | "manual" | boolean;
+          retry?: "auto" | "never";
+          "retry-interval"?: number;
+          cData?: string;
+          execution?: "render" | "execute";
+        } & Record<string, any>
+      ) => string; // renderはwidgetId(string)を返す
+      reset?: (id?: string | HTMLElement) => void;
     };
   }
 }
+
+export {};
