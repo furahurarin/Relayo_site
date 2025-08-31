@@ -4,19 +4,14 @@ export const runtime = "nodejs";
 import { serve } from "inngest/next";
 import { inngest } from "@/lib/inngest";
 import { sendEmails } from "@/inngest/send-emails";
-import { Resend } from "resend";
-
-// Resend
-const resend = new Resend(process.env.RESEND_API_KEY!);
-const FROM = process.env.EMAIL_FROM ?? "Relayo <onboarding@resend.dev>";
-const ADMIN = process.env.EMAIL_TO!;
+import { resend, EMAIL_FROM as FROM, EMAIL_TO as ADMIN } from "@/lib/resend";
 
 // application/received → 申込者へ自動返信 & 社内通知 → 24h後フォロー
 const sendOnApplication = inngest.createFunction(
   { id: "send-emails-on-application" },
   { event: "application/received" },
   async ({ event, step }) => {
-    const d = event.data as {
+    type ApplicationReceived = {
       name: string;
       company?: string;
       email: string;
@@ -26,6 +21,8 @@ const sendOnApplication = inngest.createFunction(
       ua?: string;
     };
 
+    const d = event.data as ApplicationReceived;
+
     const submittedAt = new Date().toLocaleString("ja-JP", {
       timeZone: "Asia/Tokyo",
     });
@@ -33,9 +30,9 @@ const sendOnApplication = inngest.createFunction(
     // 申請者へ自動返信
     await step.run("resend:auto-reply", async () => {
       await resend.emails.send({
-        from: FROM,
+        from: FROM!,
         to: d.email,
-        replyTo: ADMIN,
+        replyTo: ADMIN!,
         subject: "【自動返信】お申し込みを受け付けました｜Relayo",
         text: `${d.name} 様
 
@@ -61,8 +58,8 @@ Relayo（リレヨ）`,
     // 社内通知
     await step.run("resend:internal-notify", async () => {
       await resend.emails.send({
-        from: FROM,
-        to: ADMIN,
+        from: FROM!,
+        to: ADMIN!,
         subject: `【新規申請】${d.name} 様（${d.company || "個人"}）`,
         text: `新規申請を受信しました。
 
@@ -84,8 +81,8 @@ UA：${d.ua || "-"}
     await step.sleep("followup-24h", "24h");
     await step.run("resend:follow-up-internal", async () => {
       await resend.emails.send({
-        from: FROM,
-        to: ADMIN,
+        from: FROM!,
+        to: ADMIN!,
         subject: `【Follow-up】24h経過：${d.name} 様`,
         text: `対応状況をご確認ください。
 

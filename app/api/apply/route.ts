@@ -1,12 +1,13 @@
 // app/api/apply/route.ts
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { isIP } from "node:net";
 import { supabaseAdmin } from "@/lib/supabase";
 import { applyRatelimit } from "@/lib/ratelimit";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { inngest } from "@/lib/inngest";
-
-export const runtime = "nodejs"; // Resend等の外部APIを使うため Node.js ランタイム
 
 /** 受信ペイロード（互換のため2系統どちらも許容） */
 const SchemaV1 = z.object({
@@ -40,20 +41,18 @@ type Normalized = {
 };
 
 export async function POST(req: Request) {
-  // IP（レート制限 & Turnstile 検証用）
-  const ip =
-    (req.headers.get("x-forwarded-for")?.split(",")[0] || "").trim() ||
-    req.headers.get("x-real-ip") ||
-    undefined;
+  // 単一IPを取り出し、inet へ保存できるか判定
+  const forwarded = (req.headers.get("x-forwarded-for") ?? "")
+    .split(",")[0]
+    ?.trim() || "";
+  const real = (req.headers.get("x-real-ip") ?? "").trim();
+  const ipRaw = forwarded || real;              // 文字列（空の可能性あり）
+  const ipForDb = isIP(ipRaw) ? ipRaw : null;   // inet に安全な値のみ保存
 
-  // レート制限
-  try {
-    const { success } = await applyRatelimit.limit(ip || "unknown");
-    if (!success) {
-      return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
-    }
-  } catch {
-    // ライブラリ不調でも落とさず継続（任意）
+  // レート制限（本番：Upstash）
+  const { success } = await applyRatelimit.limit(ipRaw || "unknown");
+  if (!success) {
+    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
   }
 
   // JSONパース
@@ -103,7 +102,7 @@ export async function POST(req: Request) {
   }
 
   // Turnstile 検証（サーバ側）
-  const human = await verifyTurnstile(data.cfToken, ip);
+  const human = await verifyTurnstile(data.cfToken, ipRaw || undefined);
   if (!human) {
     return NextResponse.json({ ok: false, error: "bot_detected" }, { status: 400 });
   }
@@ -119,7 +118,7 @@ export async function POST(req: Request) {
     phone: data.phone ?? "",
     detail: data.detail,
     ua,
-    ip,
+    ip: ipForDb, // inet 型に安全
     status: "received",
   });
 
@@ -136,14 +135,13 @@ export async function POST(req: Request) {
     submittedAt: new Date().toISOString(),
     company: data.company ?? "",
     phone: data.phone ?? "",
-    ip,
+    ip: ipRaw || undefined, // ログ用途にそのまま文字列で
     ua,
   };
 
-  // 既存の send-emails 関数に合わせたイベント
+  // メール送信（React Email テンプレ）
   await inngest.send({ name: "lead/created", data: eventPayload });
-
-  // もし別のワークフローで使うなら互換イベントも送信（任意）
+  // 互換イベント（テキストメール＋フォロー。運用で使うなら残す）
   await inngest.send({ name: "application/received", data: eventPayload });
 
   return NextResponse.json({ ok: true }, { status: 200 });
