@@ -6,13 +6,13 @@ import { inngest } from "@/lib/inngest";
 import { sendEmails } from "@/inngest/send-emails";
 import { Resend } from "resend";
 
-// Resend セットアップ（lib/resend.ts が無い前提でここで用意）
+// Resend セットアップ
 const resend = new Resend(process.env.RESEND_API_KEY!);
 const FROM = process.env.EMAIL_FROM ?? "Relayo <onboarding@resend.dev>";
 const ADMIN = process.env.EMAIL_TO!;
 
 // 受付時：申請者へ自動返信 & 社内通知 → 24h後にフォロー
-export const sendOnApplication = inngest.createFunction(
+const sendOnApplication = inngest.createFunction(
   { id: "send-emails-on-application" },
   { event: "application/received" },
   async ({ event, step }) => {
@@ -33,7 +33,7 @@ export const sendOnApplication = inngest.createFunction(
       await resend.emails.send({
         from: FROM,
         to: d.email,
-        replyTo: ADMIN, // 担当がそのまま返信できる
+        replyTo: ADMIN,
         subject: "【自動返信】お申し込みを受け付けました｜Relayo",
         text: `${d.name} 様
 
@@ -78,7 +78,7 @@ UA：${d.ua || "-"}
       });
     });
 
-    // 24時間後フォロー（不要ならこの2ブロックを削除）
+    // 24時間後フォロー（不要なら削除OK）
     await step.sleep("followup-24h", "24h");
     await step.run("resend:follow-up-internal", async () => {
       await resend.emails.send({
@@ -98,8 +98,8 @@ UA：${d.ua || "-"}
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [
-    sendEmails,        // lead/created → React Emailで送信
-    sendOnApplication, // application/received → テキストメールで送信＋フォロー
+    sendEmails,        // lead/created → React Email
+    sendOnApplication, // application/received → テキストメール＋フォロー
   ],
   signingKey: process.env.INNGEST_SIGNING_KEY,
 });
