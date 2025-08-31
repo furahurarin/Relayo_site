@@ -1,167 +1,267 @@
 // app/contact/page.tsx
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useRef, useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, Clipboard, CheckCircle2, Megaphone } from "lucide-react";
-import { track, EVENTS } from "@/lib/track";
-import { BRAND, CAMPAIGN, CONTACT } from "@/lib/constants";
+import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
+
+/** Turnstileスクリプトを読み込む（多重読込を防止） */
+const loadScript = (src: string) =>
+  new Promise<void>((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve();
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.defer = true;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error(`Failed to load: ${src}`));
+    document.head.appendChild(s);
+  });
 
 export default function ContactPage() {
-  const [copied, setCopied] = useState(false);
+  // 入力
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [email, setEmail] = useState("");
+  const [tel, setTel] = useState("");
+  const [message, setMessage] = useState("");
 
-  const intake = `以下をメール本文にコピペしてご回答ください。未定は「未定」でOKです。
-提出先：${BRAND.email}
+  // 状態
+  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-1. プロジェクト概要
-- 会社名／屋号：
-- ご担当者名：
-- 連絡用メール：
-- 事業の一言紹介（20〜60字）：
-- 目的（複数可）：集客 / 予約増 / 採用 / ブランド整備 / その他（　）
+  // Turnstile
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+  const tsContainerRef = useRef<HTMLDivElement | null>(null);
+  const widgetIdRef = useRef<string | null>(null);
 
-2. 期日と体制
-- 希望公開時期：ASAP / 1か月 / 2–3か月 / 未定
-- 決裁・承認の流れ：
+  useEffect(() => {
+    let cancelled = false;
 
-3. 予算感・規模
-- 予算帯：〜20万 / 20–60万 / 60–120万 / 120万〜 / 未定
-- 想定ページ数：LP / 〜10p / 〜20p / 20p〜 / 未定
+    (async () => {
+      try {
+        if (!siteKey) return;
+        await loadScript("https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit");
+        if (cancelled || !tsContainerRef.current) return;
 
-4. 必要機能（複数可）
-- 予約 / 会員 / 決済 / ブログ / LINE連携 / 多言語 / 未定
-- 既存ツールやSaaS（予約・決済など）：
+        // 既存があればリセット
+        if (widgetIdRef.current && (window as any).turnstile?.reset) {
+          (window as any).turnstile.reset(widgetIdRef.current);
+          widgetIdRef.current = null;
+        }
 
-5. 成果指標（KPI）
-- 目標（例：問い合わせ◯件/月、予約◯件/月、CVR◯%）：
-- 優先順位（例：速度＞デザイン＞SEO など）：
+        // 明示レンダリング
+        const id = (window as any).turnstile?.render?.(tsContainerRef.current, {
+          sitekey: siteKey,
+          action: "contact_form",
+          appearance: "always",
+          theme: "auto",
+          "refresh-expired": "auto",
+          callback: (tkn: string) => setToken(tkn),
+          "error-callback": () => setToken(null),
+          "expired-callback": () => setToken(null),
+        });
 
-6. 参考情報
-- 参考サイトURL（2〜3件）：
-- ロゴ・写真素材：あり / なし（ストック画像でOK）
-- コピーテキスト：あり / なし（叩き台の作成を希望）
+        if (typeof id === "string") widgetIdRef.current = id;
+      } catch (e) {
+        console.error(e);
+        setError("ボット検証の初期化に失敗しました。時間をおいて再度お試しください。");
+      }
+    })();
 
-7. 制作後の運用
-- 更新主体：自社で更新 / Relayoへ依頼 / 未定
-- 保守希望：Lite / Std / Pro / 未定
+    return () => {
+      cancelled = true;
+    };
+  }, [siteKey]);
 
-8. キャンペーン適用（先着${CAMPAIGN.seats}社）
-- 希望しますか？：はい / いいえ
-- 実績掲載・レビューの協力：同意する / 同意しない
-- 素材提出期限（KO+7日）の順守：同意する / 同意しない
+  const canSubmit = !!name && !!email && !!token && !loading;
 
-9. 自由記述
-- 実現したいこと、NG例、競合との差別化、悩みなど：`;
+  // Umami があれば送る（無ければ無視）
+  const track = (event: string, data?: Record<string, any>) =>
+    (typeof window !== "undefined" && (window as any)?.umami?.track?.(event, data));
 
-  const onCopy = async () => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+
+    setLoading(true);
+    setError(null);
     try {
-      await navigator.clipboard.writeText(intake);
-      setCopied(true);
-      track(EVENTS.SHEET_COPY, { section: "contact" });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // クリップボード権限が無い場合は無視（手動コピーで対応）
+      track("contact_submit_clicked");
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          company: company || undefined,
+          tel: tel || undefined,
+          message: message || undefined,
+          turnstileToken: token,
+        }),
+      });
+
+      const json = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !json.ok) throw new Error(json.error || "送信に失敗しました。");
+
+      setDone(true);
+      track("contact_submit_succeeded");
+
+      // 入力リセット
+      setName("");
+      setCompany("");
+      setEmail("");
+      setTel("");
+      setMessage("");
+      setToken(null);
+
+      // ウィジェットリセット（戻り値は void）
+      if ((window as any).turnstile?.reset && widgetIdRef.current) {
+        (window as any).turnstile.reset(widgetIdRef.current);
+        widgetIdRef.current = null;
+      }
+    } catch (err: any) {
+      setError(err?.message || "送信に失敗しました。");
+      track("contact_submit_failed", { reason: String(err?.message || err) });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <main className="py-16 bg-white text-gray-900 dark:bg-black dark:text-white">
-      <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <h1 className="mb-3 text-3xl font-bold sm:text-4xl">お問い合わせ</h1>
-        <p className="mb-10 text-gray-600 dark:text-gray-300">
-          すべてメールで完結する<strong>非対面ヒアリング</strong>で進めます。フォームは不要です。
-          下の「メールで相談」から直接メールを送るか、「診断シート」をコピーしてご返信ください。
-        </p>
-
-        {/* 1) メールで相談 */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-xl">メールで相談</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-gray-700 dark:text-gray-200">
-              宛先：{" "}
-              <a
-                href={CONTACT.mailto}
-                className="text-blue-600 underline-offset-2 hover:underline"
-                aria-label="メールで相談（メール作成画面を開く）"
-                data-umami-event={EVENTS.EMAIL_CLICK}
-                data-umami-event-section="contact-email"
-              >
-                {BRAND.email}
-              </a>
-              <br />
-              件名の例：<span className="font-mono">料金相談（キャンペーン希望）</span>
+    <main className="min-h-[calc(100vh-6rem)] py-16">
+      <div className="container mx-auto px-4 max-w-3xl">
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Mail className="h-6 w-6" />
+              <CardTitle className="text-2xl">お問い合わせ</CardTitle>
             </div>
-            <Button asChild size="lg" className="bg-blue-600 text-white hover:bg-blue-700">
-              <a
-                href={`${CONTACT.mailto}?subject=${encodeURIComponent("料金相談（キャンペーン希望）")}`}
-                aria-label="メールを作成する"
-                data-umami-event={EVENTS.EMAIL_CLICK}
-                data-umami-event-section="contact-email"
-              >
-                <Mail className="mr-2 h-5 w-5" />
-                メールを作成
-              </a>
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* 2) 診断シート */}
-        {/* スティッキーヘッダーの被り対策：scroll-mt-24 */}
-        <Card className="mb-8 scroll-mt-24" id="get-sheet">
-          <CardHeader>
-            <CardTitle className="text-xl">非対面ヒアリング｜診断シート</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              送信後すぐに受付メールを自動送信します。届かない場合は迷惑メールをご確認ください。
+            </p>
           </CardHeader>
+
           <CardContent>
-            <p className="mb-3 text-sm text-gray-600 dark:text-gray-300">
-              そのままコピーしてメール本文に貼り付けてください（未定OK／箇条書きで結構です）。
-            </p>
-            <pre className="whitespace-pre-wrap rounded-md border border-gray-200 bg-gray-50 p-4 text-sm leading-6 text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100">
-              {intake}
-            </pre>
-            <div className="mt-3 flex gap-2">
-              <Button onClick={onCopy} variant="outline" aria-label="診断シートをコピーする">
-                {copied ? (
-                  <>
-                    <CheckCircle2 className="mr-2 h-4 w-4" /> コピーしました
-                  </>
-                ) : (
-                  <>
-                    <Clipboard className="mr-2 h-4 w-4" /> シートをコピー
-                  </>
-                )}
-              </Button>
-              <Button asChild variant="secondary">
-                <Link
-                  href="/faq" // ← 修正："/#faq" から "/faq" へ
-                  aria-label="よくある質問を見る"
-                  data-umami-event={EVENTS.CTA_FAQ}
-                  data-umami-event-section="contact-sheet"
-                >
-                  よくある質問を見る
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            {done && (
+              <div className="mb-6 rounded-lg border p-4 flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5" />
+                <div>
+                  <p className="font-medium">送信が完了しました。</p>
+                  <p className="text-sm text-muted-foreground">
+                    1営業日以内に担当者よりご連絡いたします。自動返信メールもご確認ください。
+                  </p>
+                </div>
+              </div>
+            )}
 
-        {/* 3) キャンペーン注記 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Megaphone className="h-5 w-5 text-emerald-600" />
-              {CAMPAIGN.name}（先着{CAMPAIGN.seats}社）
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-emerald-900 dark:text-emerald-200">
-            <p>
-              <strong>制作費 ¥0（諸経費のみ） × 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）</strong>
-              ／<strong>{CAMPAIGN.freeCancelNote}</strong>
-            </p>
-            <p>対象範囲：{CAMPAIGN.scope}／条件：実績掲載・レビュー協力、素材提出=KO+7日。</p>
+            {error && (
+              <div className="mb-6 rounded-lg border border-destructive/50 p-4 flex items-start gap-3">
+                <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
+                <div>
+                  <p className="font-medium text-destructive">エラーが発生しました</p>
+                  <p className="text-sm text-muted-foreground">{error}</p>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={onSubmit} className="space-y-5" noValidate>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">
+                    お名前 <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="山田 太郎"
+                    autoComplete="name"
+                    className="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">会社名</label>
+                  <input
+                    type="text"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="株式会社〇〇"
+                    autoComplete="organization"
+                    className="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">
+                    メールアドレス <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    className="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium">電話番号</label>
+                  <input
+                    type="tel"
+                    value={tel}
+                    onChange={(e) => setTel(e.target.value)}
+                    placeholder="090-1234-5678"
+                    autoComplete="tel"
+                    className="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">ご要件</label>
+                <textarea
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={5}
+                  placeholder="ご相談内容・現状の課題・ご希望の予算や納期など"
+                  className="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
+                />
+              </div>
+
+              {/* Turnstile Widget */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">ボット対策</label>
+                {!siteKey ? (
+                  <p className="text-sm text-destructive">
+                    NEXT_PUBLIC_TURNSTILE_SITE_KEY が未設定です（本番環境の Env に設定してください）。
+                  </p>
+                ) : (
+                  <div ref={tsContainerRef} className="cf-turnstile w-[300px] h-[65px]" />
+                )}
+                <p className="text-xs text-muted-foreground">
+                  このサイトは Cloudflare Turnstile により保護されています。
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <Button type="submit" disabled={!canSubmit} className="w-full sm:w-auto">
+                  {loading ? "送信中..." : "送信する"}
+                </Button>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  送信により、プライバシーポリシーに同意したものとみなします。
+                </p>
+              </div>
+            </form>
           </CardContent>
         </Card>
       </div>
