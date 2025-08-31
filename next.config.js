@@ -1,8 +1,7 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // API Routes / Inngest を使うため、静的エクスポートは禁止
-  // ※ output: "export" は絶対に入れない
+  // ✅ API Routes / Inngest を使うため静的エクスポートは禁止
+  // ※ output: "export" は入れないこと
 
   reactStrictMode: true,
   poweredByHeader: false,
