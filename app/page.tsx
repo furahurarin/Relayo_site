@@ -1,16 +1,21 @@
-import { Metadata } from "next";
+// app/page.tsx
+import type { Metadata } from "next";
 import HeroSection from "@/components/sections/HeroSection";
 // import PortfolioSection from "@/components/sections/PortfolioSection";
 import ServicesSection from "@/components/sections/ServicesSection";
 import PricingSection from "@/components/sections/PricingSection";
 import FAQSection from "@/components/sections/FAQSection";
 import CompanySection from "@/components/sections/CompanySection";
-import Footer from "@/components/layout/Footer";
+import ContactCTA from "@/components/cta/ContactCTA";
+import { CAMPAIGN } from "@/lib/constants";
 
+/**
+ * ✅ レイアウトで title テンプレート（`%s | BRAND`）を使っているため、
+ *   ここではプレーンなタイトル文字列だけを指定します。
+ */
 export const metadata: Metadata = {
-  title: "Relayo | 中小企業・個人事業主向け Web/アプリ制作",
-  description:
-    "メール中心の非対面ヒアリングで短納期。先着3社は制作費¥0＋保守3ヶ月¥0（完全無料解約OK）。Next.js・CMS・予約/決済にも対応します。",
+  title: "中小企業・個人事業主向け Web/アプリ制作",
+  description: CAMPAIGN.metaDescription,
 };
 
 const showPortfolio = process.env.NEXT_PUBLIC_SHOW_PORTFOLIO === "true";
@@ -28,6 +33,19 @@ export default function Home() {
 
       <ServicesSection />
 
+      {/* 中腹CTA（どの導線でも /contact に統一） */}
+      <section aria-label="mid-cta" className="container mx-auto px-4 sm:px-6 lg:px-8 my-12">
+        <div className="rounded-2xl border bg-white/60 p-6 text-center shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/60">
+          <h2 className="mb-3 text-xl font-semibold">無料診断つきお問い合わせ</h2>
+          <p className="mx-auto mb-4 max-w-2xl text-sm text-gray-600 dark:text-gray-400">
+            2分で完了。営業電話は行いません。回答はメールでお送りします。
+          </p>
+          <div className="flex justify-center">
+            <ContactCTA />
+          </div>
+        </div>
+      </section>
+
       {/* ヒーローからのアンカー用に id を付与 */}
       <section id="pricing">
         <PricingSection />
@@ -39,7 +57,6 @@ export default function Home() {
       </section>
 
       <CompanySection />
-      <Footer />
     </main>
   );
 }

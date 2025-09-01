@@ -1,10 +1,11 @@
+// components/sections/HeroSection.tsx
 "use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Mail, ArrowRight, Megaphone } from "lucide-react";
-import { BRAND, CONTACT, CAMPAIGN } from "@/lib/constants";
+import ContactCTA from "@/components/cta/ContactCTA";
+import { Mail, Megaphone } from "lucide-react";
+import { BRAND, CAMPAIGN } from "@/lib/constants";
 
 export default function HeroSection() {
   return (
@@ -28,41 +29,19 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <Button
-                size="lg"
-                className="group bg-blue-600 text-white hover:bg-blue-700"
-                asChild
+            {/* ✅ CTAは「お問い合わせ（無料診断つき）」に一本化 */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <ContactCTA />
+              <Link
+                href="#pricing"
+                className="text-sm font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
               >
-                <a
-                  href={CONTACT.mailto}
-                  aria-label="メールで相談（メール作成画面を開く）"
-                  data-umami-event="email_click"
-                  data-umami-event-section="hero"
-                >
-                  <Mail className="mr-2 h-5 w-5" />
-                  {CAMPAIGN.labels.email}
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </a>
-              </Button>
-
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-gray-300 hover:bg-gray-50"
-                asChild
-              >
-                <Link
-                  href={CAMPAIGN.sheetHref}
-                  aria-label="診断シートを受け取る"
-                  data-umami-event="cta_sheet"
-                  data-umami-event-section="hero"
-                >
-                  {CAMPAIGN.labels.sheet}
-                </Link>
-              </Button>
+                料金を見る →
+              </Link>
             </div>
+            <p className="text-xs text-gray-500 dark:text-gray-500">
+              2分で完了。営業電話は行いません。回答はメールでお送りします。
+            </p>
 
             {/* Campaign Info */}
             <Card className="bg-white/80 p-4 backdrop-blur-sm">
@@ -85,21 +64,13 @@ export default function HeroSection() {
               </div>
             </Card>
 
-            {/* Contact Email */}
+            {/* 連絡先メール（表示のみ。クリック導線は /contact に統一） */}
             <Card className="bg-white/80 p-4 backdrop-blur-sm">
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">お問い合わせ</p>
-                  <a
-                    href={CONTACT.mailto}
-                    className="text-sm text-blue-600 underline-offset-2 hover:underline"
-                    aria-label="メールで相談（メール作成画面を開く）"
-                    data-umami-event="email_click"
-                    data-umami-event-section="hero-contact"
-                  >
-                    {BRAND.email}
-                  </a>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{BRAND.email}</span>
                 </div>
               </div>
             </Card>

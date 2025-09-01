@@ -2,14 +2,15 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
-import Link from "next/link";
 import Header from "@/components/Header";
-import Footer from "@/components/footer"; // ← 大文字に統一
+import Footer from "@/components/footer";
 import Analytics from "@/components/analytics/Analytics";
-import { BRAND, CAMPAIGN, CONTACT } from "../lib/constants";
+import { BRAND, CAMPAIGN } from "../lib/constants";
+import ContactCTA from "@/components/cta/ContactCTA";
+import FloatingContactCTA from "@/components/cta/FloatingContactCTA";
 
 export const metadata: Metadata = {
-  // ★ これで OG/Twitter 画像解決時の基準URLが本番ドメインになります
+  // 本番ドメインを基準URLに
   metadataBase: new URL(BRAND.siteUrl),
   title: {
     default: BRAND.name,
@@ -46,24 +47,8 @@ function CampaignRibbon() {
           <span className="ml-2 text-emerald-800">{CAMPAIGN.freeCancelNote}</span>
         </p>
         <div className="flex items-center gap-2">
-          {/* メールで相談（計測：email_click） */}
-          <a
-            href={CONTACT.mailto}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-white hover:bg-emerald-700"
-            data-umami-event="email_click"
-            data-umami-event-section="ribbon"
-          >
-            {CAMPAIGN.labels.email}
-          </a>
-          {/* 診断シート（計測：cta_sheet） */}
-          <Link
-            href={CAMPAIGN.sheetHref}
-            className="rounded border border-emerald-300 px-3 py-1.5 text-emerald-900 hover:bg-emerald-100"
-            data-umami-event="cta_sheet"
-            data-umami-event-section="ribbon"
-          >
-            {CAMPAIGN.labels.sheet}
-          </Link>
+          {/* 入口を /contact に統一（Umami計測は ContactCTA 内で click_contact_cta を発火） */}
+          <ContactCTA small />
         </div>
       </div>
     </div>
@@ -71,7 +56,7 @@ function CampaignRibbon() {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // JSON-LD構造化データ
+  // JSON-LD 構造化データ
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -94,22 +79,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body className="antialiased">
-        {/* Cloudflare Turnstile（ボット対策） */}
+        {/* Cloudflare Turnstile（必要なら残す／邪魔なら削除OK） */}
         <Script
           src="https://challenges.cloudflare.com/turnstile/v0/api.js"
           strategy="afterInteractive"
         />
+
         {/* Umami */}
         <Analytics />
+
         {/* JSON-LD 構造化データ */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify([orgJsonLd, siteJsonLd]) }}
         />
+
         <CampaignRibbon />
         <Header />
         {children}
         <Footer />
+
+        {/* 画面下のフローティングCTA（全ページ共通で1回だけ出す） */}
+        <FloatingContactCTA />
       </body>
     </html>
   );
