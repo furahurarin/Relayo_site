@@ -1,6 +1,6 @@
+// components/sections/CompanySection.tsx
 "use client";
 
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
   MapPin,
   Building,
@@ -16,7 +15,10 @@ import {
   Target,
   Award,
   TrendingUp,
+  Mail,
 } from "lucide-react";
+import ContactCTA from "@/components/cta/ContactCTA";
+import { BRAND, CAMPAIGN } from "@/lib/constants";
 
 export default function CompanySection() {
   const companyInfo = [
@@ -118,44 +120,28 @@ export default function CompanySection() {
           </div>
         </div>
 
-        {/* CTA */}
+        {/* CTA（入口は /contact に一本化、メールは表示のみ） */}
         <div className="mt-16">
           <Card className="mx-auto max-w-4xl border-2 border-green-100 bg-gradient-to-r from-green-50 to-emerald-50">
             <CardContent className="p-8 text-center">
-              <h3 className="mb-4 text-2xl font-bold text-gray-900">まずはメールでご相談ください</h3>
+              <h3 className="mb-4 text-2xl font-bold text-gray-900">まずはお問い合わせ（無料診断つき）</h3>
               <p className="mb-6 leading-relaxed text-gray-600">
-                診断シートで現状とKPIを共有いただければ、
-                最短ルートの立ち上げと公開後の運用計画までまとめてご提案します。
+                診断シートで現状とKPIを共有いただければ、最短ルートの立ち上げと公開後の運用計画までまとめてご提案します。
               </p>
-              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button asChild size="lg" className="bg-blue-600 text-white hover:bg-blue-700">
-                  <a
-                    href="mailto:contact.relayo@gmail.com?subject=%E6%96%99%E9%87%91%E7%9B%B8%E8%AB%87%EF%BC%88%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%9A%E3%83%BC%E3%83%B3%E5%B8%8C%E6%9C%9B%EF%BC%89"
-                    aria-label="メールで相談（メール作成画面を開く）"
-                    data-umami-event="email_click"
-                    data-umami-event-section="company-cta"
-                  >
-                    メールで相談
-                  </a>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="border-gray-300 hover:bg-gray-50"
-                >
-                  <Link
-                    href="/contact?campaign=launch#get-sheet"
-                    aria-label="診断シートを受け取る"
-                    data-umami-event="cta_sheet"
-                    data-umami-event-section="company-cta"
-                  >
-                    診断シートを受け取る
-                  </Link>
-                </Button>
+
+              <div className="flex justify-center">
+                <ContactCTA />
               </div>
+
+              {/* メールは信頼担保のために明記（クリックはさせない） */}
+              <p className="mt-4 inline-flex items-center justify-center gap-2 text-sm text-gray-700">
+                <Mail className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                <span className="font-mono">{BRAND.email}</span>
+              </p>
+
               <p className="mt-4 text-xs text-gray-500">
-                ※ 先着3社は「制作費¥0 × 保守3ヶ月¥0（Lite相当）」＋完全無料解約OK（移管・撤去も無償/上限2h）
+                ※ {CAMPAIGN.name}：先着{CAMPAIGN.seats}社は「制作費¥0 × 保守{CAMPAIGN.freeCareMonths}ヶ月¥0（Lite相当）」＋
+                {CAMPAIGN.freeCancelNote}
               </p>
             </CardContent>
           </Card>

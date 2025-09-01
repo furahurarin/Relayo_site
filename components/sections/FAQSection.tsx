@@ -1,13 +1,16 @@
+// components/sections/FAQSection.tsx
 "use client";
 
-import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import ContactCTA from "@/components/cta/ContactCTA";
+import { Mail } from "lucide-react";
+import { BRAND } from "@/lib/constants";
 
 export default function FAQSection() {
   const faqs = [
@@ -138,18 +141,23 @@ export default function FAQSection() {
           </Accordion>
         </div>
 
-        <div className="mt-12 space-y-4 text-center">
-          <p className="text-gray-600">その他のご質問は、こちらからどうぞ。</p>
-          <div className="flex justify-center gap-3">
-            <Button asChild size="lg" className="bg-blue-600 text-white hover:bg-blue-700">
-              <Link href="mailto:contact.relayo@gmail.com?subject=質問（料金・期間・運用など）">
-                contact.relayo@gmail.com にメールする
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="border-gray-300 hover:bg-gray-50">
-              <Link href="/contact?campaign=launch#get-sheet">診断シートを受け取る</Link>
-            </Button>
-          </div>
+        {/* その他のご質問 CTA（入口は /contact に統一、メールは表示のみ） */}
+        <div className="mt-16 text-center">
+          <Card className="mx-auto max-w-4xl border-2 border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50">
+            <CardContent className="p-8">
+              <h3 className="mb-3 text-2xl font-bold text-gray-900">その他のご質問</h3>
+              <p className="mx-auto mb-5 max-w-2xl text-gray-600">
+                お問い合わせはフォームからお願いします（無料診断つき・2分で完了）。メールをご希望の方は下記アドレスへどうぞ。
+              </p>
+              <div className="flex justify-center">
+                <ContactCTA />
+              </div>
+              <p className="mt-4 inline-flex items-center gap-2 text-sm text-gray-700">
+                <Mail className="h-4 w-4 text-blue-600" aria-hidden="true" />
+                <span className="font-mono">{BRAND.email}</span>
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </section>

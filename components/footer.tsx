@@ -1,6 +1,6 @@
 // components/footer.tsx
 import Link from "next/link";
-import { Building, MapPin, Mail } from "lucide-react";
+import { Building, MapPin, Mail, Tag } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND, CAMPAIGN } from "@/lib/constants";
 
@@ -13,7 +13,7 @@ export default function Footer() {
         <div className="grid gap-8 lg:grid-cols-4">
           {/* Company Info */}
           <div className="space-y-4 lg:col-span-2">
-            <h3 className="text-2xl font-bold">{BRAND.name}</h3>
+            <h2 className="text-2xl font-bold">{BRAND.name}</h2>
             <p className="max-w-md leading-relaxed text-gray-300">
               全国の中小企業・個人事業主のデジタル化を支援。
               <br className="hidden sm:block" />
@@ -23,15 +23,15 @@ export default function Footer() {
 
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <Building className="h-5 w-5 text-gray-400" />
+                <Building className="h-5 w-5 text-gray-400" aria-hidden />
                 <span className="text-gray-300">個人事業（将来法人化予定）</span>
               </div>
               <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-gray-400" />
+                <MapPin className="h-5 w-5 text-gray-400" aria-hidden />
                 <span className="text-gray-300">拠点：オンライン／全国対応</span>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-gray-400" aria-hidden />
                 {/* CTA統一のため mailto は貼らず情報表示のみ */}
                 <span className="text-gray-300">{BRAND.email}</span>
               </div>
@@ -39,34 +39,42 @@ export default function Footer() {
           </div>
 
           {/* Services */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold">サービス</h4>
+          <nav aria-label="サービス" className="space-y-4">
+            <h3 className="text-lg font-semibold">サービス</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
-                <Link href="/#pricing" className="transition-colors hover:text-white">
-                  Web制作
+                <Link href="/services" className="transition-colors hover:text-white">
+                  Web制作（LP/コーポレート）
                 </Link>
               </li>
               <li>
-                <Link href="/#pricing" className="transition-colors hover:text-white">
-                  アプリ開発
+                <Link href="/services" className="transition-colors hover:text-white">
+                  アプリ開発・小規模SaaS
                 </Link>
               </li>
               <li>
-                <Link href="/#pricing" className="transition-colors hover:text-white">
+                <Link href="/services" className="transition-colors hover:text-white">
                   情報設計・要件定義
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
           {/* Site / Legal */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold">サイト</h4>
+          <nav aria-label="サイト" className="space-y-4">
+            <h3 className="text-lg font-semibold">サイト</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
                 <Link href="/" className="transition-colors hover:text-white">
                   ホーム
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="group inline-flex items-center gap-2 transition-colors hover:text-white">
+                  料金
+                  <span className="rounded-full border border-emerald-700/40 bg-emerald-900/20 px-2 py-0.5 text-xs text-emerald-200">
+                    まとめ割あり
+                  </span>
                 </Link>
               </li>
               <li>
@@ -77,7 +85,7 @@ export default function Footer() {
               </li>
             </ul>
 
-            <h4 className="mt-6 text-lg font-semibold">法的情報</h4>
+            <h3 className="mt-6 text-lg font-semibold">法的情報</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
                 <Link href="/legal/terms" className="transition-colors hover:text-white">
@@ -95,7 +103,7 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
         </div>
 
         {/* Campaign note */}
@@ -103,12 +111,21 @@ export default function Footer() {
           <strong className="text-emerald-300">{CAMPAIGN.name}</strong>
           ：制作費 ¥0（諸経費のみ）＋ 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）／
           {CAMPAIGN.freeCancelNote}。 対象：{CAMPAIGN.scope}／条件：実績掲載・レビュー協力、素材提出＝KO+7日。
+          <div className="mt-2 text-emerald-300/80">
+            ※ 価格は税込・ドメイン/サーバ等の実費は別。詳しくは
+            <Link href="/pricing" className="underline decoration-emerald-400/60 underline-offset-2 hover:text-white">
+              料金ページ
+            </Link>
+            をご確認ください。
+          </div>
         </div>
 
         {/* CTA + Copyright */}
         <div className="mt-12 border-t border-gray-800 pt-8">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <p className="text-sm text-gray-400">© {year} {BRAND.name}. All rights reserved.</p>
+            <p className="text-sm text-gray-400">
+              © {year} {BRAND.name}. All rights reserved.
+            </p>
             {/* CTAはフォームへ一本化 */}
             <div className="w-full sm:w-auto">
               <ContactCTA />

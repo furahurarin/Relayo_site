@@ -1,3 +1,4 @@
+// components/sections/ServicesSection.tsx
 "use client";
 
 import Link from "next/link";
@@ -10,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { ArrowRight, Lightbulb, Code, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ContactCTA from "@/components/cta/ContactCTA";
+import { CAMPAIGN } from "@/lib/constants";
 
 export default function ServicesSection() {
   const services = [
@@ -134,6 +137,7 @@ export default function ServicesSection() {
                 <li>・料金/営業時間の即決表</li>
               </ul>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                {/* 内部ナビはそのまま */}
                 <Button asChild size="lg" className="group bg-blue-600 text-white hover:bg-blue-700">
                   <Link
                     href="/#pricing"
@@ -145,19 +149,12 @@ export default function ServicesSection() {
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="border-gray-300 hover:bg-gray-50">
-                  <Link
-                    href="/contact?campaign=launch#get-sheet"
-                    aria-label="診断シートを受け取る"
-                    data-umami-event="cta_sheet"
-                    data-umami-event-section="services-quickwins"
-                  >
-                    診断シートを受け取る
-                  </Link>
-                </Button>
+                {/* ✅ 入口は /contact に一本化 */}
+                <ContactCTA />
               </div>
               <p className="mt-4 text-xs text-gray-500">
-                ※ 先着3社は「制作費¥0 × 保守3ヶ月¥0（Lite相当）」＋完全無料解約OK（移管・撤去も無償/上限2h）
+                ※ 先着{CAMPAIGN.seats}社は「制作費¥0 × 保守{CAMPAIGN.freeCareMonths}ヶ月¥0（Lite相当）」＋
+                {CAMPAIGN.freeCancelNote}
               </p>
             </CardContent>
           </Card>

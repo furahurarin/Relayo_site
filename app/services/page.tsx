@@ -1,25 +1,30 @@
+// app/services/page.tsx
+"use client";
+
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Rocket, Wrench, Layers, Zap, Shield } from "lucide-react";
 import { CAMPAIGN } from "@/lib/constants";
+import ContactCTA from "@/components/cta/ContactCTA";
 
 export const metadata: Metadata = {
-  title: "サービス | Relayo",
+  // レイアウトで title テンプレートがあるため、ここは素の文言のみ
+  title: "サービス",
   description:
     "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。",
 };
 
 const Feature = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div className="rounded-2xl border border-gray-700/40 p-5">
-    <h3 className="font-semibold text-lg">{title}</h3>
+    <h3 className="text-lg font-semibold">{title}</h3>
     <div className="mt-2 text-gray-300">{children}</div>
   </div>
 );
 
 export default function ServicesPage() {
   return (
-    <main className="container mx-auto px-4 py-12 space-y-12">
+    <main className="container mx-auto space-y-12 px-4 py-12">
       {/* Hero */}
       <section className="space-y-4">
         <h1 className="text-3xl font-bold">できること</h1>
@@ -28,15 +33,10 @@ export default function ServicesPage() {
           を前提に設計・実装します。初期は最小機能、効果が出た部分に投資する方針です。
         </p>
         <div className="flex gap-3">
-          <Button asChild size="lg">
-            <Link href="/contact#get-sheet" data-umami-event="services_cta_sheet">
-              診断シートで相談する
-            </Link>
-          </Button>
+          {/* ✅ 入口はフォームに統一 */}
+          <ContactCTA />
           <Button asChild size="lg" variant="secondary">
-            <Link href="/pricing" data-umami-event="services_cta_pricing">
-              料金を見る
-            </Link>
+            <Link href="/pricing">料金を見る</Link>
           </Button>
         </div>
       </section>
@@ -46,28 +46,28 @@ export default function ServicesPage() {
         <h2 className="text-2xl font-semibold">提供範囲</h2>
         <div className="grid gap-6 md:grid-cols-2">
           <Feature title="Webサイト制作（Next.js + Tailwind）">
-            <ul className="list-disc pl-5 space-y-1">
+            <ul className="list-disc space-y-1 pl-5">
               <li>LP／コーポレート／ブログ／フォーム／お知らせ</li>
               <li>高速表示・モバイル最適化・基本SEO・構造化データ</li>
               <li>計測（Umami/GA4）・タグ運用・OGP整備</li>
             </ul>
           </Feature>
           <Feature title="機能追加（必要に応じて）">
-            <ul className="list-disc pl-5 space-y-1">
+            <ul className="list-disc space-y-1 pl-5">
               <li>予約・会員・決済（Stripeなど）</li>
               <li>LINE/Instagram連携・自動返信・通知</li>
               <li>簡易CMS／求人・採用ページ／問い合わせ管理</li>
             </ul>
           </Feature>
           <Feature title="運用・保守">
-            <ul className="list-disc pl-5 space-y-1">
+            <ul className="list-disc space-y-1 pl-5">
               <li>月次レポート／軽微改修／依存パッケージ更新</li>
               <li>脆弱性対応・監視・SLA（プラン別）</li>
               <li>ABテスト／コピー最適化／速度改善</li>
             </ul>
           </Feature>
           <Feature title="制作物・成果物">
-            <ul className="list-disc pl-5 space-y-1">
+            <ul className="list-disc space-y-1 pl-5">
               <li>リポジトリ（GitHub）／デプロイ（Vercel）</li>
               <li>デザイン指針・コンポーネント（再利用前提）</li>
               <li>運用ガイド（更新手順・注意点）</li>
@@ -126,17 +126,11 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA（入口は /contact に一本化） */}
       <section className="flex gap-3">
-        <Button asChild size="lg">
-          <Link href="/contact#get-sheet" data-umami-event="services_bottom_cta_sheet">
-            診断シートで相談する
-          </Link>
-        </Button>
+        <ContactCTA />
         <Button asChild size="lg" variant="secondary">
-          <Link href="/pricing" data-umami-event="services_bottom_cta_pricing">
-            料金を見る
-          </Link>
+          <Link href="/pricing">料金を見る</Link>
         </Button>
       </section>
 
