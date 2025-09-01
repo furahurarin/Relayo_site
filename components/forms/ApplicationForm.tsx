@@ -1,32 +1,17 @@
 // components/forms/ApplicationForm.tsx
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const REQUIRE_TURNSTILE =
-  (process.env.NEXT_PUBLIC_REQUIRE_TURNSTILE ?? "0") !== "0";
-const SITE_KEY =
-  process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ??
-  process.env.TURNSTILE_SITE_KEY ??
-  "";
+// --- Bot対策（Turnstile）は一時停止 ---
+// const REQUIRE_TURNSTILE = (process.env.NEXT_PUBLIC_REQUIRE_TURNSTILE ?? "0") !== "0";
+const REQUIRE_TURNSTILE = false; // ← 完全無効化
+// const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? process.env.TURNSTILE_SITE_KEY ?? "";
 
-// Turnstileスクリプト読込（多重読込防止）
-const loadScript = (src: string) =>
-  new Promise<void>((resolve, reject) => {
-    if (typeof window === "undefined") return resolve();
-    if (document.querySelector(`script[src="${src}"]`)) return resolve();
-    const s = document.createElement("script");
-    s.src = src;
-    s.async = true;
-    s.defer = true;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error(`Failed to load: ${src}`));
-    document.head.appendChild(s);
-  });
-
+// バリデーション
 const Schema = z
   .object({
     name: z.string().min(1, "お名前を入力してください"),
@@ -34,13 +19,14 @@ const Schema = z
     email: z.string().email("メールアドレスの形式が正しくありません"),
     tel: z.string().optional(),
     message: z.string().min(10, "ご要件を具体的にご記入ください（10文字以上）"),
-    turnstileToken: z.string().optional(),
+    turnstileToken: z.string().optional(), // 無効化中でも型は残す
     agree: z.literal(true, {
       errorMap: () => ({ message: "規約とプライバシーに同意が必要です" }),
     }),
-    hp: z.string().optional(),
+    hp: z.string().optional(), // 蜜壺（スパム対策）
   })
   .superRefine((val, ctx) => {
+    // Turnstile 無効化中はチェックしない
     if (REQUIRE_TURNSTILE) {
       if (!val.turnstileToken || val.turnstileToken.length < 10) {
         ctx.addIssue({
@@ -57,79 +43,27 @@ export default function ApplicationForm() {
   const [ok, setOk] = useState<null | boolean>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Turnstile
-  const [token, setToken] = useState("");
-  const widgetRef = useRef<HTMLDivElement | null>(null);
-  const widgetIdRef = useRef<string | null>(null);
+  // --- Turnstile 関連は停止 ---
+  // const [token, setToken] = useState("");
+  // const widgetRef = useRef<HTMLDivElement | null>(null);
+  // const widgetIdRef = useRef<string | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
-  const pendingExecRef = useRef(false); // execute後に再送信用
+  // const pendingExecRef = useRef(false);
 
-  useEffect(() => {
-    if (!REQUIRE_TURNSTILE) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        if (!SITE_KEY) {
-          setError("ボット検証キーが未設定です。管理者にお問い合わせください。");
-          return;
-        }
-        await loadScript(
-          "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-        );
-        if (cancelled || !widgetRef.current) return;
-
-        // 既存ウィジェットをクリア
-        if (widgetIdRef.current && (window as any).turnstile?.reset) {
-          (window as any).turnstile.reset(widgetIdRef.current);
-          widgetIdRef.current = null;
-        }
-
-        // Invisible + execute モード（表示なし）
-        const id = (window as any).turnstile?.render?.(widgetRef.current, {
-          sitekey: SITE_KEY,
-          size: "invisible",
-          appearance: "execute",
-          action: "application_form",
-          "refresh-expired": "auto",
-          callback: (tkn: string) => {
-            setToken(tkn);
-            // トークン取得後に pending なら自動再送信
-            if (pendingExecRef.current && formRef.current) {
-              pendingExecRef.current = false;
-              formRef.current.requestSubmit();
-            }
-          },
-          "error-callback": () =>
-            setError(
-              "認証エラーが発生しました。ページを再読み込みしてからお試しください。"
-            ),
-          "expired-callback": () => setToken(""),
-        });
-        if (typeof id === "string") widgetIdRef.current = id;
-      } catch (e) {
-        console.error(e);
-        setError(
-          "ボット検証の初期化に失敗しました。時間をおいて再度お試しください。"
-        );
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  // useEffect(() => { ...Turnstile 初期化... }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
 
-    // Invisibleモード：トークンが無ければまず execute して戻る
-    if (REQUIRE_TURNSTILE && !token) {
-      if (widgetIdRef.current && (window as any).turnstile?.execute) {
-        pendingExecRef.current = true;
-        (window as any).turnstile.execute(widgetIdRef.current);
-        return; // callback 後に requestSubmit される
-      }
-    }
+    // --- Invisible Turnstile 実行は停止 ---
+    // if (REQUIRE_TURNSTILE && !token) {
+    //   if (widgetIdRef.current && (window as any).turnstile?.execute) {
+    //     pendingExecRef.current = true;
+    //     (window as any).turnstile.execute(widgetIdRef.current);
+    //     return;
+    //   }
+    // }
 
     setLoading(true);
 
@@ -140,7 +74,7 @@ export default function ApplicationForm() {
       email: String(fd.get("email") || ""),
       tel: String(fd.get("tel") || ""),
       message: String(fd.get("message") || ""),
-      turnstileToken: REQUIRE_TURNSTILE ? token : "",
+      turnstileToken: "", // ← 無効化中は常に空
       agree: fd.get("agree") === "on",
       hp: String(fd.get("hp") || ""),
     };
@@ -159,6 +93,7 @@ export default function ApplicationForm() {
       return;
     }
 
+    // サーバー互換性のため、message/detail・tel/phone を両方送信
     const payload: Record<string, any> = {
       name: parsed.data.name,
       email: parsed.data.email,
@@ -167,11 +102,8 @@ export default function ApplicationForm() {
       phone: parsed.data.tel || undefined, // 互換
       message: parsed.data.message,
       detail: parsed.data.message, // 互換
+      // cfToken / turnstileToken は送らない
     };
-    if (REQUIRE_TURNSTILE) {
-      payload.cfToken = parsed.data.turnstileToken;
-      payload.turnstileToken = parsed.data.turnstileToken;
-    }
 
     try {
       const res = await fetch("/api/contact", {
@@ -184,12 +116,11 @@ export default function ApplicationForm() {
       if (res.ok && json.ok) {
         setOk(true);
         formRef.current?.reset?.();
-        setToken("");
 
-        // 次回に備えて invisible を再準備
-        if (REQUIRE_TURNSTILE && (window as any).turnstile?.reset && widgetIdRef.current) {
-          (window as any).turnstile.reset(widgetIdRef.current);
-        }
+        // --- Turnstile リセットは不要 ---
+        // if (REQUIRE_TURNSTILE && (window as any).turnstile?.reset && widgetIdRef.current) {
+        //   (window as any).turnstile.reset(widgetIdRef.current);
+        // }
       } else {
         throw new Error(json.error || "送信に失敗しました。");
       }
@@ -247,16 +178,10 @@ export default function ApplicationForm() {
             <textarea name="message" required rows={6} className="w-full rounded-md border px-3 py-2" />
           </div>
 
-          {/* Turnstile（Invisible。DOMには置くが非表示） */}
-          {REQUIRE_TURNSTILE ? (
-            <div
-              ref={widgetRef}
-              style={{ width: 0, height: 0, overflow: "hidden", position: "absolute", opacity: 0, pointerEvents: "none" }}
-              aria-hidden="true"
-            />
-          ) : null}
+          {/* --- Turnstile DOM は配置しない（無効化中） --- */}
+          {/* {REQUIRE_TURNSTILE ? <div ref={widgetRef} ... /> : null} */}
 
-          {/* 蜜壺（確実に視覚非表示 & フォーカス不可） */}
+          {/* 蜜壺（視覚非表示 & フォーカス不可） */}
           <div
             style={{
               position: "absolute",
