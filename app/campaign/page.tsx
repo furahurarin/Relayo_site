@@ -1,4 +1,4 @@
-﻿// app/campaign/page.tsx  ← サーバーコンポーネント（新規）
+﻿// app/campaign/page.tsx  ← サーバーコンポーネント
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,11 +11,11 @@ const desc =
   `先着${CAMPAIGN.seats}社／制作費¥0＋保守${CAMPAIGN.freeCareMonths}ヶ月¥0（Lite相当）、${CAMPAIGN.freeCancelNote}。`;
 
 export const metadata: Metadata = {
-  title: "キャンペーン",
+  title: "キャンペーンのご案内（条件・対象・注意事項）",
   description: desc,
   alternates: { canonical: "/campaign" },
   openGraph: {
-    title: "キャンペーン",
+    title: "キャンペーンのご案内（条件・対象・注意事項）",
     description: desc,
     url: "/campaign",
     type: "website",
@@ -23,13 +23,16 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "キャンペーン",
+    title: "キャンペーンのご案内（条件・対象・注意事項）",
     description: desc,
     images: ["/og.png"],
   },
 };
 
 export const dynamic = "force-static";
+
+const LITE_LINE =
+  "稼働/フォームの簡易監視・バックアップ。月1回、テキスト1箇所または画像3点まで対応。";
 
 export default function CampaignPage() {
   return (
@@ -39,7 +42,8 @@ export default function CampaignPage() {
         <h1 className="text-3xl font-bold">キャンペーン</h1>
         <p className="text-lg text-gray-600 dark:text-gray-300">
           <strong>{CAMPAIGN.name}</strong> — 先着{CAMPAIGN.seats}社。
-          <strong>制作費¥0</strong>（諸経費のみ）＋ <strong>保守{CAMPAIGN.freeCareMonths}ヶ月¥0</strong>（Lite相当）。
+          <strong>制作費¥0</strong>（諸経費のみ）＋{" "}
+          <strong>保守{CAMPAIGN.freeCareMonths}ヶ月¥0</strong>（Lite相当・<strong>※条件あり</strong>）。
           {CAMPAIGN.freeCancelNote}
         </p>
       </section>
@@ -84,7 +88,7 @@ export default function CampaignPage() {
             <p>例：</p>
             <ul className="list-disc space-y-1 pl-5">
               <li>実績掲載・レビュー協力</li>
-              <li>素材提出：キックオフ後7日以内（遅延時は通常見積に切替）</li>
+              <li>素材提出：契約成立後<strong>7日以内</strong>（遅延時は通常見積に切替）</li>
               <li>適用範囲は本ページ記載のテンプレ構成に準拠</li>
             </ul>
           </CardContent>
@@ -117,6 +121,43 @@ export default function CampaignPage() {
         </Card>
       </div>
 
+      {/* Lite内容（“正”の定義 & SLA） */}
+      <Card>
+        <CardHeader>
+          <CardTitle>保守（Lite）{CAMPAIGN.freeCareMonths}ヶ月¥0の内容</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <p>
+            Lite は <strong>{LITE_LINE}</strong>
+          </p>
+          <p>
+            障害時の初動目安は <strong>（P1＝4時間以内／P2＝翌営業日／P3＝週内）</strong> です（プランにより異なる場合あり）。
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* 無料解約・移管（特商法・規約との整合） */}
+      <Card>
+        <CardHeader>
+          <CardTitle>無料解約と移管について</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              <strong>無料解約：</strong>
+              キャンペーン期間中の解約は無料です（解約受付は毎月<strong>20日</strong>まで／末日解約）。詳細は{" "}
+              <Link href="/legal/terms" className="underline underline-offset-4">利用規約</Link> をご確認ください。
+            </li>
+            <li>
+              <strong>移管：</strong>
+              原則は手数料＋実費をご負担いただきますが、キャンペーン適用時は <strong>作業費2時間まで無償（実費はお客様負担）</strong> です。
+              2時間超過分は当社所定レートでのご請求となります（詳しくは{" "}
+              <Link href="/legal/tokusho" className="underline underline-offset-4">特定商取引法</Link> を参照）。
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+
       {/* 進め方・信頼注記 */}
       <Card>
         <CardHeader>
@@ -136,7 +177,7 @@ export default function CampaignPage() {
           <div className="flex items-start gap-2">
             <Info className="mt-0.5 h-5 w-5 text-amber-600" aria-hidden />
             <p>
-              表示は税込。要件により通常見積に切替となる場合があります。解約・移管はガイドラインに従い安全に対応します（{CAMPAIGN.freeCancelNote}）。
+              表示は税込。要件により通常見積へ切替となる場合があります。解約・移管はガイドラインに従い安全に対応します（{CAMPAIGN.freeCancelNote}）。
             </p>
           </div>
         </CardContent>
@@ -151,8 +192,8 @@ export default function CampaignPage() {
         <div className="inline-block">
           <ContactCTA />
         </div>
+        <p className="mt-2 text-xs text-gray-500">約2分で完了。回答はメールでお送りします。</p>
       </section>
     </main>
   );
 }
-

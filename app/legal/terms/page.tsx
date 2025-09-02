@@ -104,6 +104,44 @@ export default function TermsPage() {
             <strong>{meta.businessHours}</strong>（日本時間・メール）です。第三者サービスの障害・仕様変更は免責とし、対応は別途見積りとなる場合があります。
           </p>
 
+          {/* ▼▼▼ ここから追記：プラン定義 & SLA & キャンペーン特例 ▼▼▼ */}
+          <h3>保守プラン（Lite / Standard / Growth）</h3>
+          <ul>
+            <li>
+              <strong>Lite：</strong>
+              稼働/フォームの簡易監視・バックアップ。<strong>月1回</strong>、<strong>テキスト1箇所 または 画像3点まで</strong>の軽微改修を行います。
+            </li>
+            <li>
+              <strong>Standard：</strong>
+              監視・バックアップ・依存関係の更新（月1回目安）に加え、<strong>月2回</strong>までの軽微改修（テキスト/画像/スタイル等）。簡易なA/Bテスト（小規模・低頻度）を実施可能。
+            </li>
+            <li>
+              <strong>Growth：</strong>
+              監視・バックアップ・依存関係の更新（随時）に加え、<strong>月4回</strong>までの軽微改修、A/Bテスト、月次レポートおよび改善提案。
+            </li>
+          </ul>
+
+          <p>
+            <strong>SLA：</strong>
+            初動の目安は <strong>（P1＝4時間以内／P2＝翌営業日／P3＝週内）</strong> とします（プランや状況により異なる場合があります）。
+          </p>
+
+          <h3>キャンペーン適用時の特例</h3>
+          <ul>
+            <li>
+              <strong>無料解約：</strong>
+              キャンペーン期間中の解約は無料です（解約受付は毎月<strong>20日</strong>まで／末日解約）。詳細は
+              <Link href="/campaign" className="text-blue-600 underline-offset-2 hover:underline">キャンペーン案内</Link>に従います。
+            </li>
+            <li>
+              <strong>移管：</strong>
+              ドメイン・データ移管は原則として手数料と実費をご負担いただきますが、キャンペーン適用時は
+              <strong>作業費2時間まで無償（実費はお客様負担）</strong>とします。2時間超過分は当社所定レートでご請求します（
+              <Link href="/legal/tokusho" className="text-blue-600 underline-offset-2 hover:underline">特定商取引法に基づく表示</Link> 参照）。
+            </li>
+          </ul>
+          {/* ▲▲▲ 追記ここまで ▲▲▲ */}
+
           <h2 id="subcontract">8. 再委託</h2>
           <p>当方は、品質・秘密保持を担保したうえで、業務の一部を適切な第三者に再委託することがあります。</p>
 
