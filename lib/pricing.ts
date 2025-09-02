@@ -1,4 +1,4 @@
-// lib/pricing.ts
+﻿// lib/pricing.ts
 // SSOT: 料金・SLA・備考の“真実の源泉”
 // 表示や並べ替えは各ページ側で行い、このファイルでは値と構造だけを定義します。
 
@@ -52,7 +52,7 @@ export type SetPlan = {
   price: Price;
   pages: string; // 例: "3–5ページ"
   form: string; // 例: "問い合わせフォーム：1種"
-  includes: string[];
+  includes: readonly string[];
   sla: Sla;
   leadTime: LeadTime;
   popular?: boolean;
@@ -130,7 +130,7 @@ export type LpPack = {
   code: "starter_lp";
   name: string;
   price: Price;
-  includes: string[];
+  includes: readonly string[];
   sla: Sla;
   leadTime: LeadTime;
 };
@@ -253,7 +253,7 @@ export type MonthlyPlan = {
   code: "self" | "lite" | "assist" | "standard" | "growth";
   name: string;
   price: Price;
-  features: string[];
+  features: readonly string[];
   initial: string; // 初動
 };
 
@@ -317,3 +317,4 @@ export const PRICING = {
 } as const;
 
 export type PricingSchema = typeof PRICING;
+
