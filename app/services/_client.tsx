@@ -1,4 +1,4 @@
-// app/services/_client.tsx  ← クライアントコンポーネント（新規・改善版）
+﻿// app/services/_client.tsx  ← クライアントコンポーネント（新規・改善版）
 "use client";
 
 import Link from "next/link";
@@ -110,7 +110,7 @@ export default function ServicesPageClient() {
           </li>
           <li className="flex items-start gap-2">
             <Shield className="mt-0.5 h-5 w-5 text-emerald-600" aria-hidden="true" />
-            <span className="text-gray-700">法務・計測の整備：特商法／規約／プライバシー、OGP／構造化データまで。</span>
+            <span className="text-gray-700">法務・計測の整備：特定商取引法／規約／プライバシー、OGP／構造化データまで。</span>
           </li>
         </ul>
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
@@ -149,3 +149,4 @@ export default function ServicesPageClient() {
     </main>
   );
 }
+

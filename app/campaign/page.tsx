@@ -1,4 +1,4 @@
-// app/campaign/page.tsx  ← サーバーコンポーネント（新規）
+﻿// app/campaign/page.tsx  ← サーバーコンポーネント（新規）
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,7 +129,7 @@ export default function CampaignPage() {
               契約前に範囲・前提・除外項目・変更管理・SLAを明文化します（
               <Link href="/legal/terms" className="underline underline-offset-4">利用規約</Link>／
               <Link href="/legal/privacy" className="underline underline-offset-4">プライバシー</Link>／
-              <Link href="/legal/tokusho" className="underline underline-offset-4">特商法</Link>
+              <Link href="/legal/tokusho" className="underline underline-offset-4">特定商取引法</Link>
               ）。
             </p>
           </div>
@@ -155,3 +155,4 @@ export default function CampaignPage() {
     </main>
   );
 }
+

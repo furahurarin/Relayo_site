@@ -1,4 +1,4 @@
-// app/legal/tokusho/page.tsx
+﻿// app/legal/tokusho/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND, CONTACT } from "@/lib/constants";
@@ -44,7 +44,7 @@ export default function TokushoPage() {
           <li>所在地：請求があった場合に遅滞なく開示します</li>
           <li>電話番号：請求があった場合に遅滞なく開示します</li>
           <li>
-            請求方法：件名「特商法開示請求」で{" "}
+            請求方法：件名「特定商取引法開示請求」で{" "}
             <a href={CONTACT.mailto} className="underline underline-offset-4">
               {BRAND.email}
             </a>{" "}
@@ -102,3 +102,4 @@ export default function TokushoPage() {
     </main>
   );
 }
+

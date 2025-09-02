@@ -66,7 +66,7 @@ export default function Home() {
             <h3 className="text-base font-semibold">法令・アクセシビリティ</h3>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            プライバシー・特商法に配慮し、JIS X 8341-3（AA 目標）を意識した設計・表記を行います。
+            プライバシー・特定商取引法に配慮し、JIS X 8341-3（AA 目標）を意識した設計・表記を行います。
           </p>
         </div>
       </section>
@@ -100,4 +100,5 @@ export default function Home() {
     </main>
   );
 }
+
 

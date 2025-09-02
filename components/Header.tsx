@@ -14,10 +14,10 @@ const NAV: NavItem[] = [
   { href: "/services", label: "サービス" },
   { href: "/pricing", label: "料金" },
   { href: "/faq", label: "FAQ" },
-  // 法的情報は現状ページ分割（利用規約／プライバシー／特商法）
+  // 法的情報は現状ページ分割（利用規約／プライバシー／特定商取引法）
   { href: "/legal/terms", label: "利用規約" },
   { href: "/legal/privacy", label: "プライバシー" },
-  { href: "/legal/tokusho", label: "特商法" },
+  { href: "/legal/tokusho", label: "特定商取引法" },
 ];
 
 export default function Header() {
@@ -130,4 +130,5 @@ export default function Header() {
     </header>
   );
 }
+
 
