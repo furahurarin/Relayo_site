@@ -1,4 +1,4 @@
-// components/Header.tsx
+﻿// components/Header.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -121,8 +121,7 @@ export default function Header() {
             {/* モバイルでも入口を統一 */}
             <div className="pt-2">
               <ContactCTA full />
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                2分で完了。営業電話は行いません。回答はメールでお送りします。
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">約2分で完了。営業電話は行いません。回答はメールでお送りします。
               </p>
             </div>
           </div>
@@ -131,3 +130,4 @@ export default function Header() {
     </header>
   );
 }
+

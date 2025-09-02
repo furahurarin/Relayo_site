@@ -116,7 +116,7 @@ export const SET_PLANS: SetPlan[] = [
       "全体最適化（コンバージョン前提の構成見直し）",
     ],
     sla: {
-      label: "P1=4時間初動",
+      label: "P1=4時間以内",
       p1: "4時間以内",
       p2: "翌営業日",
       p3: "週内",

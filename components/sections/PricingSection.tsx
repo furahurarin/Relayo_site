@@ -23,6 +23,10 @@ export default function PricingSection() {
     ["self", "lite", "standard", "growth"].includes(m.code)
   );
 
+  // Lite の“正”の一行（どこでもこの文言に統一）
+  const LITE_LINE =
+    "稼働/フォームの簡易監視・バックアップ。月1回、テキスト1箇所または画像3点まで対応。";
+
   return (
     <section className="bg-gray-50 py-20" aria-labelledby="pricing-heading">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -34,6 +38,13 @@ export default function PricingSection() {
           <p className="mx-auto max-w-2xl text-lg text-gray-600">
             価格は<strong>すべて {meta.tax}</strong>。ドメイン/サーバ等の実費は別となります。公開後は月額プランで継続改善も可能です。
           </p>
+          <p className="mx-auto max-w-2xl text-xs text-gray-500">
+    ※ キャンペーン適用には条件があります。詳しくは{" "}
+    <Link href="/campaign" className="underline underline-offset-2">
+      キャンペーン案内
+    </Link>
+    をご確認ください。
+  </p>
         </div>
 
         {/* 制作セット（Essential / Standard / Growth） */}
@@ -96,9 +107,9 @@ export default function PricingSection() {
                   <p>
                     <strong>SLA：</strong>
                     {plan.sla.label}
-                    {plan.sla.p1 ? `（P1=${plan.sla.p1}` : ""}
-                    {plan.sla.p2 ? `／P2=${plan.sla.p2}` : ""}
-                    {plan.sla.p3 ? `／P3=${plan.sla.p3}` : ""}
+                    {plan.sla.p1 ? `（P1＝${plan.sla.p1}` : ""}
+                    {plan.sla.p2 ? `／P2＝${plan.sla.p2}` : ""}
+                    {plan.sla.p3 ? `／P3＝${plan.sla.p3}` : ""}
                     {plan.sla.p1 ? "）" : ""}
                   </p>
                   <p className="mt-1">
@@ -110,7 +121,7 @@ export default function PricingSection() {
                 <div className="pt-2">
                   <ContactCTA />
                   <p className="mt-2 text-center text-xs text-gray-500">
-                    2分で完了。回答はメールでお送りします。
+                    約2分で完了。回答はメールでお送りします。
                   </p>
                 </div>
               </CardContent>
@@ -131,15 +142,18 @@ export default function PricingSection() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-sm text-gray-600">
-                  {/* 代表的な特徴だけ一言で（詳細は /pricing） */}
-                  {m.features[0]}
+                  {/* Liteだけは“正”の一行に強制統一（元データのゆれを吸収） */}
+                  {m.code === "lite" ? LITE_LINE : m.features[0]}
                 </CardContent>
               </Card>
             ))}
           </div>
           <p className="mt-3 text-center text-sm text-gray-500">
             すべて契約縛りなし。詳しくは{" "}
-            <Link href="/pricing" className="font-medium text-blue-600 underline-offset-2 hover:underline">
+            <Link
+              href="/pricing"
+              className="font-medium text-blue-600 underline-offset-2 hover:underline"
+            >
               料金ページ
             </Link>
             へ。
@@ -158,7 +172,8 @@ export default function PricingSection() {
                   <strong>変更管理：</strong>仕様変更は「変更管理票」で合意のうえ、範囲・費用・納期・リスクを更新します
                 </li>
                 <li>
-                  <strong>SLA（抜粋）：</strong>P1 初動4h／P2 翌営業日／P3 週内（プランにより異なります）
+                  <strong>SLA（抜粋）：</strong>（P1＝4時間以内／P2＝翌営業日／P3＝週内）
+                  ※プランにより異なる場合があります
                 </li>
                 <li>
                   <strong>注意：</strong>表示価格は{meta.tax}。ドメイン/サーバ等の実費は別。要件により変動します

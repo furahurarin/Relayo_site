@@ -1,4 +1,4 @@
-// components/sections/HeroSection.tsx
+﻿// components/sections/HeroSection.tsx
 "use client";
 
 import Link from "next/link";
@@ -48,8 +48,7 @@ export default function HeroSection() {
                 料金を見る →
               </Link>
             </div>
-            <p className="text-xs text-gray-500">
-              2分で完了。営業電話は行いません。回答はメールでお送りします。
+            <p className="text-xs text-gray-500">約2分で完了。営業電話は行いません。回答はメールでお送りします。
             </p>
 
             {/* Campaign / Notice（詳細は専用ページへ集約） */}
@@ -117,3 +116,4 @@ export default function HeroSection() {
     </section>
   );
 }
+

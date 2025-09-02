@@ -1,4 +1,4 @@
-// app/contact/page.tsx
+﻿// app/contact/page.tsx
 "use client";
 
 /**
@@ -265,8 +265,7 @@ export default function ContactPage() {
               <Mail className="h-6 w-6" aria-hidden="true" />
               <CardTitle className="text-2xl">お問い合わせ</CardTitle>
             </div>
-            <p className="text-sm text-muted-foreground">
-              2分で完了。営業電話は行いません。回答はメールでお送りします。
+            <p className="text-sm text-muted-foreground">約2分で完了。営業電話は行いません。回答はメールでお送りします。
             </p>
           </CardHeader>
 
@@ -602,3 +601,4 @@ export default function ContactPage() {
     </main>
   );
 }
+

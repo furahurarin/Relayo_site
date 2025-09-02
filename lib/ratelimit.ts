@@ -1,4 +1,4 @@
-// lib/ratelimit.ts
+﻿// lib/ratelimit.ts
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
@@ -15,7 +15,7 @@ if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN
 const redis = Redis.fromEnv();
 
 /**
- * 1分あたり10リクエストを許可。
+ *約2分あたり10リクエストを許可。
  * 使い方: const { success } = await applyRatelimit.limit(key)
  */
 export const applyRatelimit = new Ratelimit({
@@ -24,3 +24,4 @@ export const applyRatelimit = new Ratelimit({
   analytics: true,
   prefix: "rl:apply",
 });
+

@@ -1,4 +1,4 @@
-// components/footer.tsx
+﻿// components/footer.tsx
 import Link from "next/link";
 import { Building, MapPin, Mail } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
@@ -123,11 +123,11 @@ export default function Footer() {
               <ContactCTA />
             </div>
           </div>
-          <p className="mt-2 text-center text-xs text-gray-500">
-            2分で完了。営業電話は行いません。回答はメールでお送りします。
+          <p className="mt-2 text-center text-xs text-gray-500">約2分で完了。営業電話は行いません。回答はメールでお送りします。
           </p>
         </div>
       </div>
     </footer>
   );
 }
+

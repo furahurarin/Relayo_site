@@ -1,4 +1,4 @@
-// components/sections/FAQSection.tsx
+﻿// components/sections/FAQSection.tsx
 "use client";
 
 import Link from "next/link";
@@ -230,7 +230,7 @@ export default function FAQSection() {
             <CardContent className="p-8">
               <h3 className="mb-3 text-2xl font-bold text-gray-900">その他のご質問</h3>
               <p className="mx-auto mb-5 max-w-2xl text-gray-600">
-                お問い合わせはフォームからお願いします（無料診断つき・2分で完了）。メールをご希望の方は下記アドレスへどうぞ。
+                お問い合わせはフォームからお願いします（無料診断つき・約2分で完了）。メールをご希望の方は下記アドレスへどうぞ。
               </p>
               <div className="flex justify-center">
                 <ContactCTA />
@@ -246,3 +246,4 @@ export default function FAQSection() {
     </section>
   );
 }
+

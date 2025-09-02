@@ -1,4 +1,4 @@
-// app/page.tsx
+﻿// app/page.tsx
 import type { Metadata } from "next";
 import HeroSection from "@/components/sections/HeroSection";
 // import PortfolioSection from "@/components/sections/PortfolioSection";
@@ -78,8 +78,7 @@ export default function Home() {
       >
         <div className="rounded-2xl border bg-white/60 p-6 text-center shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/60">
           <h2 className="mb-3 text-xl font-semibold">お問い合わせ</h2>
-          <p className="mx-auto mb-4 max-w-2xl text-sm text-gray-600 dark:text-gray-400">
-            2分で完了。営業電話は行いません。メールで丁寧にご案内します。
+          <p className="mx-auto mb-4 max-w-2xl text-sm text-gray-600 dark:text-gray-400">約2分で完了。営業電話は行いません。メールで丁寧にご案内します。
           </p>
           <div className="flex justify-center">
             <ContactCTA />
@@ -101,3 +100,4 @@ export default function Home() {
     </main>
   );
 }
+

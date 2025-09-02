@@ -50,11 +50,11 @@ export default function ServicesSection() {
       title: "運用",
       subtitle: "保守・改善（SLA付き）",
       description:
-        "公開後はデータに基づく継続改善。ライト保守は月2h/2件の軽微改修と依存更新をカバー。障害は優先度に応じて初動し、必要に応じてA/Bテストを実施します。",
+        "公開後はデータに基づく継続改善。Liteは稼働/フォームの簡易監視・バックアップに加え、月1回はテキスト1箇所または画像3点まで対応。障害は優先度に応じて初動し、必要に応じてA/Bテストを実施します。",
       features: [
-        "ライト保守：月2h/2件（繰越なし）",
+        "Lite：稼働/フォームの簡易監視・バックアップ。月1回、テキスト1箇所または画像3点まで対応。",
         "依存アップデート（月1回目安）",
-        "監視・障害初動（P1=即時）",
+        "監視・障害初動（P1＝4時間以内）",
         "月次レポート／改善提案",
         "A/Bテスト（プランに応じて）",
       ],
@@ -111,7 +111,10 @@ export default function ServicesSection() {
                       <ul className="space-y-2">
                         {service.features.map((f) => (
                           <li key={f} className="flex items-center text-sm text-gray-600">
-                            <span className="mr-3 inline-block h-1.5 w-1.5 rounded-full bg-gray-400" aria-hidden="true" />
+                            <span
+                              className="mr-3 inline-block h-1.5 w-1.5 rounded-full bg-gray-400"
+                              aria-hidden="true"
+                            />
                             {f}
                           </li>
                         ))}
@@ -143,7 +146,11 @@ export default function ServicesSection() {
                 <li>・料金/営業時間の即決表</li>
               </ul>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button asChild size="lg" className="group bg-blue-600 text-white hover:bg-blue-700">
+                <Button
+                  asChild
+                  size="lg"
+                  className="group bg-blue-600 text-white hover:bg-blue-700"
+                >
                   <Link
                     href="/#pricing"
                     aria-label="料金プランへ"
@@ -151,7 +158,10 @@ export default function ServicesSection() {
                     data-umami-event-section="services-quickwins"
                   >
                     最適プランを見る
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                    <ArrowRight
+                      className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1"
+                      aria-hidden="true"
+                    />
                   </Link>
                 </Button>
                 {/* 入口は /contact に一本化 */}
