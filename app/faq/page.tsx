@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ContactCTA from "@/components/cta/ContactCTA";
+import { PRICING } from "@/lib/pricing";
 
 const siteDescription =
   "制作スコープ、納期、費用、保守、名義・権利、SLA、アクセシビリティ、セキュリティなどのFAQ。";
@@ -37,9 +38,31 @@ const QA = ({ q, a }: { q: string; a: React.ReactNode }) => (
 // 本ページは静的生成（FAQの安定性重視）
 export const dynamic = "force-static";
 
+const jpName = (name: string) => {
+  // 例: "Self（セルフ運用）" → "セルフ運用"
+  const m = name.match(/（(.+?)）/);
+  return m ? m[1] : name;
+};
+const stripPerMonth = (text: string) => text.replace(/\/?／?月$/, "");
+
 export default function FaqPage() {
+  const { setPlans, lpPack, monthlyPlans, meta } = PRICING;
+
+  const standard = setPlans.find((p) => p.code === "standard");
+  const growth = setPlans.find((p) => p.code === "growth");
+
+  const selfM = monthlyPlans.find((m) => m.code === "self");
+  const liteM = monthlyPlans.find((m) => m.code === "lite");
+  const stdM = monthlyPlans.find((m) => m.code === "standard");
+  const growthM = monthlyPlans.find((m) => m.code === "growth");
+  const assistM = monthlyPlans.find((m) => m.code === "assist");
+
   return (
-    <main className="container mx-auto space-y-8 px-4 py-12" aria-labelledby="faq-title" role="main">
+    <main
+      className="container mx-auto space-y-8 px-4 py-12"
+      aria-labelledby="faq-title"
+      role="main"
+    >
       <h1 id="faq-title" className="text-3xl font-bold text-gray-900">
         よくある質問
       </h1>
@@ -50,7 +73,12 @@ export default function FaqPage() {
           a={
             <>
               素材・要件確定後の目安は
-              <strong> Starter 5–10営業日／Standard 3–4週間／Growth 4–6週間</strong>
+              <strong>
+                {" "}
+                {lpPack ? `Starter-LP ${lpPack.leadTime.note}／` : ""}
+                {standard ? `Standard ${standard.leadTime.note}／` : ""}
+                {growth ? `Growth ${growth.leadTime.note}` : ""}
+              </strong>
               です。規模や外部連携で前後しますが、まずは最小で公開し、数字を見ながら拡張します。
             </>
           }
@@ -60,9 +88,19 @@ export default function FaqPage() {
           q="保守は必須ですか？"
           a={
             <>
-              任意です。<strong>セルフ ¥0／ライト ¥3,980／スタンダード ¥14,800／グロース ¥39,800〜</strong>
-              （税込）から選べます。依存アップデートや軽微改修、レポート・改善提案を希望される場合は保守のご契約をおすすめします。
-              くわしくは <Link href="/pricing" className="underline underline-offset-4">料金ページ</Link> をご覧ください。
+              任意です。{" "}
+              <strong>
+                {selfM ? `${jpName(selfM.name)} ${stripPerMonth(selfM.price.text)}` : ""}
+                {liteM ? `／${jpName(liteM.name)} ${stripPerMonth(liteM.price.text)}` : ""}
+                {stdM ? `／${jpName(stdM.name)} ${stripPerMonth(stdM.price.text)}` : ""}
+                {growthM ? `／${jpName(growthM.name)} ${stripPerMonth(growthM.price.text)}` : ""}
+              </strong>
+              （{meta.tax}）。依存アップデートや軽微改修、レポート・改善提案を希望される場合は保守のご契約をおすすめします。
+              くわしくは{" "}
+              <Link href="/pricing" className="underline underline-offset-4">
+                料金ページ
+              </Link>{" "}
+              をご覧ください。
             </>
           }
         />
@@ -71,7 +109,8 @@ export default function FaqPage() {
           q="ドメインやホスティングは？"
           a={
             <>
-              <strong>お客様名義</strong>のドメインを推奨します。ホスティングは <strong>Vercel</strong> を想定（他サービスも可）。
+              <strong>お客様名義</strong>のドメインを推奨します。ホスティングは{" "}
+              <strong>Vercel</strong> を想定（他サービスも可）。
               アクセス権限や課金主体は透明化し、当方は<strong>最小権限</strong>で運用します。
             </>
           }
@@ -81,7 +120,8 @@ export default function FaqPage() {
           q="途中で仕様変更はできますか？"
           a={
             <>
-              可能です。<strong>変更管理票</strong>で範囲・費用・納期への影響を明確化し、合意のうえで進行します。
+              可能です。<strong>変更管理票</strong>
+              で範囲・費用・納期への影響を明確化し、合意のうえで進行します。
               「小さく出して、効果の出た箇所に投資する」方針です。
             </>
           }
@@ -91,7 +131,8 @@ export default function FaqPage() {
           q="所有権やアカウント名義は？"
           a={
             <>
-              成果物の利用権や各種アカウントは<strong>原則お客様名義</strong>です（テンプレートや外部コンポーネントは各ライセンス準拠）。
+              成果物の利用権や各種アカウントは<strong>原則お客様名義</strong>
+              です（テンプレートや外部コンポーネントは各ライセンス準拠）。
               GitHub リポジトリ／Vercel プロジェクトも原則お客様側に帰属させます。
             </>
           }
@@ -121,7 +162,8 @@ export default function FaqPage() {
           q="アクセシビリティは？"
           a={
             <>
-              <strong>JIS X 8341-3（AA 目標）</strong>に配慮。見出し構造、フォーカス可視化、適切な代替テキスト、十分なコントラストを基本に設計します。
+              <strong>JIS X 8341-3（AA 目標）</strong>
+              に配慮。見出し構造、フォーカス可視化、適切な代替テキスト、十分なコントラストを基本に設計します。
             </>
           }
         />
@@ -130,9 +172,19 @@ export default function FaqPage() {
           q="SLA・対応時間は？"
           a={
             <>
-              目安は<strong>P1＝即時初動／P2＝翌営業日／P3＝週内</strong>（受付：平日10–19時・メール）。
-              プランに応じて改善頻度やA/Bテスト支援が強化されます。詳細は
-              <Link href="/pricing" className="underline underline-offset-4"> 料金ページ</Link> をご確認ください。
+              受付：<strong>{meta.businessHours}</strong>・メール。初動の目安は{" "}
+              <strong>
+                {liteM ? `${jpName(liteM.name)}=${liteM.initial}` : ""}
+                {assistM ? `／${jpName(assistM.name)}=${assistM.initial}` : ""}
+                {stdM ? `／${jpName(stdM.name)}=${stdM.initial}` : ""}
+                {growthM ? `／${jpName(growthM.name)}=${growthM.initial}` : ""}
+              </strong>
+              。プランに応じて改善頻度やA/Bテスト支援が強化されます。詳細は
+              <Link href="/pricing" className="underline underline-offset-4">
+                {" "}
+                料金ページ
+              </Link>{" "}
+              をご確認ください。
             </>
           }
         />
@@ -153,16 +205,23 @@ export default function FaqPage() {
           a={
             <>
               最新の適用条件・対象・注意事項は
-              <Link href="/campaign" className="underline underline-offset-4"> キャンペーン案内</Link>
+              <Link href="/campaign" className="underline underline-offset-4">
+                {" "}
+                キャンペーン案内
+              </Link>
               に集約しています。解約・移管の取り扱いは
-              <Link href="/legal/terms" className="underline underline-offset-4"> 利用規約</Link> に従い安全に対応します。
+              <Link href="/legal/terms" className="underline underline-offset-4">
+                {" "}
+                利用規約
+              </Link>{" "}
+              に従い安全に対応します。
             </>
           }
         />
       </div>
 
       <p className="text-xs text-gray-500">
-        ※ 価格は税込。ドメイン／サーバ等の実費は別。納期・SLAは目安で、要件・素材の準備状況・外部連携により変動します。
+        ※ 価格は{meta.tax}。ドメイン／サーバ等の実費は別。納期・SLAは目安で、要件・素材の準備状況・外部連携により変動します。
       </p>
 
       <div className="flex flex-wrap gap-3 pt-2">

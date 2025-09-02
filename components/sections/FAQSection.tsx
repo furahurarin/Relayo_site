@@ -12,10 +12,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { Mail } from "lucide-react";
 import { BRAND } from "@/lib/constants";
+import { PRICING } from "@/lib/pricing";
 
 type QA = { q: string; a: React.ReactNode };
 
+const shortName = (name: string) => name.split("（")[0] ?? name;
+const stripPerMonth = (text: string) => text.replace(/／月$/, "");
+
 export default function FAQSection() {
+  const { setPlans, lpPack, monthlyPlans, meta } = PRICING;
+
+  const essential = setPlans.find((p) => p.code === "essential");
+  const standard = setPlans.find((p) => p.code === "standard");
+  const growth = setPlans.find((p) => p.code === "growth");
+
+  const selfM = monthlyPlans.find((m) => m.code === "self");
+  const liteM = monthlyPlans.find((m) => m.code === "lite");
+  const assistM = monthlyPlans.find((m) => m.code === "assist");
+  const stdM = monthlyPlans.find((m) => m.code === "standard");
+  const growthM = monthlyPlans.find((m) => m.code === "growth");
+
   const faqs: QA[] = [
     {
       q: "ヒアリングは電話や会議が必要ですか？",
@@ -31,15 +47,25 @@ export default function FAQSection() {
       q: "料金体系は？（制作と保守）",
       a: (
         <>
-          制作は
+          制作の基本は{" "}
           <span className="font-medium">
-            Starter-LP ¥79,800／Standard ¥198,000／Growth ¥348,000〜
+            {essential ? `${shortName(essential.name)} ${essential.price.text}／` : null}
+            {standard ? `${shortName(standard.name)} ${standard.price.text}／` : null}
+            {growth ? `${shortName(growth.name)} ${growth.price.text}` : null}
           </span>
-          （税込）が基本です。月額は
+          （{meta.tax}）。LP特化は{" "}
           <span className="font-medium">
-            セルフ ¥0／ライト ¥3,980／スタンダード ¥14,800／グロース ¥39,800〜
+            {lpPack.name} {lpPack.price.text}
           </span>
-          （税込）。詳細・内訳は{" "}
+          。月額は{" "}
+          <span className="font-medium">
+            {selfM ? `${shortName(selfM.name)} ${stripPerMonth(selfM.price.text)}／` : null}
+            {liteM ? `${shortName(liteM.name)} ${stripPerMonth(liteM.price.text)}／` : null}
+            {assistM ? `${shortName(assistM.name)} ${stripPerMonth(assistM.price.text)}／` : null}
+            {stdM ? `${shortName(stdM.name)} ${stripPerMonth(stdM.price.text)}／` : null}
+            {growthM ? `${shortName(growthM.name)} ${stripPerMonth(growthM.price.text)}` : null}
+          </span>
+          。詳細・内訳は{" "}
           <Link href="/pricing" className="underline underline-offset-4">
             料金ページ
           </Link>
@@ -51,11 +77,13 @@ export default function FAQSection() {
       q: "制作期間の目安は？",
       a: (
         <>
-          素材・要件確定後の目安は
+          素材・要件確定後の目安は{" "}
           <span className="font-medium">
-            Starter 5–10営業日／Standard 3–4週間／Growth 4–6週間
+            {lpPack ? `Starter-LP ${lpPack.leadTime.note}／` : null}
+            {standard ? `Standard ${standard.leadTime.note}／` : null}
+            {growth ? `Growth ${growth.leadTime.note}` : null}
           </span>
-          です（規模や外部連携により前後）。
+          （規模や外部連携により前後）。
         </>
       ),
     },
@@ -84,18 +112,29 @@ export default function FAQSection() {
       ),
     },
     {
-      q: "運用開始後のサポート（SLA）は？",
+      q: "運用開始後のサポート（SLA・内容）は？",
       a: (
         <>
-          <span className="font-medium">ライト保守</span>は
-          <span className="font-medium">軽微改修：月2h/2件（繰越なし）</span>
-          、依存アップデート（月1回目安）、障害は
-          <span className="font-medium">P1＝即時初動</span>
-          で対応します（受付：平日10–19時・メール）。上位プランでは改善頻度やA/Bテストが強化されます。詳細は{" "}
+          初動は{" "}
+          <span className="font-medium">
+            {liteM ? `${shortName(liteM.name)}=${liteM.initial}` : null}
+            {assistM ? `／${shortName(assistM.name)}=${assistM.initial}` : null}
+            {stdM ? `／${shortName(stdM.name)}=${stdM.initial}` : null}
+            {growthM ? `／${shortName(growthM.name)}=${growthM.initial}` : null}
+          </span>
+          。代表的な内容は
+          <span className="font-medium">
+            {" "}
+            {liteM ? `Lite：${liteM.features[1] ?? liteM.features[0]}` : null}
+            {assistM ? `／Assist：${assistM.features[0]}` : null}
+            {stdM ? `／Standard：${stdM.features[1] ?? stdM.features[0]}` : null}
+            {growthM ? `／Growth：${growthM.features[0]}` : null}
+          </span>
+          。詳細は{" "}
           <Link href="/pricing" className="underline underline-offset-4">
             料金ページ
           </Link>
-          をご確認ください。
+          へ。
         </>
       ),
     },
@@ -181,7 +220,7 @@ export default function FAQSection() {
 
           {/* 統一注記（サイト全体の表記と整合） */}
           <p className="mt-6 text-xs text-gray-500">
-            ※ 価格は税込表示です。ドメイン／サーバ等の実費は別。表示の納期・SLAは目安で、要件・素材の準備状況・外部連携により変動します。
+            ※ 価格は{meta.tax}表示です。ドメイン／サーバ等の実費は別。表示の納期・SLAは目安で、要件・素材の準備状況・外部連携により変動します。
           </p>
         </div>
 

@@ -5,6 +5,8 @@
  * Turnstile 無効化版（後日再有効化しやすい構成）
  * - ボット対策：honeypot のみ
  * - 診断シート（Step1）→ 連絡先（Step2）→ 完了（Step3）
+ * - 予算ではなく「希望プラン」を取得、納期は「公開目標」（短納期加算なしを明記）
+ * - UTM/リファラ/現在のパス を自動付与して本文へ追記
  * - Umami イベントは既存命名＋新命名の両対応
  */
 
@@ -14,11 +16,22 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
 
+type Plan = "starter_lp" | "essential" | "standard" | "growth" | "";
+type Launch =
+  | "lp_5_10"     // 5–10 営業日（LP目安）
+  | "ess_2_3w"    // 2–3 週間（Essential目安）
+  | "std_3_4w"    // 3–4 週間（Standard目安）
+  | "gro_4_6w"    // 4–6 週間（Growth目安）
+  | "undecided"
+  | "";
+
 type Diagnosis = {
-  goal: string[]; // 複数選択
-  budget: string; // 〜30 / 30〜80 / 80〜150 / 150〜 / 未定
-  timeline: string; // 2週間 / 1ヶ月 / 2〜3ヶ月 / 未定
-  industry: string; // 業種
+  goal: string[];                // 複数選択
+  plan: Plan;                    // 希望プラン（任意）
+  launch: Launch;                // 公開目標（任意）※短納期加算なし
+  priority: "speed" | "cost" | "scope" | ""; // 優先度
+  assets: ("texts" | "photos" | "logo" | "existing_site" | "none")[]; // 素材状況
+  industry: string;              // 業種
   hasSite: "あり" | "なし" | "";
   siteUrl: string;
 };
@@ -35,12 +48,25 @@ export default function ContactPage() {
   /** ---------- 診断シート（ステップ1） ---------- */
   const [diag, setDiag] = useState<Diagnosis>({
     goal: [],
-    budget: "",
-    timeline: "",
+    plan: "",
+    launch: "",
+    priority: "",
+    assets: [],
     industry: "",
     hasSite: "",
     siteUrl: "",
   });
+
+  /** ---------- メタ（自動追記用） ---------- */
+  const [meta, setMeta] = useState<{
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_content?: string;
+    utm_term?: string;
+    referrer?: string;
+    pathname?: string;
+  }>({});
 
   /** ---------- 状態 ---------- */
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -51,7 +77,7 @@ export default function ContactPage() {
   const successRef = useRef<HTMLDivElement | null>(null);
   const errorRef = useRef<HTMLDivElement | null>(null);
 
-  /** ---------- バリデーション ---------- */
+  /** ---------- 定義 ---------- */
   const goals = [
     "集客を増やしたい",
     "予約/問い合わせ導線を改善したい",
@@ -60,10 +86,25 @@ export default function ContactPage() {
     "EC/オンライン決済を入れたい",
     "SNS/LINE連携を強化したい",
   ];
+
+  const planOptions: { value: Plan; label: string }[] = [
+    { value: "starter_lp", label: "Starter-LP" },
+    { value: "essential",  label: "Essential" },
+    { value: "standard",   label: "Standard" },
+    { value: "growth",     label: "Growth" },
+  ];
+
+  const launchOptions: { value: Launch; label: string }[] = [
+    { value: "lp_5_10",  label: "5–10 営業日（LP目安）" },
+    { value: "ess_2_3w", label: "2–3 週間（Essential目安）" },
+    { value: "std_3_4w", label: "3–4 週間（Standard目安）" },
+    { value: "gro_4_6w", label: "4–6 週間（Growth目安）" },
+    { value: "undecided", label: "未定" },
+  ];
+
+  /** ---------- バリデーション ---------- */
   const canNext =
     diag.goal.length > 0 &&
-    !!diag.budget &&
-    !!diag.timeline &&
     !!diag.industry &&
     !!diag.hasSite &&
     (diag.hasSite === "なし" || (diag.hasSite === "あり" && diag.siteUrl.trim().length >= 4));
@@ -74,6 +115,29 @@ export default function ContactPage() {
   /** ---------- Umami（存在する時だけ発火） ---------- */
   const track = (event: string, data?: Record<string, any>) =>
     (typeof window !== "undefined" && (window as any)?.umami?.track?.(event, data));
+
+  /** ---------- 初期化：plan/UTM/リファラ ---------- */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const p = new URLSearchParams(window.location.search);
+    const qp = p.get("plan");
+    const isPlan =
+      qp === "starter_lp" || qp === "essential" || qp === "standard" || qp === "growth";
+
+    setMeta({
+      utm_source: p.get("utm_source") ?? undefined,
+      utm_medium: p.get("utm_medium") ?? undefined,
+      utm_campaign: p.get("utm_campaign") ?? undefined,
+      utm_content: p.get("utm_content") ?? undefined,
+      utm_term: p.get("utm_term") ?? undefined,
+      referrer: document.referrer || undefined,
+      pathname: window.location.pathname,
+    });
+
+    if (isPlan) {
+      setDiag((d) => ({ ...d, plan: qp as Plan }));
+    }
+  }, []);
 
   /** ---------- フォーカス制御（SR向け） ---------- */
   useEffect(() => {
@@ -94,11 +158,49 @@ export default function ContactPage() {
       track("contact_submit_clicked");
       track("submit_contact_form_started");
 
+      const planLabel =
+        planOptions.find((x) => x.value === diag.plan)?.label ?? "未選択";
+      const launchLabel =
+        launchOptions.find((x) => x.value === diag.launch)?.label ?? "未定";
+      const priorityLabel =
+        diag.priority === "speed"
+          ? "スピード優先"
+          : diag.priority === "cost"
+          ? "コスト優先"
+          : diag.priority === "scope"
+          ? "内容優先"
+          : "未選択";
+      const assetsLabel =
+        diag.assets.length > 0
+          ? diag.assets
+              .map((a) =>
+                a === "texts"
+                  ? "原稿あり"
+                  : a === "photos"
+                  ? "写真あり"
+                  : a === "logo"
+                  ? "ロゴあり"
+                  : a === "existing_site"
+                  ? "既存サイトあり"
+                  : "未準備が多い"
+              )
+              .join(", ")
+          : "未選択";
+
+      const metaText =
+        "\n\n--- 参照情報 ---\n" +
+        `referrer: ${meta.referrer ?? "-"}\n` +
+        `pathname: ${meta.pathname ?? "-"}\n` +
+        `utm_source: ${meta.utm_source ?? "-"} / utm_medium: ${meta.utm_medium ?? "-"} / utm_campaign: ${meta.utm_campaign ?? "-"}\n` +
+        `utm_content: ${meta.utm_content ?? "-"} / utm_term: ${meta.utm_term ?? "-"}\n`;
+
       const diagText =
         "\n\n--- 診断シート ---\n" +
         `目的: ${diag.goal.join(", ")}\n` +
-        `予算: ${diag.budget}\n` +
-        `期日: ${diag.timeline}\n` +
+        `希望プラン: ${planLabel}\n` +
+        `公開目標: ${launchLabel}（短納期加算なし・段階公開で対応）\n` +
+        `優先度: ${priorityLabel}\n` +
+        `素材: ${assetsLabel}\n` +
         `業種: ${diag.industry}\n` +
         `現サイト: ${diag.hasSite}${diag.siteUrl ? ` / ${diag.siteUrl}` : ""}\n`;
 
@@ -113,7 +215,7 @@ export default function ContactPage() {
           email,
           company: company || undefined,
           tel: tel || undefined,
-          message: (message || "") + diagText,
+          message: (message || "") + diagText + metaText,
           // turnstileToken: undefined // ← 将来有効化時に復帰
         }),
       });
@@ -134,8 +236,10 @@ export default function ContactPage() {
       setMessage("");
       setDiag({
         goal: [],
-        budget: "",
-        timeline: "",
+        plan: "",
+        launch: "",
+        priority: "",
+        assets: [],
         industry: "",
         hasSite: "",
         siteUrl: "",
@@ -235,35 +339,22 @@ export default function ContactPage() {
 
                 <div className="grid gap-6 sm:grid-cols-2">
                   <fieldset>
-                    <legend className="mb-3 block text-lg font-semibold">ご予算感</legend>
-                    {["〜30万円", "30〜80万円", "80〜150万円", "150万円〜", "未定"].map((b) => (
-                      <label key={b} className="mb-2 block">
+                    <legend className="mb-3 block text-lg font-semibold">希望プラン（任意）</legend>
+                    {planOptions.map((p) => (
+                      <label key={p.value} className="mb-2 block">
                         <input
                           type="radio"
-                          name="budget"
+                          name="plan"
                           className="mr-2"
-                          onChange={() => setDiag((d) => ({ ...d, budget: b }))}
-                          checked={diag.budget === b}
+                          onChange={() => setDiag((d) => ({ ...d, plan: p.value }))}
+                          checked={diag.plan === p.value}
                         />
-                        {b}
+                        {p.label}
                       </label>
                     ))}
-                  </fieldset>
-
-                  <fieldset>
-                    <legend className="mb-3 block text-lg font-semibold">希望リリース時期</legend>
-                    {["2週間以内", "1ヶ月以内", "2〜3ヶ月", "未定"].map((t) => (
-                      <label key={t} className="mb-2 block">
-                        <input
-                          type="radio"
-                          name="timeline"
-                          className="mr-2"
-                          onChange={() => setDiag((d) => ({ ...d, timeline: t }))}
-                          checked={diag.timeline === t}
-                        />
-                        {t}
-                      </label>
-                    ))}
+                    <label className="mt-1 block text-xs text-muted-foreground">
+                      ※ 迷っていても大丈夫です。未選択のまま送信できます。
+                    </label>
                   </fieldset>
                 </div>
 
@@ -305,6 +396,57 @@ export default function ContactPage() {
                         onChange={(e) => setDiag((d) => ({ ...d, siteUrl: e.target.value }))}
                       />
                     )}
+                  </fieldset>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-3 block text-lg font-semibold" htmlFor="priority">
+                      優先したいこと（任意）
+                    </label>
+                    <select
+                      id="priority"
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
+                      value={diag.priority}
+                      onChange={(e) =>
+                        setDiag((d) => ({ ...d, priority: e.target.value as Diagnosis["priority"] }))
+                      }
+                    >
+                      <option value="">未選択</option>
+                      <option value="speed">スピード（できるだけ早く）</option>
+                      <option value="cost">コスト（費用を抑えたい）</option>
+                      <option value="scope">内容（機能やページを優先）</option>
+                    </select>
+                  </div>
+
+                  <fieldset>
+                    <legend className="mb-3 block text-lg font-semibold">素材の準備状況（任意）</legend>
+                    <div className="grid grid-cols-2 gap-y-2 text-sm">
+                      {[
+                        ["texts", "原稿あり"],
+                        ["photos", "写真あり"],
+                        ["logo", "ロゴあり"],
+                        ["existing_site", "既存サイトあり"],
+                        ["none", "未準備が多い"],
+                      ].map(([v, l]) => {
+                        const set = new Set(diag.assets);
+                        const checked = set.has(v as any);
+                        return (
+                          <label key={v} className="inline-flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={(e) => {
+                                const next = new Set(set);
+                                e.target.checked ? next.add(v as any) : next.delete(v as any);
+                                setDiag((d) => ({ ...d, assets: Array.from(next) as any }));
+                              }}
+                            />
+                            {l}
+                          </label>
+                        );
+                      })}
+                    </div>
                   </fieldset>
                 </div>
 
@@ -421,7 +563,7 @@ export default function ContactPage() {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     rows={5}
-                    placeholder="ご相談内容・現状の課題・ご希望の予算や納期など"
+                    placeholder="ご相談内容・現状の課題など（例：先にLPを公開し、後から会社概要と事例を追加したい）"
                     className="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
                   />
                 </div>

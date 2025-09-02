@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BRAND, CONTACT } from "@/lib/constants";
+import { PRICING } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "利用規約",
@@ -26,6 +27,7 @@ export const dynamic = "force-static";
 
 export default function TermsPage() {
   const EFFECTIVE_DATE = "2025-08-30"; // 施行日（必要に応じて更新）
+  const { meta } = PRICING;
 
   return (
     <main className="bg-white py-16">
@@ -79,23 +81,27 @@ export default function TermsPage() {
           <ul>
             <li>料金は見積書に基づき、支払条件は個別契約に従います。</li>
             <li>
-              ドメイン・サーバ・有料SaaS・有料素材等の外部費用は実費で、お客様負担とします（個別契約で当方立替の場合を除く）。
+              表示価格は<strong>{meta.tax}</strong>です。ドメイン・サーバ・有料SaaS・有料素材等の外部費用は実費で、お客様負担とします（個別契約で当方立替の場合を除く）。
             </li>
             <li>
-              分割・着手金・検収条件等は個別契約に定めます。支払遅延がある場合、作業・公開・権利付与を留保できます。
+              支払スケジュール（目安）：{meta.notes.payment}
+            </li>
+            <li>
+              支払遅延がある場合、当方は作業・公開・権利付与を留保でき、遅延損害金を請求することがあります。
             </li>
           </ul>
 
           <h2 id="campaign">6. キャンペーン</h2>
           <p>
-            当方が実施するキャンペーンの適用条件・対象・注意事項は、
+            当方が実施するキャンペーンの適用条件・対象・注意事項は、{" "}
             <Link href="/campaign" className="text-blue-600 underline-offset-2 hover:underline">キャンペーン案内</Link>
-            に定めます。内容は予告なく変更・終了する場合があります。個別契約の定めがあるときは当該定めを優先します。
+            {" "}に定めます。内容は予告なく変更・終了する場合があります。個別契約の定めがあるときは当該定めを優先します。
           </p>
 
           <h2 id="maintenance">7. 保守・運用</h2>
           <p>
-            保守の範囲・SLA・工数上限等は、保守プラン（ライト保守／スタンダード運用／グロース運用 等）および個別契約に従います。第三者サービスの障害・仕様変更は免責とし、対応は別途見積りとなる場合があります。
+            保守の範囲・SLA・工数上限等は、各保守プランおよび個別契約に従います。受付時間は原則{" "}
+            <strong>{meta.businessHours}</strong>（日本時間・メール）です。第三者サービスの障害・仕様変更は免責とし、対応は別途見積りとなる場合があります。
           </p>
 
           <h2 id="subcontract">8. 再委託</h2>
