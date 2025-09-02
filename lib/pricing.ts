@@ -79,7 +79,7 @@ export type SetPlan = {
   popular?: boolean;
 };
 
-export const SET_PLANS = [
+export const SET_PLANS: readonly SetPlan[] = [
   {
     code: "essential",
     name: "Essential（ミニコーポレート）",
@@ -135,7 +135,7 @@ export const SET_PLANS = [
     sla: { label: "P1=4時間以内", p1: "4時間以内", p2: "翌営業日", p3: "週内" },
     leadTime: { note: "要件確定後 4〜6週間" },
   },
-] as const satisfies readonly SetPlan[];
+];
 
 /** LP特化パック（別枠） */
 export type LpPack = {
@@ -147,7 +147,7 @@ export type LpPack = {
   leadTime: LeadTime;
 };
 
-export const LP_PACK = {
+export const LP_PACK: LpPack = {
   code: "starter_lp",
   name: "Starter-LP（まず出す）",
   price: { text: "¥79,800", taxExcluded: true },
@@ -158,7 +158,7 @@ export const LP_PACK = {
   ],
   sla: { label: "翌営業日初動", p1: "翌営業日内", p2: "3営業日内" },
   leadTime: { note: "素材受領後 5〜10営業日" },
-} as const satisfies LpPack;
+};
 
 /** 単体メニュー（4群） */
 export type SoloItem = {
@@ -173,7 +173,7 @@ export type SoloGroup = {
   items: SoloItem[];
 };
 
-export const SOLO_GROUPS = [
+export const SOLO_GROUPS: readonly SoloGroup[] = [
   {
     code: "setup",
     title: "4-1 基本セットアップ",
@@ -245,7 +245,7 @@ export const SOLO_GROUPS = [
       },
     ],
   },
-] as const satisfies readonly SoloGroup[];
+];
 
 /** 月額（運用・保守） */
 export type MonthlyPlan = {
@@ -257,7 +257,7 @@ export type MonthlyPlan = {
   initial: string;
 };
 
-export const MONTHLY_PLANS = [
+export const MONTHLY_PLANS: readonly MonthlyPlan[] = [
   {
     code: "self",
     name: "Self（セルフ運用）",
@@ -302,7 +302,7 @@ export const MONTHLY_PLANS = [
     ],
     initial: "P1=4時間以内",
   },
-] as const satisfies readonly MonthlyPlan[];
+];
 
 /** エクスポートまとめ */
 export const PRICING = {
