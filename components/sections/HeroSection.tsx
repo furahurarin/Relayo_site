@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import ContactCTA from "@/components/cta/ContactCTA";
-import { Mail, Megaphone } from "lucide-react";
+import { Mail, Megaphone, ShieldCheck, Zap, CheckCircle2 } from "lucide-react";
 import { BRAND } from "@/lib/constants";
 
 export default function HeroSection() {
@@ -24,31 +24,47 @@ export default function HeroSection() {
                 id="hero-heading"
                 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl"
               >
-                売上につながる
-                <span className="text-blue-600"> Web/アプリ </span>
-                を、
+                売上につながる<span className="whitespace-nowrap">Web/アプリ</span>を、
                 <br />
-                <span className="text-orange-500">オンライン（メール中心）</span>
-                で最短 2〜4 週間で。
+                メール中心の完全オンラインで、最短<span className="whitespace-nowrap">2–4週</span>。
               </h1>
               <p className="text-lg leading-relaxed text-gray-600">
-                初期費用を抑えて小さく立ち上げ、公開後は
-                <strong>月額保守で継続改善</strong>。
+                初期費用を抑えて小さく立ち上げ、公開後は<strong>月額保守で継続改善</strong>。
                 全国どこでも、非対面のスムーズな進行で成果に直結する導線を作ります。
               </p>
+
+              {/* 安心の3ポイント */}
+              <ul className="grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-3">
+                <li className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+                  <span>SLAあり（P1＝4時間以内）</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+                  <span>税込表示・契約縛りなし</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" aria-hidden="true" />
+                  <span>問い合わせは約2分で完了</span>
+                </li>
+              </ul>
             </div>
 
-            {/* ✅ CTAは「お問い合わせ」で統一 */}
+            {/* ✅ 主導線は /contact、料金はサブ導線 */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <ContactCTA />
               <Link
                 href="#pricing"
+                aria-label="料金セクションへ（プランと価格を確認）"
+                data-umami-event="cta_pricing"
+                data-umami-event-section="hero"
                 className="text-sm font-semibold text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200"
               >
                 料金を見る →
               </Link>
             </div>
-            <p className="text-xs text-gray-500">約2分で完了。営業電話は行いません。回答はメールでお送りします。
+            <p className="text-xs text-gray-500">
+              約2分で完了。営業電話は行いません。回答はメールでお送りします。
             </p>
 
             {/* Campaign / Notice（詳細は専用ページへ集約） */}
@@ -58,7 +74,7 @@ export default function HeroSection() {
                 <div>
                   <p className="text-sm font-semibold text-emerald-800">キャンペーンのご案内</p>
                   <p className="text-sm text-emerald-900">
-                    条件・対象・注意事項は
+                    「制作費¥0＋保守3ヶ月¥0（※条件あり）」の条件・対象・注意事項は
                     <Link
                       href="/campaign"
                       className="ml-1 underline underline-offset-4 decoration-emerald-600/60 hover:text-emerald-700"
@@ -85,7 +101,11 @@ export default function HeroSection() {
 
           {/* Right Content - Visual */}
           <div className="relative">
-            <div className="relative z-10 rounded-2xl bg-white p-8 shadow-xl">
+            <div
+              className="relative z-10 rounded-2xl bg-white p-8 shadow-xl"
+              role="img"
+              aria-label="Next.jsとTailwindによる高速・保守しやすいWeb制作のイメージ"
+            >
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="h-3 w-3 rounded-full bg-green-400" />
@@ -116,4 +136,3 @@ export default function HeroSection() {
     </section>
   );
 }
-

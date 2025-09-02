@@ -18,6 +18,20 @@ type QA = { q: string; a: React.ReactNode };
 
 const shortName = (name: string) => name.split("（")[0] ?? name;
 const stripPerMonth = (text: string) => text.replace(/／月$/, "");
+const LITE_LINE =
+  "稼働/フォームの簡易監視・バックアップ。月1回、テキスト1箇所または画像3点まで対応。";
+
+/** JSX → 構造化データ用プレーンテキスト（簡易） */
+function toPlainText(node: React.ReactNode): string {
+  if (typeof node === "string") return node;
+  if (Array.isArray(node)) return node.map(toPlainText).join(" ");
+  if (typeof node === "object" && node) {
+    // @ts-ignore
+    const { props } = node || {};
+    return toPlainText(props?.children ?? "");
+  }
+  return "";
+}
 
 export default function FAQSection() {
   const { setPlans, lpPack, monthlyPlans, meta } = PRICING;
@@ -28,7 +42,6 @@ export default function FAQSection() {
 
   const selfM = monthlyPlans.find((m) => m.code === "self");
   const liteM = monthlyPlans.find((m) => m.code === "lite");
-  const assistM = monthlyPlans.find((m) => m.code === "assist");
   const stdM = monthlyPlans.find((m) => m.code === "standard");
   const growthM = monthlyPlans.find((m) => m.code === "growth");
 
@@ -61,7 +74,6 @@ export default function FAQSection() {
           <span className="font-medium">
             {selfM ? `${shortName(selfM.name)} ${stripPerMonth(selfM.price.text)}／` : null}
             {liteM ? `${shortName(liteM.name)} ${stripPerMonth(liteM.price.text)}／` : null}
-            {assistM ? `${shortName(assistM.name)} ${stripPerMonth(assistM.price.text)}／` : null}
             {stdM ? `${shortName(stdM.name)} ${stripPerMonth(stdM.price.text)}／` : null}
             {growthM ? `${shortName(growthM.name)} ${stripPerMonth(growthM.price.text)}` : null}
           </span>
@@ -79,9 +91,9 @@ export default function FAQSection() {
         <>
           素材・要件確定後の目安は{" "}
           <span className="font-medium">
-            {lpPack ? `Starter-LP ${lpPack.leadTime.note}／` : null}
-            {standard ? `Standard ${standard.leadTime.note}／` : null}
-            {growth ? `Growth ${growth.leadTime.note}` : null}
+            {lpPack ? `${shortName(lpPack.name)} ${lpPack.leadTime.note}／` : null}
+            {standard ? `${shortName(standard.name)} ${standard.leadTime.note}／` : null}
+            {growth ? `${shortName(growth.name)} ${growth.leadTime.note}` : null}
           </span>
           （規模や外部連携により前後）。
         </>
@@ -115,22 +127,10 @@ export default function FAQSection() {
       q: "運用開始後のサポート（SLA・内容）は？",
       a: (
         <>
-          初動は{" "}
-          <span className="font-medium">
-            {liteM ? `${shortName(liteM.name)}=${liteM.initial}` : null}
-            {assistM ? `／${shortName(assistM.name)}=${assistM.initial}` : null}
-            {stdM ? `／${shortName(stdM.name)}=${stdM.initial}` : null}
-            {growthM ? `／${shortName(growthM.name)}=${growthM.initial}` : null}
-          </span>
-          。代表的な内容は
-          <span className="font-medium">
-            {" "}
-            {liteM ? `Lite：${liteM.features[1] ?? liteM.features[0]}` : null}
-            {assistM ? `／Assist：${assistM.features[0]}` : null}
-            {stdM ? `／Standard：${stdM.features[1] ?? stdM.features[0]}` : null}
-            {growthM ? `／Growth：${growthM.features[0]}` : null}
-          </span>
-          。詳細は{" "}
+          <strong>Lite：</strong>
+          {LITE_LINE} 初動目安は
+          <strong>（P1＝4時間以内／P2＝翌営業日／P3＝週内）</strong>です（プランにより異なる場合あり）。
+          詳細は{" "}
           <Link href="/pricing" className="underline underline-offset-4">
             料金ページ
           </Link>
@@ -187,6 +187,17 @@ export default function FAQSection() {
     },
   ];
 
+  // 構造化データ（FAQPage）
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: toPlainText(f.a) },
+    })),
+  };
+
   return (
     <section className="bg-white py-20" aria-labelledby="faq-heading" role="region">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -242,8 +253,14 @@ export default function FAQSection() {
             </CardContent>
           </Card>
         </div>
+
+        {/* FAQ 構造化データ（SEO） */}
+        <script
+          type="application/ld+json"
+          // @ts-ignore
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
       </div>
     </section>
   );
 }
-
