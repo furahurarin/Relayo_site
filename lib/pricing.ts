@@ -36,6 +36,9 @@ export const META = {
     /** UIツールチップで出す“初動”の定義（一次レス＋暫定回避策） */
     firstResponse:
       "初動＝一次レスポンスと暫定回避策の提示を指します。営業時間外のP1は可能な限り対応します。",
+    /** SLAラベルの補助説明（UIのtitle属性などで使用想定） */
+    pLevels:
+      "P1=重大（決済・フォーム不可等）／P2=中度（一部機能不調）／P3=軽度（表示崩れ・文言修正等）",
   },
   notes: {
     included: [
@@ -51,9 +54,10 @@ export const META = {
       "高度なUI開発（複雑な予約・権限管理・外部API多数連携など）",
       "大規模な移行作業",
     ],
-    payment: "着手20%・中間30%・検収50%／請求書発行から30日以内にお支払い",
+    payment:
+      "お支払い：着手20%・中間30%・検収50%（請求書発行から30日以内）。振込手数料はご負担ください。",
     upgrade:
-      "検収前または公開後30日以内の上位プラン変更は、差額＋追加仕様分のみをご請求",
+      "検収前または公開後30日以内の上位プラン変更は、差額＋追加仕様分のみをご請求します。",
     disclaimers: [
       "表示価格はすべて税別です。",
       "有料SaaS・外部決済手数料等の実費は別途となる場合があります。",
@@ -75,7 +79,7 @@ export type SetPlan = {
   popular?: boolean;
 };
 
-export const SET_PLANS: SetPlan[] = [
+export const SET_PLANS = [
   {
     code: "essential",
     name: "Essential（ミニコーポレート）",
@@ -131,7 +135,7 @@ export const SET_PLANS: SetPlan[] = [
     sla: { label: "P1=4時間以内", p1: "4時間以内", p2: "翌営業日", p3: "週内" },
     leadTime: { note: "要件確定後 4〜6週間" },
   },
-] as const;
+] as const satisfies readonly SetPlan[];
 
 /** LP特化パック（別枠） */
 export type LpPack = {
@@ -143,7 +147,7 @@ export type LpPack = {
   leadTime: LeadTime;
 };
 
-export const LP_PACK: LpPack = {
+export const LP_PACK = {
   code: "starter_lp",
   name: "Starter-LP（まず出す）",
   price: { text: "¥79,800", taxExcluded: true },
@@ -154,7 +158,7 @@ export const LP_PACK: LpPack = {
   ],
   sla: { label: "翌営業日初動", p1: "翌営業日内", p2: "3営業日内" },
   leadTime: { note: "素材受領後 5〜10営業日" },
-};
+} as const satisfies LpPack;
 
 /** 単体メニュー（4群） */
 export type SoloItem = {
@@ -169,7 +173,7 @@ export type SoloGroup = {
   items: SoloItem[];
 };
 
-export const SOLO_GROUPS: SoloGroup[] = [
+export const SOLO_GROUPS = [
   {
     code: "setup",
     title: "4-1 基本セットアップ",
@@ -188,10 +192,19 @@ export const SOLO_GROUPS: SoloGroup[] = [
     title: "4-2 ページ制作・コンテンツ",
     items: [
       { name: "LP（テンプレ・1ページ）", price: { text: "¥59,800", taxExcluded: true } },
-      { name: "コーポレート基本（テンプレ・5ページ）", price: { text: "¥139,800", taxExcluded: true } },
+      {
+        name: "コーポレート基本（テンプレ・5ページ）",
+        price: { text: "¥139,800", taxExcluded: true },
+      },
       { name: "ページ追加（テンプレ下層・1ページ）", price: { text: "¥9,800", taxExcluded: true } },
-      { name: "ページ追加（オリジナル要素多め・1ページ）", price: { text: "¥19,800", taxExcluded: true } },
-      { name: "ブログ／お知らせ（CMS導入＋基本テンプレ）", price: { text: "¥39,800", taxExcluded: true } },
+      {
+        name: "ページ追加（オリジナル要素多め・1ページ）",
+        price: { text: "¥19,800", taxExcluded: true },
+      },
+      {
+        name: "ブログ／お知らせ（CMS導入＋基本テンプレ）",
+        price: { text: "¥39,800", taxExcluded: true },
+      },
       { name: "FAQブロック作成（10項目まで）", price: { text: "¥9,800", taxExcluded: true } },
       { name: "事例／メニュー一覧テンプレ導入", price: { text: "¥19,800", taxExcluded: true } },
       { name: "画像最適化（最大20点）", price: { text: "¥4,980", taxExcluded: true } },
@@ -202,11 +215,18 @@ export const SOLO_GROUPS: SoloGroup[] = [
     code: "addons",
     title: "4-3 機能アドオン",
     items: [
-      { name: "予約（既存SaaS設定代行・カレンダー／通知連携）", price: { text: "¥29,800〜", taxExcluded: true } },
+      {
+        name: "予約（既存SaaS設定代行・カレンダー／通知連携）",
+        price: { text: "¥29,800〜", taxExcluded: true },
+      },
       { name: "予約（Firebaseカスタム・最小構成）", price: { text: "¥98,000〜", taxExcluded: true } },
       { name: "オンライン決済（Stripe）", price: { text: "¥59,800〜", taxExcluded: true } },
       { name: "会員／ログイン（限定ページ）", price: { text: "¥120,000〜", taxExcluded: true } },
-      { name: "多言語追加（日本語＋英語／1言語あたり）", price: { text: "¥69,800", taxExcluded: true }, note: "翻訳テキストは原則ご支給" },
+      {
+        name: "多言語追加（日本語＋英語／1言語あたり）",
+        price: { text: "¥69,800", taxExcluded: true },
+        note: "翻訳テキストは原則ご支給",
+      },
     ],
   },
   {
@@ -219,10 +239,13 @@ export const SOLO_GROUPS: SoloGroup[] = [
       { name: "セクション追加（テンプレ1ブロック）", price: { text: "¥9,800", taxExcluded: true } },
       { name: "下層ページ追加（テンプレ1ページ）", price: { text: "¥9,800", taxExcluded: true } },
       { name: "LP追加（テンプレ1本）", price: { text: "¥49,800", taxExcluded: true } },
-      { name: "軽微不具合対応（表示崩れ／リンク切れ等・1件）", price: { text: "¥3,980", taxExcluded: true } },
+      {
+        name: "軽微不具合対応（表示崩れ／リンク切れ等・1件）",
+        price: { text: "¥3,980", taxExcluded: true },
+      },
     ],
   },
-] as const;
+] as const satisfies readonly SoloGroup[];
 
 /** 月額（運用・保守） */
 export type MonthlyPlan = {
@@ -234,7 +257,7 @@ export type MonthlyPlan = {
   initial: string;
 };
 
-export const MONTHLY_PLANS: MonthlyPlan[] = [
+export const MONTHLY_PLANS = [
   {
     code: "self",
     name: "Self（セルフ運用）",
@@ -279,7 +302,7 @@ export const MONTHLY_PLANS: MonthlyPlan[] = [
     ],
     initial: "P1=4時間以内",
   },
-] as const;
+] as const satisfies readonly MonthlyPlan[];
 
 /** エクスポートまとめ */
 export const PRICING = {
