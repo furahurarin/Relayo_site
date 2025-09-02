@@ -1,8 +1,8 @@
 // components/footer.tsx
 import Link from "next/link";
-import { Building, MapPin, Mail, Tag } from "lucide-react";
+import { Building, MapPin, Mail } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
-import { BRAND, CAMPAIGN } from "@/lib/constants";
+import { BRAND } from "@/lib/constants";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -17,21 +17,21 @@ export default function Footer() {
             <p className="max-w-md leading-relaxed text-gray-300">
               全国の中小企業・個人事業主のデジタル化を支援。
               <br className="hidden sm:block" />
-              テンプレ＋AI活用で<strong>{CAMPAIGN.ribbonText}</strong>のWeb/アプリを構築し、
-              公開後は<strong>運用まで伴走</strong>します（メール中心の非対面ヒアリング）。
+              テンプレートとAIを活用して<span className="font-semibold">短納期・高品質</span>の Web/アプリを構築し、
+              公開後も<span className="font-semibold">運用まで伴走</span>します（オンライン中心のヒアリング）。
             </p>
 
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
-                <Building className="h-5 w-5 text-gray-400" aria-hidden />
+                <Building className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 <span className="text-gray-300">個人事業（将来法人化予定）</span>
               </div>
               <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-gray-400" aria-hidden />
+                <MapPin className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 <span className="text-gray-300">拠点：オンライン／全国対応</span>
               </div>
               <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gray-400" aria-hidden />
+                <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 {/* CTA統一のため mailto は貼らず情報表示のみ */}
                 <span className="text-gray-300">{BRAND.email}</span>
               </div>
@@ -70,17 +70,25 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="group inline-flex items-center gap-2 transition-colors hover:text-white">
+                <Link
+                  href="/pricing"
+                  className="group inline-flex items-center gap-2 transition-colors hover:text-white"
+                >
                   料金
                   <span className="rounded-full border border-emerald-700/40 bg-emerald-900/20 px-2 py-0.5 text-xs text-emerald-200">
-                    まとめ割あり
+                    パッケージ割あり
                   </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="transition-colors hover:text-white">
+                  FAQ
                 </Link>
               </li>
               <li>
                 {/* 入口はフォームに統一 */}
                 <Link href="/contact" className="transition-colors hover:text-white">
-                  お問い合わせ（無料診断つき）
+                  お問い合わせ
                 </Link>
               </li>
             </ul>
@@ -106,26 +114,10 @@ export default function Footer() {
           </nav>
         </div>
 
-        {/* Campaign note */}
-        <div className="mt-10 rounded-md border border-emerald-900/30 bg-emerald-800/10 p-4 text-sm text-emerald-200">
-          <strong className="text-emerald-300">{CAMPAIGN.name}</strong>
-          ：制作費 ¥0（諸経費のみ）＋ 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）／
-          {CAMPAIGN.freeCancelNote}。 対象：{CAMPAIGN.scope}／条件：実績掲載・レビュー協力、素材提出＝KO+7日。
-          <div className="mt-2 text-emerald-300/80">
-            ※ 価格は税込・ドメイン/サーバ等の実費は別。詳しくは
-            <Link href="/pricing" className="underline decoration-emerald-400/60 underline-offset-2 hover:text-white">
-              料金ページ
-            </Link>
-            をご確認ください。
-          </div>
-        </div>
-
         {/* CTA + Copyright */}
         <div className="mt-12 border-t border-gray-800 pt-8">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <p className="text-sm text-gray-400">
-              © {year} {BRAND.name}. All rights reserved.
-            </p>
+            <p className="text-sm text-gray-400">© {year} {BRAND.name}. All rights reserved.</p>
             {/* CTAはフォームへ一本化 */}
             <div className="w-full sm:w-auto">
               <ContactCTA />

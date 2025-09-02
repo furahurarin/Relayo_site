@@ -12,18 +12,17 @@ import {
 import { ArrowRight, Lightbulb, Code, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactCTA from "@/components/cta/ContactCTA";
-import { CAMPAIGN } from "@/lib/constants";
 
 export default function ServicesSection() {
   const services = [
     {
       icon: Lightbulb,
       title: "設計",
-      subtitle: "要件定義・情報設計（メール非対面）",
+      subtitle: "要件定義・情報設計（オンライン：メール中心）",
       description:
-        "メール往復（1–2回）の非対面ヒアリングで、目的とKPIを短時間で確定。小さく始めて拡張できる設計で、短期公開と将来の拡張性を両立します。",
+        "メール往復（1〜2回）で目的とKPIを短時間で確定。小さく始めて拡張できる設計で、短期公開と将来の拡張性を両立します。",
       features: [
-        "非対面ヒアリング（メール中心）",
+        "オンラインヒアリング（メール中心）",
         "KPI設定／優先順位づけ",
         "サイトマップ・ワイヤーフレーム",
         "コピー叩き台（各p〜1,000字）",
@@ -51,9 +50,9 @@ export default function ServicesSection() {
       title: "運用",
       subtitle: "保守・改善（SLA付き）",
       description:
-        "公開後はデータに基づく継続改善。Liteは月2h/2件の軽微改修と依存更新をカバー。障害は優先度に応じて初動し、必要に応じA/Bテストを実施します。",
+        "公開後はデータに基づく継続改善。ライト保守は月2h/2件の軽微改修と依存更新をカバー。障害は優先度に応じて初動し、必要に応じてA/Bテストを実施します。",
       features: [
-        "保守Lite：月2h/2件（繰越なし）",
+        "ライト保守：月2h/2件（繰越なし）",
         "依存アップデート（月1回目安）",
         "監視・障害初動（P1=即時）",
         "月次レポート／改善提案",
@@ -64,12 +63,19 @@ export default function ServicesSection() {
   ] as const;
 
   return (
-    <section className="bg-white py-20">
+    <section
+      className="bg-white py-20"
+      aria-labelledby="services-heading"
+      id="services"
+      role="region"
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-16 space-y-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">サービス内容</h2>
+          <h2 id="services-heading" className="text-3xl font-bold text-gray-900 sm:text-4xl">
+            サービス内容
+          </h2>
           <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            設計 → 制作 → 運用をワンチームで。メール中心の非対面ヒアリングで
+            設計 → 制作 → 運用をワンチームで。オンライン（メール中心）のヒアリングで
             <span className="font-medium">最短公開</span>、公開後は
             <span className="font-medium">保守で継続改善</span>します。
           </p>
@@ -85,7 +91,7 @@ export default function ServicesSection() {
                     <div
                       className={`mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r ${service.color}`}
                     >
-                      <Icon className="h-8 w-8 text-white" />
+                      <Icon className="h-8 w-8 text-white" aria-hidden="true" />
                     </div>
                     <div>
                       <CardTitle className="text-2xl font-bold text-gray-900">
@@ -105,7 +111,7 @@ export default function ServicesSection() {
                       <ul className="space-y-2">
                         {service.features.map((f) => (
                           <li key={f} className="flex items-center text-sm text-gray-600">
-                            <div className="mr-3 h-1.5 w-1.5 rounded-full bg-gray-400" />
+                            <span className="mr-3 inline-block h-1.5 w-1.5 rounded-full bg-gray-400" aria-hidden="true" />
                             {f}
                           </li>
                         ))}
@@ -117,7 +123,7 @@ export default function ServicesSection() {
                 {/* 3枚を矢印で接続（大画面のみ） */}
                 {index < services.length - 1 && (
                   <div className="absolute top-1/2 -right-4 hidden -translate-y-1/2 lg:block">
-                    <ArrowRight className="h-8 w-8 text-gray-300" />
+                    <ArrowRight className="h-8 w-8 text-gray-300" aria-hidden="true" />
                   </div>
                 )}
               </div>
@@ -137,7 +143,6 @@ export default function ServicesSection() {
                 <li>・料金/営業時間の即決表</li>
               </ul>
               <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                {/* 内部ナビはそのまま */}
                 <Button asChild size="lg" className="group bg-blue-600 text-white hover:bg-blue-700">
                   <Link
                     href="/#pricing"
@@ -146,15 +151,18 @@ export default function ServicesSection() {
                     data-umami-event-section="services-quickwins"
                   >
                     最適プランを見る
-                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
                   </Link>
                 </Button>
-                {/* ✅ 入口は /contact に一本化 */}
+                {/* 入口は /contact に一本化 */}
                 <ContactCTA />
               </div>
               <p className="mt-4 text-xs text-gray-500">
-                ※ 先着{CAMPAIGN.seats}社は「制作費¥0 × 保守{CAMPAIGN.freeCareMonths}ヶ月¥0（Lite相当）」＋
-                {CAMPAIGN.freeCancelNote}
+                キャンペーンの条件・対象・注意事項は{" "}
+                <Link href="/campaign" className="underline underline-offset-4">
+                  キャンペーン案内
+                </Link>
+                をご確認ください。
               </p>
             </CardContent>
           </Card>

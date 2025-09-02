@@ -14,14 +14,16 @@ export default function ContactCTA({ variant = "primary", full, small }: Props) 
       : "text-blue-700 hover:text-blue-900";
   const width = full ? "w-full" : "";
 
+  const label = "お問い合わせ";
+
   return (
     <Link
       href="/contact"
       className={`${base} ${size} ${styles} ${width}`}
       onClick={() => (window as any)?.umami?.track?.("click_contact_cta")}
-      aria-label="お問い合わせ（無料診断つき）フォームへ"
+      aria-label={`${label}（フォームへ）`}
     >
-      お問い合わせ（無料診断つき）
+      {label}
     </Link>
   );
 }

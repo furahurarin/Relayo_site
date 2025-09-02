@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, Star } from "lucide-react";
-import { CAMPAIGN } from "@/lib/constants";
 import ContactCTA from "@/components/cta/ContactCTA";
 
 type BuildPlan = {
@@ -37,8 +36,8 @@ export default function PricingSection() {
       code: "starter",
       name: "Starter-LP",
       subtitle: "LP 1ページ／まず公開",
-      initialPrice: 79800,
-      monthlyText: "月額：ライト保守 ¥3,980〜",
+      initialPrice: 79_800,
+      monthlyText: "ライト保守 ¥3,980〜",
       popular: false,
       description:
         "最小構成で素早く公開。問い合わせフォームや基本の計測・SEOをセットにした入門パッケージです。",
@@ -56,8 +55,8 @@ export default function PricingSection() {
       code: "standard",
       name: "Standard",
       subtitle: "目安8ページ（5p＋下層3p）／いちばん人気",
-      initialPrice: 198000,
-      monthlyText: "月額：スタンダード運用 ¥14,800",
+      initialPrice: 198_000,
+      monthlyText: "スタンダード運用 ¥14,800",
       popular: true,
       description:
         "企業サイトの標準構成。更新しやすいCMSやFAQ、事例一覧まで含めて、公開後の運用に強い設計です。",
@@ -76,7 +75,7 @@ export default function PricingSection() {
       name: "Growth",
       subtitle: "目安10p＋LP 1本／攻めの運用",
       initialPrice: "348,000〜",
-      monthlyText: "月額：グロース運用 ¥39,800〜",
+      monthlyText: "グロース運用 ¥39,800〜",
       popular: false,
       description:
         "計測強化とABテストを前提とした拡張プラン。LP追加やタグ管理、CV設計まで含めて継続最適化します。",
@@ -93,51 +92,26 @@ export default function PricingSection() {
 
   const maintenance: MaintenancePlan[] = [
     { name: "セルフ運用", monthly: 0, desc: "月例作業なし。不具合や更新は単発パックで都度依頼。" },
-    { name: "ライト保守", monthly: 3980, desc: "稼働/フォームの簡易監視・バックアップ。月1回：テキスト1箇所または画像3点。" },
-    { name: "スタンダード運用", monthly: 14800, desc: "監視・バックアップ＋毎月“ミニ改善”1回。四半期に速度/SEOケア。簡易レポート付き。" },
+    { name: "ライト保守", monthly: 3_980, desc: "稼働/フォームの簡易監視・バックアップ。月1回：テキスト1箇所または画像3点。" },
+    { name: "スタンダード運用", monthly: 14_800, desc: "監視・バックアップ＋毎月“ミニ改善”1回。四半期に速度/SEOケア。簡易レポート付き。" },
     { name: "グロース運用", monthly: "39,800〜", desc: "毎月“改善”2回＋CTA/A-Bテスト1本。四半期でLP1本追加（テンプレ）または全体最適化。" },
   ];
 
   const fmtJPY = (v: number | string) =>
-    typeof v === "number" ? `¥${v.toLocaleString()}` : `¥${v}`;
+    typeof v === "number" ? `¥${v.toLocaleString("ja-JP")}` : `¥${v}`;
 
   return (
-    <section className="bg-gray-50 py-20">
+    <section className="bg-gray-50 py-20" aria-labelledby="pricing-heading">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* 見出し */}
         <div className="mb-10 space-y-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">料金プラン</h2>
+          <h2 id="pricing-heading" className="text-3xl font-bold text-gray-900 sm:text-4xl">
+            料金プラン
+          </h2>
           <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            価格は<strong>すべて税込</strong>。ドメイン/サーバ等の実費は別となります。
-            公開後は月額プランで継続改善も可能です。
+            価格は<strong>すべて税込</strong>。ドメイン/サーバ等の実費は別となります。公開後は月額プランで継続改善も可能です。
           </p>
         </div>
-
-        {/* キャンペーン告知 */}
-        <Card className="mb-12 border-2 border-emerald-200 bg-emerald-50">
-          <CardContent className="flex flex-col items-center gap-4 p-6 text-center sm:flex-row sm:justify-between sm:text-left">
-            <div>
-              <h3 className="text-xl font-bold text-emerald-800">
-                創業応援ローンチ（先着{CAMPAIGN.seats}社）
-              </h3>
-              <p className="mt-1 text-emerald-900">
-                <strong>
-                  制作費 ¥0（諸経費のみ）＋ 保守{CAMPAIGN.freeCareMonths}ヶ月 ¥0（Lite相当）
-                </strong>
-                ／<strong>{CAMPAIGN.freeCancelNote}</strong>。
-              </p>
-              <p className="mt-1 text-sm text-emerald-900">
-                対象範囲：{CAMPAIGN.scope}。{CAMPAIGN.note}
-              </p>
-            </div>
-            <div className="w-full sm:w-auto">
-              <ContactCTA />
-              <p className="mt-1 text-xs text-emerald-900/80 sm:text-right">
-                2分で完了。営業電話は行いません。
-              </p>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* 制作パッケージ */}
         <div className="grid gap-8 lg:grid-cols-3">
@@ -246,6 +220,28 @@ export default function PricingSection() {
               </Card>
             ))}
           </div>
+        </div>
+
+        {/* 信頼注記（支払条件／変更管理票／SLA 抜粋） */}
+        <div className="mt-16">
+          <Card className="mx-auto max-w-4xl border-2 border-gray-100 bg-white">
+            <CardContent className="p-6 text-sm leading-relaxed text-gray-700">
+              <ul className="list-disc space-y-2 pl-5">
+                <li>
+                  <strong>支払条件：</strong>着手20%／中間30%／検収50%（支払サイト30日）
+                </li>
+                <li>
+                  <strong>変更管理：</strong>仕様変更は「変更管理票」で合意のうえ、範囲・費用・納期・リスクを更新します
+                </li>
+                <li>
+                  <strong>SLA（抜粋）：</strong>P1 初動4h／P2 翌営業日／P3 週次（プランにより異なります）
+                </li>
+                <li>
+                  <strong>注意：</strong>表示価格は税込。ドメイン/サーバ等の実費は別。要件により変動します
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
 
         {/* カスタム案内 */}

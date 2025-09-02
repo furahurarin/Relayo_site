@@ -2,21 +2,22 @@
 "use client";
 
 /**
- * ✅ Turnstile 無効化版（後日再有効化しやすい構成）
- * - ボット対策は一旦「蜜壺(honeypot)」のみ
- * - 診断シート（Step1）→ 連絡先（Step2）→ 完了（Step3）の2ステップUI
+ * Turnstile 無効化版（後日再有効化しやすい構成）
+ * - ボット対策：honeypot のみ
+ * - 診断シート（Step1）→ 連絡先（Step2）→ 完了（Step3）
  * - Umami イベントは既存命名＋新命名の両対応
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, CheckCircle2, AlertCircle } from "lucide-react";
 
 type Diagnosis = {
   goal: string[]; // 複数選択
-  budget: string; // 〜30 / 30–80 / 80–150 / 150〜 / 未定
-  timeline: string; // 2週間 / 1ヶ月 / 2–3ヶ月 / 未定
+  budget: string; // 〜30 / 30〜80 / 80〜150 / 150〜 / 未定
+  timeline: string; // 2週間 / 1ヶ月 / 2〜3ヶ月 / 未定
   industry: string; // 業種
   hasSite: "あり" | "なし" | "";
   siteUrl: string;
@@ -29,7 +30,7 @@ export default function ContactPage() {
   const [email, setEmail] = useState("");
   const [tel, setTel] = useState("");
   const [message, setMessage] = useState("");
-  const [hp, setHp] = useState(""); // 蜜壺：埋まっていたら送信しない
+  const [hp, setHp] = useState(""); // honeypot：埋まっていたら送信しない
 
   /** ---------- 診断シート（ステップ1） ---------- */
   const [diag, setDiag] = useState<Diagnosis>({
@@ -46,6 +47,9 @@ export default function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const successRef = useRef<HTMLDivElement | null>(null);
+  const errorRef = useRef<HTMLDivElement | null>(null);
 
   /** ---------- バリデーション ---------- */
   const goals = [
@@ -71,6 +75,14 @@ export default function ContactPage() {
   const track = (event: string, data?: Record<string, any>) =>
     (typeof window !== "undefined" && (window as any)?.umami?.track?.(event, data));
 
+  /** ---------- フォーカス制御（SR向け） ---------- */
+  useEffect(() => {
+    if (done && successRef.current) successRef.current.focus();
+  }, [done]);
+  useEffect(() => {
+    if (error && errorRef.current) errorRef.current.focus();
+  }, [error]);
+
   /** ---------- 送信 ---------- */
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +102,7 @@ export default function ContactPage() {
         `業種: ${diag.industry}\n` +
         `現サイト: ${diag.hasSite}${diag.siteUrl ? ` / ${diag.siteUrl}` : ""}\n`;
 
-      // 蜜壺が埋まっていたらサーバー送信しない（ボット想定）
+      // honeypot が埋まっていたらサーバー送信しない（ボット想定）
       if (hp.trim() !== "") throw new Error("送信に失敗しました。");
 
       const res = await fetch("/api/contact", {
@@ -120,11 +132,20 @@ export default function ContactPage() {
       setEmail("");
       setTel("");
       setMessage("");
+      setDiag({
+        goal: [],
+        budget: "",
+        timeline: "",
+        industry: "",
+        hasSite: "",
+        siteUrl: "",
+      });
     } catch (err: any) {
       const msg = String(err?.message || err || "");
       setError(msg || "送信に失敗しました。");
       track("contact_submit_failed", { reason: msg });
       track("submit_contact_form_failed", { reason: msg });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setLoading(false);
     }
@@ -133,12 +154,12 @@ export default function ContactPage() {
   /** ---------- UI ---------- */
   return (
     <main className="min-h-[calc(100vh-6rem)] py-12">
-      <div className="container mx-auto px-4 max-w-3xl">
+      <div className="container mx-auto max-w-3xl px-4">
         <Card className="shadow-lg">
           <CardHeader className="space-y-2">
             <div className="flex items-center gap-3">
-              <Mail className="h-6 w-6" />
-              <CardTitle className="text-2xl">お問い合わせ（無料診断つき）</CardTitle>
+              <Mail className="h-6 w-6" aria-hidden="true" />
+              <CardTitle className="text-2xl">お問い合わせ</CardTitle>
             </div>
             <p className="text-sm text-muted-foreground">
               2分で完了。営業電話は行いません。回答はメールでお送りします。
@@ -148,8 +169,14 @@ export default function ContactPage() {
           <CardContent>
             {/* 完了メッセージ */}
             {done && step === 3 && (
-              <div className="mb-6 rounded-lg border p-4 flex items-start gap-3">
-                <CheckCircle2 className="mt-0.5 h-5 w-5" />
+              <div
+                className="mb-6 flex items-start gap-3 rounded-lg border p-4"
+                role="status"
+                aria-live="polite"
+                tabIndex={-1}
+                ref={successRef}
+              >
+                <CheckCircle2 className="mt-0.5 h-5 w-5" aria-hidden="true" />
                 <div>
                   <p className="font-medium">送信が完了しました。</p>
                   <p className="text-sm text-muted-foreground">
@@ -161,8 +188,14 @@ export default function ContactPage() {
 
             {/* エラーメッセージ */}
             {error && (
-              <div className="mb-6 rounded-lg border border-destructive/50 p-4 flex items-start gap-3">
-                <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
+              <div
+                className="mb-6 flex items-start gap-3 rounded-lg border border-destructive/50 p-4"
+                role="alert"
+                aria-live="assertive"
+                tabIndex={-1}
+                ref={errorRef}
+              >
+                <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" aria-hidden="true" />
                 <div>
                   <p className="font-medium text-destructive">エラーが発生しました</p>
                   <p className="text-sm text-muted-foreground">{error}</p>
@@ -172,10 +205,10 @@ export default function ContactPage() {
 
             {/* --- ステップ1：診断シート --- */}
             {step === 1 && (
-              <section className="space-y-8">
+              <section className="space-y-8" id="get-sheet" aria-label="診断シート">
                 <div>
-                  <h2 className="text-lg font-semibold mb-3">ご相談の目的（複数選択可）</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <h2 className="mb-3 text-lg font-semibold">ご相談の目的（複数選択可）</h2>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {goals.map((g) => {
                       const selected = diag.goal.includes(g);
                       return (
@@ -189,9 +222,7 @@ export default function ContactPage() {
                             }))
                           }
                           className={`rounded-xl border px-4 py-3 text-left ${
-                            selected
-                              ? "border-blue-600 bg-blue-50"
-                              : "border-gray-300 hover:bg-gray-50"
+                            selected ? "border-blue-600 bg-blue-50" : "border-gray-300 hover:bg-gray-50"
                           }`}
                           aria-pressed={selected}
                         >
@@ -203,10 +234,10 @@ export default function ContactPage() {
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2">
-                  <div>
-                    <h2 className="text-lg font-semibold mb-3">ご予算感</h2>
-                    {["〜30万円", "30–80万円", "80–150万円", "150万円〜", "未定"].map((b) => (
-                      <label key={b} className="block mb-2">
+                  <fieldset>
+                    <legend className="mb-3 block text-lg font-semibold">ご予算感</legend>
+                    {["〜30万円", "30〜80万円", "80〜150万円", "150万円〜", "未定"].map((b) => (
+                      <label key={b} className="mb-2 block">
                         <input
                           type="radio"
                           name="budget"
@@ -217,11 +248,12 @@ export default function ContactPage() {
                         {b}
                       </label>
                     ))}
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold mb-3">希望リリース時期</h2>
-                    {["2週間以内", "1ヶ月以内", "2–3ヶ月", "未定"].map((t) => (
-                      <label key={t} className="block mb-2">
+                  </fieldset>
+
+                  <fieldset>
+                    <legend className="mb-3 block text-lg font-semibold">希望リリース時期</legend>
+                    {["2週間以内", "1ヶ月以内", "2〜3ヶ月", "未定"].map((t) => (
+                      <label key={t} className="mb-2 block">
                         <input
                           type="radio"
                           name="timeline"
@@ -232,13 +264,16 @@ export default function ContactPage() {
                         {t}
                       </label>
                     ))}
-                  </div>
+                  </fieldset>
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2">
                   <div>
-                    <h2 className="text-lg font-semibold mb-3">業種</h2>
+                    <label className="mb-3 block text-lg font-semibold" htmlFor="industry">
+                      業種
+                    </label>
                     <input
+                      id="industry"
                       type="text"
                       placeholder="例）美容院 / 整骨院 / 飲食"
                       className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-ring"
@@ -246,8 +281,9 @@ export default function ContactPage() {
                       onChange={(e) => setDiag((d) => ({ ...d, industry: e.target.value }))}
                     />
                   </div>
-                  <div>
-                    <h2 className="text-lg font-semibold mb-3">現サイトの有無</h2>
+
+                  <fieldset>
+                    <legend className="mb-3 block text-lg font-semibold">現サイトの有無</legend>
                     {(["あり", "なし"] as const).map((v) => (
                       <label key={v} className="mr-4">
                         <input
@@ -269,14 +305,14 @@ export default function ContactPage() {
                         onChange={(e) => setDiag((d) => ({ ...d, siteUrl: e.target.value }))}
                       />
                     )}
-                  </div>
+                  </fieldset>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">約1分</p>
                   <Button
                     type="button"
                     disabled={!canNext}
+                    aria-disabled={!canNext}
                     onClick={() => {
                       track("contact_step1_completed");
                       setStep(2);
@@ -292,7 +328,7 @@ export default function ContactPage() {
             {/* --- ステップ2：連絡先フォーム --- */}
             {step === 2 && (
               <form onSubmit={onSubmit} className="space-y-5" noValidate>
-                {/* 蜜壺（人は見えない） */}
+                {/* honeypot（人は見えない） */}
                 <input
                   type="text"
                   value={hp}
@@ -305,10 +341,11 @@ export default function ContactPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium">
+                    <label className="block text-sm font-medium" htmlFor="name">
                       お名前 <span className="text-destructive">*</span>
                     </label>
                     <input
+                      id="name"
                       type="text"
                       required
                       value={name}
@@ -320,8 +357,11 @@ export default function ContactPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium">会社名</label>
+                    <label className="block text-sm font-medium" htmlFor="company">
+                      会社名
+                    </label>
                     <input
+                      id="company"
                       type="text"
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
@@ -334,26 +374,34 @@ export default function ContactPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium">
+                    <label className="block text-sm font-medium" htmlFor="email">
                       メールアドレス <span className="text-destructive">*</span>
                     </label>
                     <input
+                      id="email"
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       autoComplete="email"
+                      aria-invalid={email !== "" && !isEmailValid}
+                      aria-describedby="email-error"
                       className="w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
                     />
                     {!isEmailValid && email !== "" && (
-                      <p className="text-xs text-destructive">メールアドレスの形式が正しくありません。</p>
+                      <p id="email-error" className="text-xs text-destructive">
+                        メールアドレスの形式が正しくありません。
+                      </p>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium">電話番号</label>
+                    <label className="block text-sm font-medium" htmlFor="tel">
+                      電話番号
+                    </label>
                     <input
+                      id="tel"
                       type="tel"
                       value={tel}
                       onChange={(e) => setTel(e.target.value)}
@@ -365,8 +413,11 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium">ご要望（任意）</label>
+                  <label className="block text-sm font-medium" htmlFor="message">
+                    ご要望（任意）
+                  </label>
                   <textarea
+                    id="message"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     rows={5}
@@ -376,11 +427,19 @@ export default function ContactPage() {
                 </div>
 
                 <div className="pt-2">
-                  <Button type="submit" disabled={!canSubmit} className="w-full sm:w-auto">
+                  <Button type="submit" disabled={!canSubmit} aria-disabled={!canSubmit} className="w-full sm:w-auto">
                     {loading ? "送信中..." : "送信する"}
                   </Button>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    送信により、プライバシーポリシー・特商法表記に同意したものとみなします。
+                    送信により、
+                    <Link href="/legal/privacy" className="underline underline-offset-4">
+                      プライバシーポリシー
+                    </Link>
+                    ・
+                    <Link href="/legal/tokusho" className="underline underline-offset-4">
+                      特定商取引法に基づく表記
+                    </Link>
+                    に同意したものとみなします。
                   </p>
                 </div>
 
@@ -388,7 +447,7 @@ export default function ContactPage() {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="text-sm text-blue-700 hover:text-blue-900"
+                    className="text-sm text-blue-700 underline-offset-4 hover:underline"
                   >
                     ← 診断シートに戻る
                   </button>

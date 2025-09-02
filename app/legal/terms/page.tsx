@@ -1,12 +1,28 @@
 // app/legal/terms/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BRAND, CONTACT, CAMPAIGN } from "@/lib/constants";
+import { BRAND, CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: `利用規約｜${BRAND.name}`,
-  description: `${BRAND.name} の利用規約。${CAMPAIGN.metaDescription}`,
+  title: "利用規約",
+  description: `${BRAND.name} が提供するWeb/アプリ制作および関連サービスの利用条件を定めます。申込み・着手、成果物・検収、知的財産、料金・支払、保守、秘密保持、責任制限、準拠法等。`,
+  alternates: { canonical: "/legal/terms" },
+  openGraph: {
+    title: "利用規約",
+    description: `${BRAND.name} のサービス利用条件（申込み・成果物・知的財産・料金・保守・秘密保持・責任制限等）。`,
+    url: "/legal/terms",
+    type: "website",
+    images: ["/og.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "利用規約",
+    description: `${BRAND.name} のサービス利用条件（申込み・成果物・知的財産・料金・保守・秘密保持・責任制限等）。`,
+    images: ["/og.png"],
+  },
 };
+
+export const dynamic = "force-static";
 
 export default function TermsPage() {
   const EFFECTIVE_DATE = "2025-08-30"; // 施行日（必要に応じて更新）
@@ -16,7 +32,7 @@ export default function TermsPage() {
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <h1 className="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">利用規約</h1>
         <p className="mb-8 text-sm text-gray-500">
-          施行日：<time dateTime={EFFECTIVE_DATE}>{EFFECTIVE_DATE}</time>
+          施行日：<time dateTime={EFFECTIVE_DATE}>{EFFECTIVE_DATE}</time> ／ 事業者：{BRAND.name}
         </p>
 
         <div className="prose prose-zinc max-w-none">
@@ -70,23 +86,16 @@ export default function TermsPage() {
             </li>
           </ul>
 
-          <h2 id="campaign">6. キャンペーン条件（{CAMPAIGN.name}）</h2>
+          <h2 id="campaign">6. キャンペーン</h2>
           <p>
-            当方は「{CAMPAIGN.name}」を実施する場合があります。主な条件は次のとおりです（詳細はページ記載または個別契約優先）。
+            当方が実施するキャンペーンの適用条件・対象・注意事項は、
+            <Link href="/campaign" className="text-blue-600 underline-offset-2 hover:underline">キャンペーン案内</Link>
+            に定めます。内容は予告なく変更・終了する場合があります。個別契約の定めがあるときは当該定めを優先します。
           </p>
-          <ul>
-            <li>適用枠：先着 {CAMPAIGN.seats} 社</li>
-            <li>適用範囲：{CAMPAIGN.scope}</li>
-            <li>特典：制作費 ¥0（諸経費のみ）／保守 {CAMPAIGN.freeCareMonths} ヶ月 ¥0（Lite相当）</li>
-            <li>{CAMPAIGN.freeCancelNote}（無償作業は上限時間内）</li>
-            <li>条件：実績掲載・レビュー協力、素材提出＝KO+7日 ほか</li>
-            <li>外部費用（ドメイン・有料SaaS・有料素材等）は実費負担</li>
-            <li>キャンペーン内容は予告なく変更・終了する場合があります（{CAMPAIGN.note}）。</li>
-          </ul>
 
           <h2 id="maintenance">7. 保守・運用</h2>
           <p>
-            保守の範囲・SLA・工数上限等は、保守プラン（Lite/Std/Pro 等）および個別契約に従います。第三者サービスの障害・仕様変更は免責とし、対応は別途見積りとなる場合があります。
+            保守の範囲・SLA・工数上限等は、保守プラン（ライト保守／スタンダード運用／グロース運用 等）および個別契約に従います。第三者サービスの障害・仕様変更は免責とし、対応は別途見積りとなる場合があります。
           </p>
 
           <h2 id="subcontract">8. 再委託</h2>
@@ -142,8 +151,7 @@ export default function TermsPage() {
               重大な債務不履行があり、相当期間を定めた催告後も是正されない場合、当方は契約を解除できます。
             </li>
             <li>
-              キャンペーンにおける{CAMPAIGN.freeCancelNote}
-              は、個別に定める手続・期間内での解約に限り適用されます（実費は別途）。
+              解約・移管の手続・費用負担は、個別契約またはガイドラインに従います（外部サービス等の実費はお客様負担）。
             </li>
           </ul>
 
@@ -181,6 +189,9 @@ export default function TermsPage() {
           </Link>
           <Link href="/legal/tokusho" className="text-sm text-blue-600 underline-offset-2 hover:underline">
             特定商取引法に基づく表記へ
+          </Link>
+          <Link href="/campaign" className="text-sm text-blue-600 underline-offset-2 hover:underline">
+            キャンペーン案内へ
           </Link>
         </div>
       </div>

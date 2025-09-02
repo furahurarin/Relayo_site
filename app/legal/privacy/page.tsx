@@ -1,11 +1,31 @@
 // app/legal/privacy/page.tsx
 import type { Metadata } from "next";
-import { BRAND, CONTACT, CAMPAIGN } from "@/lib/constants";
+import Link from "next/link";
+import { BRAND, CONTACT } from "@/lib/constants";
+
+const desc =
+  `${BRAND.name}のプライバシーポリシーです。個人情報の利用目的、保存期間、第三者提供、クッキー、アクセス解析などの扱いを定めます。`;
 
 export const metadata: Metadata = {
-  title: `プライバシーポリシー | ${BRAND.name}`,
-  description: `${BRAND.name}のプライバシーポリシーです。個人情報の利用目的、保存期間、第三者提供、クッキー、アクセス解析などの扱いを定めます。`,
+  title: "プライバシーポリシー",
+  description: desc,
+  alternates: { canonical: "/legal/privacy" },
+  openGraph: {
+    title: "プライバシーポリシー",
+    description: desc,
+    url: "/legal/privacy",
+    type: "website",
+    images: ["/og.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "プライバシーポリシー",
+    description: desc,
+    images: ["/og.png"],
+  },
 };
+
+export const dynamic = "force-static";
 
 export default function PrivacyPage() {
   return (
@@ -48,7 +68,12 @@ export default function PrivacyPage() {
           <li>品質向上・不具合解析・セキュリティ対策・利用状況の分析（サービス改善、UX向上）</li>
           <li>お知らせ・重要な通知（仕様変更、規約改定、障害・保守情報等）の連絡</li>
           <li>法令遵守、紛争対応、権利保護のための記録・証跡の保持</li>
-          <li>キャンペーン（{CAMPAIGN.name}）の運用判定・実績掲載の同意管理（同意頂いた範囲に限る）</li>
+          <li>
+            キャンペーンの運用判定および実績掲載の同意管理（
+            同意いただいた範囲に限る／詳細は
+            <Link href="/campaign" className="underline underline-offset-4">キャンペーン案内</Link>
+            を参照）
+          </li>
         </ol>
 
         <h2 id="legal-basis">4. 法的根拠（該当する法域に応じて）</h2>
@@ -66,7 +91,7 @@ export default function PrivacyPage() {
             ページ閲覧・クリック等のイベントを収集します。個人を直接識別する目的では利用しません。
           </li>
           <li>
-            当社は必要に応じて追加の解析ツール（例：GA4）を併用する場合があります。その場合もIPアドレスの一部匿名化やユーザー識別子の制限等、プライバシー配慮の設定を行います。
+            必要に応じて追加の解析ツール（例：GA4）を併用する場合があります。その場合もIPアドレスの一部匿名化やユーザー識別子の制限等、プライバシー配慮の設定を行います。
           </li>
           <li>
             ブラウザ設定によりクッキーの受入れ可否や削除を選択できます。ブラウザや拡張機能によっては、計測イベントが取得できないことがあります。
@@ -76,7 +101,7 @@ export default function PrivacyPage() {
         <h2 id="sharing">6. 第三者提供・共同利用・委託</h2>
         <ol>
           <li>
-            当社は、法令に基づく場合、生命・財産の保護に必要な場合、契約の履行に必要な場合（決済・配送・ホスティング等）を除き、本人同意なく個人情報を第三者に提供しません。
+            法令に基づく場合、生命・財産の保護に必要な場合、契約の履行に必要な場合（決済・配送・ホスティング等）を除き、本人同意なく個人情報を第三者に提供しません。
           </li>
           <li>
             本サービスの一部を外部事業者に委託することがあります（例：クラウドホスティング、メール配信、アクセス解析、保守協力会社等）。委託先には適切な管理監督を行い、秘密保持義務を課します。
@@ -105,7 +130,7 @@ export default function PrivacyPage() {
 
         <h2 id="rights">10. ご本人の権利</h2>
         <p>
-          ご本人は、適用法に基づき、保有個人データの開示・訂正・追加・削除・利用停止等を求めることができます。手続きの詳細や回答方法は、本人確認後にご案内します。
+          適用法に基づき、保有個人データの開示・訂正・追加・削除・利用停止等を求めることができます。手続きの詳細や回答方法は、本人確認後にご案内します。
         </p>
 
         <h2 id="children">11. 児童の個人情報</h2>

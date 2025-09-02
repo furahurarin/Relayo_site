@@ -5,8 +5,7 @@ import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import Analytics from "@/components/analytics/Analytics";
-import { BRAND, CAMPAIGN } from "@/lib/constants";
-import ContactCTA from "@/components/cta/ContactCTA";
+import { BRAND } from "@/lib/constants";
 import FloatingContactCTA from "@/components/cta/FloatingContactCTA";
 
 export const viewport = {
@@ -14,16 +13,19 @@ export const viewport = {
   colorScheme: "dark",
 };
 
+const siteDescription =
+  "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。";
+
 export const metadata: Metadata = {
   metadataBase: new URL(BRAND.siteUrl),
   title: {
     default: BRAND.name,
     template: `%s | ${BRAND.name}`,
   },
-  description: CAMPAIGN.metaDescription,
+  description: siteDescription,
   openGraph: {
     title: BRAND.name,
-    description: CAMPAIGN.metaDescription,
+    description: siteDescription,
     url: BRAND.siteUrl,
     siteName: BRAND.name,
     images: ["/og.png"],
@@ -33,11 +35,11 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: BRAND.name,
-    description: CAMPAIGN.metaDescription,
+    description: siteDescription,
     images: ["/og.png"],
   },
   alternates: {
-    canonical: "/", // 各ページで上書き（/pricing など）
+    canonical: "/", // 各ページで個別に上書き（/pricing など）
   },
   robots: {
     index: true,
@@ -55,25 +57,6 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
 };
-
-// --- Ribbon（必要ない時はこのコンポーネントごと削除OK） ---
-function CampaignRibbon() {
-  return (
-    <div className="w-full bg-emerald-50 text-emerald-900" role="region" aria-label="キャンペーン情報">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-2 px-4 py-2 text-center text-sm sm:flex-row sm:text-left">
-        <p className="font-medium">
-          <span className="mr-1">先着{CAMPAIGN.seats}社限定</span>
-          ：<strong>制作費¥0 ＋ 保守{CAMPAIGN.freeCareMonths}ヶ月¥0</strong>
-          <span className="ml-2 text-emerald-800">{CAMPAIGN.freeCancelNote}</span>
-        </p>
-        <div className="flex items-center gap-2">
-          {/* 入口を /contact に統一（Umami 計測は ContactCTA 内で発火） */}
-          <ContactCTA small />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // JSON-LD（Organization + WebSite）
@@ -125,10 +108,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        <CampaignRibbon />
+        {/* ※キャンペーン帯は常時表示を廃止（/campaign ページで個別掲載） */}
+
         <Header />
 
-        {/* 主コンテンツ領域を明示（ランドマーク＋ID） */}
+        {/* 主コンテンツ領域（ランドマーク＋ID） */}
         <main id="main-content" role="main">
           {children}
         </main>

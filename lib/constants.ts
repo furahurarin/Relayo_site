@@ -2,12 +2,12 @@
 export const BRAND = {
   name: "Relayo",
   email: "contact.relayo@gmail.com",
-  siteUrl: "https://relayo.jp", // 本番ドメインに合わせて
+  siteUrl: "https://relayo.jp", // 本番ドメイン
 } as const;
 
 export const CAMPAIGN = {
   // キャンペーン名
-  name: "短納期・低コストWeb/アプリ制作キャンペーン",
+  name: "短納期・低コスト Web/アプリ制作キャンペーン",
 
   // 枠数（例：先着3社 → seats=3）
   seats: 3,
@@ -25,20 +25,21 @@ export const CAMPAIGN = {
   ribbonText: "先着3社｜短納期・低コスト",
 
   // サイト全体の meta description 用（layout.tsx で参照）
+  // ※ 恒常的・中立的な説明に寄せ、キャンペーン固有文言は含めない
   metaDescription:
-    "メール中心の非対面ヒアリング。先着3社は制作費¥0＋保守3ヶ月¥0（完全無料解約OK）。中小企業・個人事業主向けWeb/アプリ制作。",
+    "オンライン（メール中心）の非対面ヒアリングで、中小企業・個人事業主向けのWeb/アプリを短納期で構築。公開後は保守・運用まで一貫対応します。",
 
   // メール件名（mailto: の subject に利用）
-  mailSubject: "料金相談（キャンペーン希望）",
+  mailSubject: "料金相談／お問い合わせ",
 
-  // ボタン等のラベル（Header/リボンで参照）
+  // ボタン等のラベル（任意で参照）
   labels: {
     email: "メールで相談",
     sheet: "診断シートを受け取る",
   },
 
   // 診断シート導線（/contact にパラメータ付きで飛ばす）
-  sheetHref: "/contact?campaign=launch#get-sheet",
+  sheetHref: "/contact#get-sheet",
 
   // 補足注記（Legalの注意文に使用）
   note: "状況により予告なく終了する場合があります",

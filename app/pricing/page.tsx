@@ -3,19 +3,28 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Info, ShieldCheck, Star, CheckCircle2 } from "lucide-react";
+import { Info, ShieldCheck, CheckCircle2 } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
 
+const siteDescription =
+  "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。";
+
 export const metadata: Metadata = {
-  title: "料金プラン",
-  description:
-    "単体メニューとパッケージ割引、月額の保守・運用までワンストップでご提供します（すべて税込・ドメイン/サーバ等の実費は別）。",
+  title: "料金",
+  description: siteDescription,
+  alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "料金プラン",
-    description:
-      "単体メニューとパッケージ割引、月額の保守・運用までワンストップでご提供します（すべて税込・ドメイン/サーバ等の実費は別）。",
-    url: "https://www.relayo.jp/pricing",
+    title: "料金",
+    description: siteDescription,
+    url: "/pricing",
     type: "website",
+    images: ["/og.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "料金",
+    description: siteDescription,
+    images: ["/og.png"],
   },
 };
 
@@ -30,7 +39,7 @@ const singleMenus: { category: string; items: { name: string; price: Price }[] }
       { name: "計測導入（Umami または GA4 + タグ設定）", price: 9800 },
       { name: "SEO 初期（title/OGP/サイトマップ）", price: 9800 },
       { name: "パフォーマンス微調整（画像圧縮・キャッシュ設定）", price: 9800 },
-      { name: "ファビコン & OGP 画像生成セット", price: 4980 },
+      { name: "ファビコン & OGP 画像生成", price: 4980 },
     ],
   },
   {
@@ -58,7 +67,7 @@ const singleMenus: { category: string; items: { name: string; price: Price }[] }
     ],
   },
   {
-    category: "単発の更新・改善パック（“時間”ではなく“出来ること”で明示）",
+    category: "単発の更新・改善パック",
     items: [
       { name: "テキスト差し替えパック（最大5箇所）", price: 4980 },
       { name: "画像差し替えパック（最大10点）", price: 4980 },
@@ -85,7 +94,7 @@ const packages = [
     strike: "通常合計 ¥118,760 → パック ¥79,800（▲¥38,960）",
     sla: "SLA：翌営業日初動（P1＝翌営業日内／P2＝3営業日内）",
     lead: "納期目安：素材受領から 5–10 営業日",
-    extra: "【創業期 限定】Launch-49：¥49,800（セクション3つ・修正1回・運用なし・実績掲載OK）",
+    extra: "", // キャンペーン系の露出は /campaign に隔離
     featured: false,
   },
   {
@@ -178,6 +187,8 @@ const Tag = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
+type Package = (typeof packages)[number];
+
 const PackageCard = ({
   name,
   label,
@@ -188,14 +199,14 @@ const PackageCard = ({
   lead,
   featured,
   extra,
-}: (typeof packages)[number]) => (
+}: Package) => (
   <Card className={featured ? "border-emerald-600 bg-emerald-900/10" : "border-gray-700/40"}>
     <CardHeader className="space-y-1">
       <div className="flex items-center justify-between">
         <CardTitle className="text-xl">{name}</CardTitle>
         {label && (
           <span className="inline-flex items-center gap-1 rounded-full border border-amber-600/40 bg-amber-900/20 px-2 py-0.5 text-xs text-amber-200">
-            {label === "いちばん人気" && <Star className="h-3.5 w-3.5" />} {label}
+            {label}
           </span>
         )}
       </div>
@@ -214,15 +225,16 @@ const PackageCard = ({
       </div>
       {extra && <p className="rounded-md border border-gray-700/40 bg-gray-800/40 p-2 text-xs">{extra}</p>}
       <div className="pt-2">
-        <Button asChild className="w-full">
-          <Link href="/contact?from=pricing">無料相談で見積</Link>
-        </Button>
+        {/* 主CTAはサイト統一の文言に任せる */}
+        <ContactCTA />
       </div>
     </CardContent>
   </Card>
 );
 
 // ---------- page ----------
+export const dynamic = "force-static";
+
 export default function PricingPage() {
   return (
     <main className="container mx-auto space-y-12 px-4 py-12">
@@ -271,9 +283,9 @@ export default function PricingPage() {
         <p className="text-xs text-gray-500">※ 「〜」表記は要件により変動。個別見積は無料です。</p>
       </section>
 
-      {/* パッケージ（まとめ割） */}
+      {/* パッケージ（パッケージ割） */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">パッケージ（単体より安くなる“まとめ割”）</h2>
+        <h2 className="text-2xl font-semibold">パッケージ割</h2>
         <div className="grid gap-6 md:grid-cols-3">
           {packages.map((p) => (
             <PackageCard key={p.id} {...p} />
@@ -286,7 +298,7 @@ export default function PricingPage() {
 
       {/* 月額（運用・保守） */}
       <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">月額（運用・保守）— “時間”ではなく“出来ること”で定義</h2>
+        <h2 className="text-2xl font-semibold">月額（運用・保守）</h2>
         <div className="grid gap-6 md:grid-cols-4">
           {monthly.map((m) => (
             <Card key={m.id} className="border-gray-700/40">
@@ -301,9 +313,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
                 <p className="text-sm text-gray-400">{m.sla}</p>
-                <Button asChild className="w-full">
-                  <Link href="/contact?from=pricing">無料相談で見積</Link>
-                </Button>
+                <ContactCTA />
               </CardContent>
             </Card>
           ))}
@@ -344,7 +354,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 注意書き */}
+      {/* 注意書き（信頼注記も兼ねる） */}
       <section className="space-y-3">
         <h2 className="text-2xl font-semibold">注意書き（重要）</h2>
         <div className="rounded-2xl border border-amber-700/40 bg-amber-900/20 p-4 text-amber-100">
@@ -356,13 +366,13 @@ export default function PricingPage() {
         <div className="rounded-2xl border border-emerald-700/40 bg-emerald-900/20 p-4 text-emerald-100">
           <p className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-5 w-5" />
-            契約前に範囲と前提、除外項目、変更管理、SLAを明文化します。まずは「無料相談で見積」から。
+            契約前に範囲と前提、除外項目、変更管理、SLAを明文化します。まずは「お問い合わせ」から。
           </p>
         </div>
         <div className="flex gap-3">
           <ContactCTA />
           <Button asChild variant="secondary">
-            <Link href="/contact?from=pricing">無料相談で見積</Link>
+            <Link href="/services">サービス内容を確認</Link>
           </Button>
         </div>
       </section>
