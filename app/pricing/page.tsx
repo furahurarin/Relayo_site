@@ -29,15 +29,15 @@ export const metadata: Metadata = {
   },
 };
 
-// ---------- tiny components ----------
+// ---------- tiny components (tokenized colors) ----------
 const Tag = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-700/40 bg-emerald-900/20 px-2 py-0.5 text-xs text-emerald-200">
+  <span className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.35)] px-2 py-0.5 text-xs text-[hsl(var(--foreground))/0.9]">
     <CheckCircle2 className="h-3.5 w-3.5" /> {children}
   </span>
 );
 
 const Badge = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-flex items-center gap-1 rounded-full border border-amber-600/40 bg-amber-900/20 px-2 py-0.5 text-xs text-amber-200">
+  <span className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.45)] px-2 py-0.5 text-xs text-[hsl(var(--foreground))]">
     <Sparkles className="h-3.5 w-3.5" /> {children}
   </span>
 );
@@ -80,7 +80,7 @@ export default function PricingPage() {
       {/* Hero */}
       <section className="space-y-4">
         <h1 className="text-3xl font-bold">料金</h1>
-        <p className="text-gray-300">
+        <p className="text-muted-foreground">
           情報は <strong>セットプラン</strong> → <strong>LPパック</strong> →{" "}
           <strong>単体メニュー</strong> → <strong>月額</strong> の順に掲載。価格はすべて
           <strong> {meta.tax}</strong> です。ドメイン/サーバ等の実費は別途となります。
@@ -106,26 +106,26 @@ export default function PricingPage() {
           {setPlans.map((p) => (
             <Card
               key={p.code}
-              className={p.popular ? "border-emerald-600 bg-emerald-900/10" : "border-gray-700/40"}
+              className={p.popular ? "border-border bg-secondary" : "border-border"}
             >
               <CardHeader className="space-y-1">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl">{p.name}</CardTitle>
                   {p.popular && <Badge>いちばん人気</Badge>}
                 </div>
-                {p.catch && <p className="text-sm text-gray-400">{p.catch}</p>}
+                {p.catch && <p className="text-sm text-muted-foreground">{p.catch}</p>}
                 <p className="text-2xl font-bold">{p.price.text}</p>
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-muted-foreground">
                   ページ構成：{p.pages} ／ {p.form}
                 </p>
               </CardHeader>
               <CardContent className="space-y-3">
-                <ul className="list-disc space-y-1 pl-5 text-gray-300">
+                <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
                   {p.includes.map((b) => (
                     <li key={b}>{b}</li>
                   ))}
                 </ul>
-                <div className="space-y-1 text-sm text-gray-300">
+                <div className="space-y-1 text-sm text-muted-foreground">
                   <p>
                     SLA：{p.sla.label}
                     {p.sla.p1 ? `（P1=${p.sla.p1}` : ""}
@@ -147,7 +147,7 @@ export default function PricingPage() {
       {/* LPパック */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold">LPパック</h2>
-        <Card className="border-gray-700/40">
+        <Card className="border-border">
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl">{lpPack.name}</CardTitle>
@@ -156,12 +156,12 @@ export default function PricingPage() {
             <p className="text-2xl font-bold">{lpPack.price.text}</p>
           </CardHeader>
           <CardContent className="space-y-3">
-            <ul className="list-disc space-y-1 pl-5 text-gray-300">
+            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
               {lpPack.includes.map((b) => (
                 <li key={b}>{b}</li>
               ))}
             </ul>
-            <div className="space-y-1 text-sm text-gray-300">
+            <div className="space-y-1 text-sm text-muted-foreground">
               <p>
                 SLA：{lpPack.sla.label}
                 {lpPack.sla.p1 ? `（P1=${lpPack.sla.p1}` : ""}
@@ -183,23 +183,23 @@ export default function PricingPage() {
         <h2 className="text-2xl font-semibold">単体メニュー（サービスごとの定額）</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {soloGroups.map((group) => (
-            <Card key={group.code} className="border-gray-700/40">
+            <Card key={group.code} className="border-border">
               <CardHeader>
                 <CardTitle className="text-lg">{group.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="divide-y divide-gray-700/40">
+                <ul className="divide-y divide-border">
                   {group.items.map((it) => (
                     <li
                       key={it.name}
-                      className="flex items-start justify-between gap-4 py-2 text-gray-200"
+                      className="flex items-start justify-between gap-4 py-2 text-foreground"
                     >
                       <span className="pr-4">{it.name}</span>
                       <span className="shrink-0 font-semibold">{it.price.text}</span>
                     </li>
                   ))}
                 </ul>
-                <ul className="mt-2 space-y-1 text-xs text-gray-500">
+                <ul className="mt-2 space-y-1 text-xs text-muted-foreground/80">
                   {group.items
                     .filter((it) => it.note)
                     .map((it) => (
@@ -210,7 +210,9 @@ export default function PricingPage() {
             </Card>
           ))}
         </div>
-        <p className="text-xs text-gray-500">※ 「〜」表記は要件により変動。個別見積は無料です。</p>
+        <p className="text-xs text-muted-foreground/80">
+          ※ 「〜」表記は要件により変動。個別見積は無料です。
+        </p>
       </section>
 
       {/* 月額（運用・保守） */}
@@ -218,24 +220,24 @@ export default function PricingPage() {
         <h2 className="text-2xl font-semibold">月額（運用・保守）</h2>
         <div className="grid gap-6 md:grid-cols-5">
           {monthlyPlans.map((m) => (
-            <Card key={m.code} className="border-gray-700/40">
+            <Card key={m.code} className="border-border">
               <CardHeader>
                 <CardTitle className="text-lg">{m.name}</CardTitle>
                 <p className="text-xl font-bold">{m.price.text}</p>
               </CardHeader>
               <CardContent className="space-y-3">
-                <ul className="list-disc space-y-1 pl-5 text-gray-300">
+                <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
                   {m.features.map((b) => (
                     <li key={b}>{b}</li>
                   ))}
                 </ul>
-                <p className="text-sm text-gray-400">初動：{m.initial}</p>
+                <p className="text-sm text-muted-foreground">初動：{m.initial}</p>
                 <ContactCTA />
               </CardContent>
             </Card>
           ))}
         </div>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted-foreground">
           すべて契約縛りなし／翌月からアップ/ダウン可。「これだけやってほしい」に合わせて単発パックのみでの運用も可能です。
         </p>
       </section>
@@ -244,30 +246,30 @@ export default function PricingPage() {
       <section className="space-y-4">
         <h2 className="text-2xl font-semibold">よくある質問</h2>
         <div className="grid gap-4 md:grid-cols-3">
-          <Card className="border-gray-700/40">
+          <Card className="border-border">
             <CardHeader>
               <CardTitle className="text-base">解約後のサイトは？</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
+            <CardContent className="text-muted-foreground">
               納品物はお客さま名義の資産。運用SaaSの契約は別ですが、サイト自体は使い続けられます。
             </CardContent>
           </Card>
-          <Card className="border-gray-700/40">
+          <Card className="border-border">
             <CardHeader>
               <CardTitle className="text-base">見積のブレについて</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
+            <CardContent className="text-muted-foreground">
               本ページの価格は標準ケースの定額です。範囲が増える場合のみ、事前に追加メニューでご相談のうえ調整します。
             </CardContent>
           </Card>
-          <Card className="border-gray-700/40">
+          <Card className="border-border">
             <CardHeader>
               <CardTitle className="text-base">納期の目安</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
-              Starter-LP：{lpPack.leadTime.note}／Standard：{
-                setPlans.find((p) => p.code === "standard")?.leadTime.note
-              }／Growth：{setPlans.find((p) => p.code === "growth")?.leadTime.note}
+            <CardContent className="text-muted-foreground">
+              Starter-LP：{lpPack.leadTime.note}／Standard：
+              {setPlans.find((p) => p.code === "standard")?.leadTime.note}／Growth：
+              {setPlans.find((p) => p.code === "growth")?.leadTime.note}
             </CardContent>
           </Card>
         </div>
@@ -276,13 +278,13 @@ export default function PricingPage() {
       {/* 注意書き */}
       <section className="space-y-3">
         <h2 className="text-2xl font-semibold">注意書き（重要）</h2>
-        <div className="rounded-2xl border border-amber-700/40 bg-amber-900/20 p-4 text-amber-100">
+        <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.25)] p-4 text-[hsl(var(--foreground))]">
           <p className="flex items-start gap-2">
             <Info className="mt-0.5 h-5 w-5" />
             表示価格は{meta.tax}です。ドメイン/サーバ等の実費は別。要件・素材の準備状況・連携サービス・セキュリティ要件により増減します。
           </p>
         </div>
-        <div className="rounded-2xl border border-emerald-700/40 bg-emerald-900/20 p-4 text-emerald-100">
+        <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.25)] p-4 text-[hsl(var(--foreground))]">
           <p className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-5 w-5" />
             契約前に範囲と前提、除外項目、変更管理、SLAを明文化します。まずは「お問い合わせ」から。

@@ -1,6 +1,6 @@
 // app/layout.tsx
 import "./globals.css";
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
@@ -8,7 +8,7 @@ import Analytics from "@/components/analytics/Analytics";
 import { BRAND } from "@/lib/constants";
 import FloatingContactCTA from "@/components/cta/FloatingContactCTA";
 
-export const viewport: Viewport = {
+export const viewport = {
   themeColor: "#111827", // gray-900
   colorScheme: "dark",
 };

@@ -30,15 +30,27 @@ export default function TermsPage() {
   const { meta } = PRICING;
 
   return (
-    <main className="bg-white py-16">
+    // ※ bg-white を外し、サイト全体の背景トークンに従わせる
+    <main className="py-16">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <h1 className="mb-2 text-3xl font-bold text-gray-900 sm:text-4xl">利用規約</h1>
-        <p className="mb-8 text-sm text-gray-500">
+        {/* 固定色を撤去し、トークンに委ねる */}
+        <h1 className="mb-2 text-3xl font-bold sm:text-4xl">利用規約</h1>
+        <p className="mb-8 text-sm text-muted-foreground">
           施行日：<time dateTime={EFFECTIVE_DATE}>{EFFECTIVE_DATE}</time> ／ 事業者：{BRAND.name}
         </p>
 
-        <div className="prose prose-zinc max-w-none">
-          <p className="text-gray-700">
+        {/* prose の中でもトークンに従うよう、要素ごとに上書き */}
+        <div className="
+          prose max-w-none
+          prose-headings:text-foreground
+          prose-p:text-foreground
+          prose-strong:text-foreground
+          prose-li:text-foreground
+          prose-hr:border-border
+          prose-code:text-foreground
+          prose-a:text-inherit prose-a:no-underline
+        ">
+          <p>
             この利用規約（以下「本規約」といいます。）は、{BRAND.name}
             （以下「当方」といいます。）が提供するウェブサイト制作・アプリ開発および関連サービス
             （以下「本サービス」といいます。）の利用条件を定めるものです。利用者（以下「お客様」といいます。）は、本サービスの利用に先立ち、本規約に同意するものとします。
@@ -83,9 +95,7 @@ export default function TermsPage() {
             <li>
               表示価格は<strong>{meta.tax}</strong>です。ドメイン・サーバ・有料SaaS・有料素材等の外部費用は実費で、お客様負担とします（個別契約で当方立替の場合を除く）。
             </li>
-            <li>
-              支払スケジュール（目安）：{meta.notes.payment}
-            </li>
+            <li>支払スケジュール（目安）：{meta.notes.payment}</li>
             <li>
               支払遅延がある場合、当方は作業・公開・権利付与を留保でき、遅延損害金を請求することがあります。
             </li>
@@ -93,18 +103,19 @@ export default function TermsPage() {
 
           <h2 id="campaign">6. キャンペーン</h2>
           <p>
-            当方が実施するキャンペーンの適用条件・対象・注意事項は、{" "}
-            <Link href="/campaign" className="text-blue-600 underline-offset-2 hover:underline">キャンペーン案内</Link>
-            {" "}に定めます。内容は予告なく変更・終了する場合があります。個別契約の定めがあるときは当該定めを優先します。
+            当方が実施するキャンペーンの適用条件・対象・注意事項は、
+            {/* 青指定を削除（グローバルのリンクスタイルに従う） */}
+            <Link href="/campaign">キャンペーン案内</Link>
+            に定めます。内容は予告なく変更・終了する場合があります。個別契約の定めがあるときは当該定めを優先します。
           </p>
 
           <h2 id="maintenance">7. 保守・運用</h2>
           <p>
-            保守の範囲・SLA・工数上限等は、各保守プランおよび個別契約に従います。受付時間は原則{" "}
+            保守の範囲・SLA・工数上限等は、各保守プランおよび個別契約に従います。受付時間は原則
             <strong>{meta.businessHours}</strong>（日本時間・メール）です。第三者サービスの障害・仕様変更は免責とし、対応は別途見積りとなる場合があります。
           </p>
 
-          {/* ▼▼▼ ここから追記：プラン定義 & SLA & キャンペーン特例 ▼▼▼ */}
+          {/* ▼▼▼ 追記：プラン定義 & SLA & キャンペーン特例 ▼▼▼ */}
           <h3>保守プラン（Lite / Standard / Growth）</h3>
           <ul>
             <li>
@@ -131,13 +142,13 @@ export default function TermsPage() {
             <li>
               <strong>無料解約：</strong>
               キャンペーン期間中の解約は無料です（解約受付は毎月<strong>20日</strong>まで／末日解約）。詳細は
-              <Link href="/campaign" className="text-blue-600 underline-offset-2 hover:underline">キャンペーン案内</Link>に従います。
+              <Link href="/campaign">キャンペーン案内</Link>に従います。
             </li>
             <li>
               <strong>移管：</strong>
               ドメイン・データ移管は原則として手数料と実費をご負担いただきますが、キャンペーン適用時は
               <strong>作業費2時間まで無償（実費はお客様負担）</strong>とします。2時間超過分は当社所定レートでご請求します（
-              <Link href="/legal/tokusho" className="text-blue-600 underline-offset-2 hover:underline">特定商取引法に基づく表示</Link> 参照）。
+              <Link href="/legal/tokusho">特定商取引法に基づく表示</Link> 参照）。
             </li>
           </ul>
           {/* ▲▲▲ 追記ここまで ▲▲▲ */}
@@ -153,10 +164,8 @@ export default function TermsPage() {
           <h2 id="privacy">10. 個人情報・データの取扱い</h2>
           <p>
             個人情報の取扱いは{" "}
-            <Link href="/legal/privacy" className="text-blue-600 underline-offset-2 hover:underline">
-              プライバシーポリシー
-            </Link>
-            {" "}に従います。受託処理が生じる場合は、必要に応じて個人情報取扱い契約（DPA）を締結します。
+            <Link href="/legal/privacy">プライバシーポリシー</Link>
+            に従います。受託処理が生じる場合は、必要に応じて個人情報取扱い契約（DPA）を締結します。
           </p>
 
           <h2 id="ai">11. 生成AI等の利用</h2>
@@ -166,9 +175,7 @@ export default function TermsPage() {
 
           <h2 id="warranty">12. 保証の否認・免責</h2>
           <ul>
-            <li>
-              本サービスは現状有姿で提供され、特定目的適合性・完全性・有用性等につき明示または黙示の保証を行いません。
-            </li>
+            <li>本サービスは現状有姿で提供され、特定目的適合性・完全性・有用性等につき明示または黙示の保証を行いません。</li>
             <li>
               外部SaaS・ライブラリ・検索エンジン等の仕様変更や障害、OS/ブラウザのアップデート、広告・検索結果の変動等に起因する不具合・成果の変動について、当方は責任を負いません。
             </li>
@@ -191,18 +198,12 @@ export default function TermsPage() {
           <h2 id="term">16. 契約期間・解除</h2>
           <ul>
             <li>契約期間は個別契約に従います。</li>
-            <li>
-              重大な債務不履行があり、相当期間を定めた催告後も是正されない場合、当方は契約を解除できます。
-            </li>
-            <li>
-              解約・移管の手続・費用負担は、個別契約またはガイドラインに従います（外部サービス等の実費はお客様負担）。
-            </li>
+            <li>重大な債務不履行があり、相当期間を定めた催告後も是正されない場合、当方は契約を解除できます。</li>
+            <li>解約・移管の手続・費用負担は、個別契約またはガイドラインに従います（外部サービス等の実費はお客様負担）。</li>
           </ul>
 
           <h2 id="changes">17. 規約の変更</h2>
-          <p>
-            本規約の変更が必要と当方が判断した場合、当方サイトでの掲示その他相当の方法により通知し、効力を生じます。
-          </p>
+          <p>本規約の変更が必要と当方が判断した場合、当方サイトでの掲示その他相当の方法により通知し、効力を生じます。</p>
 
           <h2 id="governinglaw">18. 準拠法・裁判管轄</h2>
           <p>
@@ -213,8 +214,8 @@ export default function TermsPage() {
           <p>
             本規約に関するお問い合わせは、以下までお願いいたします。
             <br />
+            {/* a要素はグローバルのリンクスタイルに従わせる（色指定を外す） */}
             <a
-              className="text-blue-600 underline-offset-2 hover:underline"
               href={CONTACT.mailto}
               aria-label="規約に関する問い合わせメールを開く"
               data-umami-event="email_click"
@@ -228,15 +229,10 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-10 flex gap-4">
-          <Link href="/legal/privacy" className="text-sm text-blue-600 underline-offset-2 hover:underline">
-            プライバシーポリシーへ
-          </Link>
-          <Link href="/legal/tokusho" className="text-sm text-blue-600 underline-offset-2 hover:underline">
-            特定商取引法に基づく表記へ
-          </Link>
-          <Link href="/campaign" className="text-sm text-blue-600 underline-offset-2 hover:underline">
-            キャンペーン案内へ
-          </Link>
+          {/* 末尾リンクも青指定を外す */}
+          <Link href="/legal/privacy" className="text-sm">プライバシーポリシーへ</Link>
+          <Link href="/legal/tokusho" className="text-sm">特定商取引法に基づく表記へ</Link>
+          <Link href="/campaign" className="text-sm">キャンペーン案内へ</Link>
         </div>
       </div>
     </main>

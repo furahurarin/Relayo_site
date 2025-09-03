@@ -1,82 +1,157 @@
+/* app/globals.css — Link color = body text (no underline) */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
+/* ================================
+   Color tokens (light / dark)
+   ================================ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 210 20% 98%;
+    --foreground: 222 47% 10%;
+
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: var(--foreground);
+
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
+    --popover-foreground: var(--foreground);
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 16% 96%;
+    --secondary-foreground: var(--foreground);
+
+    --muted: 210 16% 96%;
+    --muted-foreground: 215 16% 35%;
+
+    --accent: 210 16% 96%;
+    --accent-foreground: var(--foreground);
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 16% 84%;
+    --input: 220 9% 46%;
+    --ring: var(--primary);
+
+    --chart-1: 221 83% 53%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --chart-4: 43 74% 56%;
+    --chart-5: 27 87% 57%;
+
     --radius: 0.5rem;
+
+    /* ▼ Link tokens are aligned to body text */
+    --link: var(--foreground);
+    --link-hover: var(--foreground);
+
+    /* ▼ CTA（問い合わせ）ボタン用トークン */
+    --cta: 221 83% 53%;          /* #2563eb */
+    --cta-hover: 224 76% 48%;    /* #1d4ed8 */
+    --cta-active: 226 71% 40%;   /* #1e40af */
+    --cta-foreground: 0 0% 100%; /* #ffffff */
+    --cta-ring: 224 76% 48%;
+
+    /* ▼ ゴースト（文字のみ）用：ライトは“明るめ”で見やすく（AA 5.17:1） */
+    --cta-ghost: 221 83% 53%;    /* #2563eb（blue-600） */
   }
+
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --background: 220 49% 8%;
+    --foreground: 210 20% 96%;
+
+    --card: 223 40% 10%;
+    --card-foreground: var(--foreground);
+
+    --popover: 223 40% 10%;
+    --popover-foreground: var(--foreground);
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 30% 15%;
+    --secondary-foreground: 210 20% 96%;
+
+    --muted: 222 20% 15%;
+    --muted-foreground: 220 12% 70%;
+
+    --accent: 222 30% 15%;
+    --accent-foreground: 210 20% 96%;
+
+    --destructive: 0 62% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 222 15% 22%;
+    --input: 220 9% 62%;
+    --ring: var(--primary);
+
+    --link: var(--foreground);
+    --link-hover: var(--foreground);
+
+    /* ダークはリング/文字色を明るめに */
+    --cta-ring: 212 96% 78%;     /* #93c5fd */
+    --cta-ghost: 212 96% 78%;    /* #93c5fd（blue-300付近） */
   }
 }
 
+/* ================================
+   Base & Links
+   ================================ */
 @layer base {
-  * {
-    @apply border-border;
-  }
+  html { color-scheme: light dark; }
+  * { @apply border-border; }
+
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern";
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.18);
+    color: hsl(var(--foreground));
+  }
+
+  /* Links: same color as text, no underline.
+     Discoverability: hoverでうっすら面を付け、focusで確実に見える */
+  a {
+    color: inherit;                   /* 本文色と同一 */
+    text-decoration: none;            /* 下線なし */
+    transition: background-color .15s ease, color .15s ease;
+    border-radius: .25rem;            /* 面ハイライトを自然に */
+  }
+  a:hover {
+    /* 背景にごく薄い面（light/darkで最適化） */
+    background-color: hsl(var(--foreground) / 0.07);
+  }
+  a:active {
+    background-color: hsl(var(--foreground) / 0.11);
+  }
+  a:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  a:visited:not([data-cta]) { color: inherit; }  /* CTAには適用しない */
+  a[disabled] {
+    pointer-events: none;
+    opacity: .5;
+  }
+
+  img, svg, video, canvas { display: block; max-width: 100%; height: auto; }
+
+  input, select, textarea, button {
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+    border-color: hsl(var(--input));
+  }
+
+  /* ハイコントラスト志向の環境では面の強調を少し増やす */
+  @media (prefers-contrast: more) {
+    a:hover { background-color: hsl(var(--foreground) / 0.12); }
   }
 }
