@@ -6,7 +6,7 @@ import ContactCTA from "@/components/cta/ContactCTA";
 import { PRICING } from "@/lib/pricing";
 
 const siteDescription =
-  "制作スコープ、納期、費用、保守、名義・権利、SLA、アクセシビリティ、セキュリティなどのFAQ。";
+  "制作範囲・納期・価格・運用保守・名義と権利・対応目安（SLA）・アクセシビリティ・セキュリティに関するFAQ。";
 
 export const metadata: Metadata = {
   // レイアウトの title テンプレート適用前提のためプレーン文言のみ
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 const QA = ({ q, a }: { q: string; a: React.ReactNode }) => (
   <div className="rounded-2xl border border-gray-200 bg-white p-5">
     <h3 className="font-semibold text-gray-900">{q}</h3>
-    <div className="mt-2 text-gray-600">{a}</div>
+    <div className="mt-2 text-gray-700">{a}</div>
   </div>
 );
 
@@ -72,14 +72,14 @@ export default function FaqPage() {
           q="公開までの目安は？"
           a={
             <>
-              素材・要件確定後の目安は
+              素材のご準備と要件確定後の目安は
               <strong>
                 {" "}
-                {lpPack ? `Starter-LP ${lpPack.leadTime.note}／` : ""}
-                {standard ? `Standard ${standard.leadTime.note}／` : ""}
-                {growth ? `Growth ${growth.leadTime.note}` : ""}
+                {lpPack ? `Starter-LP：${lpPack.leadTime.note}／` : ""}
+                {standard ? `Standard：${standard.leadTime.note}／` : ""}
+                {growth ? `Growth：${growth.leadTime.note}` : ""}
               </strong>
-              です。規模や外部連携で前後しますが、まずは最小で公開し、数字を見ながら拡張します。
+              です。規模や外部サービス連携により前後します。必要な範囲から公開し、計測結果に基づいて拡張します。
             </>
           }
         />
@@ -88,15 +88,14 @@ export default function FaqPage() {
           q="保守は必須ですか？"
           a={
             <>
-              任意です。{" "}
+              任意です。目安は{" "}
               <strong>
                 {selfM ? `${jpName(selfM.name)} ${stripPerMonth(selfM.price.text)}` : ""}
                 {liteM ? `／${jpName(liteM.name)} ${stripPerMonth(liteM.price.text)}` : ""}
                 {stdM ? `／${jpName(stdM.name)} ${stripPerMonth(stdM.price.text)}` : ""}
                 {growthM ? `／${jpName(growthM.name)} ${stripPerMonth(growthM.price.text)}` : ""}
               </strong>
-              （{meta.tax}）。依存アップデートや軽微改修、レポート・改善提案を希望される場合は保守のご契約をおすすめします。
-              くわしくは{" "}
+              （{meta.tax}）。依存アップデート、軽微な改修、レポートや改善提案をご希望の場合は保守契約をご検討ください。詳細は{" "}
               <Link href="/pricing" className="underline underline-offset-4">
                 料金ページ
               </Link>{" "}
@@ -109,9 +108,8 @@ export default function FaqPage() {
           q="ドメインやホスティングは？"
           a={
             <>
-              <strong>お客様名義</strong>のドメインを推奨します。ホスティングは{" "}
-              <strong>Vercel</strong> を想定（他サービスも可）。
-              アクセス権限や課金主体は透明化し、当方は<strong>最小権限</strong>で運用します。
+              <strong>お客様名義</strong>での取得・契約を基本とします。ホスティングは要件に応じて選定（例：Vercel 等）。アクセス権限と課金主体を明確にし、当方は
+              <strong>最小権限</strong>で運用します。
             </>
           }
         />
@@ -120,9 +118,7 @@ export default function FaqPage() {
           q="途中で仕様変更はできますか？"
           a={
             <>
-              可能です。<strong>変更管理票</strong>
-              で範囲・費用・納期への影響を明確化し、合意のうえで進行します。
-              「小さく出して、効果の出た箇所に投資する」方針です。
+              可能です。<strong>変更管理票</strong>で範囲・費用・納期・リスクの影響を明確化し、合意のうえで反映します。影響が小さい順に優先して実施します。
             </>
           }
         />
@@ -131,59 +127,54 @@ export default function FaqPage() {
           q="所有権やアカウント名義は？"
           a={
             <>
-              成果物の利用権や各種アカウントは<strong>原則お客様名義</strong>
-              です（テンプレートや外部コンポーネントは各ライセンス準拠）。
-              GitHub リポジトリ／Vercel プロジェクトも原則お客様側に帰属させます。
+              成果物の利用権および各種アカウントは<strong>原則お客様名義</strong>です（テンプレートや外部コンポーネントは各ライセンス準拠）。GitHub リポジトリや公開環境も、原則お客様側に帰属させます。
             </>
           }
         />
 
         <QA
-          q="スマホ対応・SEO・計測は含まれますか？"
+          q="スマホ対応・検索対策・計測は含まれますか？"
           a={
             <>
-              はい。全案件で<strong>レスポンシブ対応・基本SEO（OGP／メタ／サイトマップ／robots）</strong>と
-              <strong>計測（Umami または GA4）</strong>の初期設定を含みます。
+              はい。全案件で<strong>レスポンシブ対応・表示速度の調整・基本的な検索対策（タイトル／OGP／サイトマップ 等）</strong>と、<strong>アクセス計測の初期設定（例：Umami／GA4）</strong>を行います。
             </>
           }
         />
 
         <QA
-          q="品質やパフォーマンスの目安は？"
+          q="品質や表示速度の目安は？"
           a={
             <>
-              公開時の目安としてモバイルで<strong>LCP ≤ 2.5s ／ CLS ≤ 0.1</strong>を狙います。
-              主要導線でのキーボード操作・コントラスト・代替テキストなど基本的なアクセシビリティにも配慮します。
+              公開時の目安として、モバイルで<strong>LCP ≤ 2.5s／CLS ≤ 0.1</strong>を目指します。主要導線ではキーボード操作、コントラスト、代替テキストなど基本的なアクセシビリティにも配慮します。
             </>
           }
         />
 
         <QA
-          q="アクセシビリティは？"
+          q="アクセシビリティへの配慮は？"
           a={
             <>
-              <strong>JIS X 8341-3（AA 目標）</strong>
-              に配慮。見出し構造、フォーカス可視化、適切な代替テキスト、十分なコントラストを基本に設計します。
+              国内指針<strong>JIS X 8341-3（AA 目標）</strong>を参考に、見出し構造、フォーカス可視化、適切な代替テキスト、十分なコントラストを基本として設計します。
             </>
           }
         />
 
         <QA
-          q="SLA・対応時間は？"
+          q="対応時間とSLAは？"
           a={
             <>
-              受付：<strong>{meta.businessHours}</strong>・メール。初動の目安は{" "}
+              受付は<strong>{meta.businessHours}</strong>（メール）です。対応開始の目安は<strong>重大：4時間以内／中度：翌営業日から順次／軽度：週内</strong>（プランにより異なります）。
+              例：{" "}
               <strong>
                 {liteM ? `${jpName(liteM.name)}=${liteM.initial}` : ""}
                 {assistM ? `／${jpName(assistM.name)}=${assistM.initial}` : ""}
                 {stdM ? `／${jpName(stdM.name)}=${stdM.initial}` : ""}
                 {growthM ? `／${jpName(growthM.name)}=${growthM.initial}` : ""}
               </strong>
-              。プランに応じて改善頻度やA/Bテスト支援が強化されます。詳細は
+              。詳細は{" "}
               <Link href="/pricing" className="underline underline-offset-4">
-                {" "}
                 料金ページ
-              </Link>{" "}
+              </Link>
               をご確認ください。
             </>
           }
@@ -193,9 +184,7 @@ export default function FaqPage() {
           q="セキュリティ・個人情報の扱いは？"
           a={
             <>
-              <strong>最小権限・2FA・変更履歴</strong>を徹底し、個人情報を扱う場合は
-              <strong> DPA（受託処理契約）</strong>や社内ポリシーに沿って運用します。インシデント時は
-              <strong>初動（24h）／詳細（72h）</strong>の報告体制です。
+              <strong>最小権限・二要素認証・変更履歴の管理</strong>を徹底します。個人情報の取り扱いはお客様の社内規程に従い、必要に応じて個別の契約（委託契約 等）を締結します。
             </>
           }
         />
@@ -204,24 +193,22 @@ export default function FaqPage() {
           q="キャンペーンの条件は？"
           a={
             <>
-              最新の適用条件・対象・注意事項は
+              最新の適用条件・対象・注意事項は{" "}
               <Link href="/campaign" className="underline underline-offset-4">
-                {" "}
                 キャンペーン案内
               </Link>
-              に集約しています。解約・移管の取り扱いは
+              に集約しています。解約・移管の取り扱いは{" "}
               <Link href="/legal/terms" className="underline underline-offset-4">
-                {" "}
                 利用規約
-              </Link>{" "}
-              に従い安全に対応します。
+              </Link>
+              に基づき安全に対応します。
             </>
           }
         />
       </div>
 
-      <p className="text-xs text-gray-500">
-        ※ 価格は{meta.tax}。ドメイン／サーバ等の実費は別。納期・SLAは目安で、要件・素材の準備状況・外部連携により変動します。
+      <p className="text-xs text-gray-600">
+        ※ 価格は{meta.tax}表示です。ドメイン／サーバー等の実費は別途。納期や対応の目安は参考値で、要件・素材のご準備状況・外部連携により変動します。
       </p>
 
       <div className="flex flex-wrap gap-3 pt-2">

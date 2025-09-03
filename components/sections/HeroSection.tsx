@@ -24,28 +24,29 @@ export default function HeroSection() {
                 id="hero-heading"
                 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl"
               >
-                売上につながる<span className="whitespace-nowrap">Web/アプリ</span>を、
+                売上につながる<span className="whitespace-nowrap">ホームページ</span>を、
                 <br />
-                メール中心の完全オンラインで、最短<span className="whitespace-nowrap">2–4週</span>。
+                オンライン完結で。最短<span className="whitespace-nowrap">2〜4週間</span>で公開します。
               </h1>
-              <p className="text-lg leading-relaxed text-gray-600">
-                初期費用を抑えて小さく立ち上げ、公開後は<strong>月額保守で継続改善</strong>。
-                全国どこでも、非対面のスムーズな進行で成果に直結する導線を作ります。
+
+              <p className="text-lg leading-relaxed text-gray-700">
+                初期費用を抑え、必要なページから着実に公開します。公開後は計画に沿った継続的な改善までお任せください。
+                全国対応。主にメールで進行し、必要に応じてオンライン面談を行います。
               </p>
 
-              {/* 安心の3ポイント */}
-              <ul className="grid grid-cols-1 gap-2 text-sm text-gray-700 sm:grid-cols-3">
+              {/* 基本ポリシー */}
+              <ul className="grid grid-cols-1 gap-2 text-sm text-gray-800 sm:grid-cols-3">
                 <li className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-                  <span>SLAあり（P1＝4時間以内）</span>
+                  <span>重大な不具合は<span className="font-semibold">4時間以内に対応開始</span></span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-                  <span>税込表示・契約縛りなし</span>
+                  <span>税込価格表示・契約の縛りなし</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-                  <span>問い合わせは約2分で完了</span>
+                  <span>お問い合わせは約2分で完了</span>
                 </li>
               </ul>
             </div>
@@ -63,8 +64,8 @@ export default function HeroSection() {
                 料金を見る →
               </Link>
             </div>
-            <p className="text-xs text-gray-500">
-              約2分で完了。営業電話は行いません。回答はメールでお送りします。
+            <p className="text-xs text-gray-600">
+              約2分で完了。営業電話はいたしません。ご案内はメールでお送りします。
             </p>
 
             {/* Campaign / Notice（詳細は専用ページへ集約） */}
@@ -72,16 +73,16 @@ export default function HeroSection() {
               <div className="flex items-start gap-3">
                 <Megaphone className="mt-0.5 h-5 w-5 text-emerald-600" aria-hidden="true" />
                 <div>
-                  <p className="text-sm font-semibold text-emerald-800">キャンペーンのご案内</p>
+                  <p className="text-sm font-semibold text-emerald-900">キャンペーンのご案内</p>
                   <p className="text-sm text-emerald-900">
-                    「制作費¥0＋保守3ヶ月¥0（※条件あり）」の条件・対象・注意事項は
+                    「制作費¥0＋保守3ヶ月¥0（条件あり）」の条件・対象・注意事項は
                     <Link
                       href="/campaign"
                       className="ml-1 underline underline-offset-4 decoration-emerald-600/60 hover:text-emerald-700"
                     >
                       キャンペーン案内
                     </Link>
-                    に集約しています。
+                    に掲載しています。
                   </p>
                 </div>
               </div>
@@ -93,7 +94,7 @@ export default function HeroSection() {
                 <Mail className="h-5 w-5 text-blue-600" aria-hidden="true" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">お問い合わせ</p>
-                  <span className="text-sm text-gray-700">{BRAND.email}</span>
+                  <span className="text-sm text-gray-800">{BRAND.email}</span>
                 </div>
               </div>
             </Card>
@@ -104,7 +105,7 @@ export default function HeroSection() {
             <div
               className="relative z-10 rounded-2xl bg-white p-8 shadow-xl"
               role="img"
-              aria-label="Next.jsとTailwindによる高速・保守しやすいWeb制作のイメージ"
+              aria-label="オンライン完結・短納期のWeb制作イメージ"
             >
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">

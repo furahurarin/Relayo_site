@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import ServicesPageClient from "./_client";
 
 const siteDescription =
-  "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。";
+  "中小企業・個人事業主向けのホームページ制作。オンライン完結で最短2〜4週間で公開。スマホ対応・高速表示・基本的な検索対策・お問い合わせフォームまで標準対応。予約・決済・会員・SNS連携の追加も可能で、公開後の運用・保守まで一貫してサポートします。";
 
 export const metadata: Metadata = {
   // レイアウト側の title テンプレート（%s | BRAND）に合わせて素の文言のみ指定

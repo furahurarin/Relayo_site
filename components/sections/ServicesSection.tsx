@@ -1,7 +1,6 @@
 // components/sections/ServicesSection.tsx
 "use client";
 
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -10,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ArrowRight, Lightbulb, Code, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ContactCTA from "@/components/cta/ContactCTA";
 
 export default function ServicesSection() {
@@ -18,45 +16,45 @@ export default function ServicesSection() {
     {
       icon: Lightbulb,
       title: "設計",
-      subtitle: "要件定義・情報設計（オンライン：メール中心）",
+      subtitle: "目的整理・ページ計画（オンライン：メール中心）",
       description:
-        "メール往復（1〜2回）で目的とKPIを短時間で確定。小さく始めて拡張できる設計で、短期公開と将来の拡張性を両立します。",
+        "目的と課題を確認し、必要なページだけに絞った計画と文章案を作成します。読み手にとって分かりやすい掲載順と構成を整えます。",
       features: [
         "オンラインヒアリング（メール中心）",
-        "KPI設定／優先順位づけ",
-        "サイトマップ・ワイヤーフレーム",
-        "コピー叩き台（各p〜1,000字）",
-        "計測設計（Umami／GA4）",
+        "目標の確認と優先順位付け",
+        "サイトマップ・ワイヤーフレームの作成",
+        "文章案の作成（1ページあたり目安1,000字）",
+        "アクセス計測項目の整理（設定の準備）",
       ],
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: Code,
       title: "制作",
-      subtitle: "実装・連携（短納期）",
+      subtitle: "実装・公開（短期間で丁寧に）",
       description:
-        "Next.js＋Tailwindを中心に実装。レスポンシブ・速度最適化・基本SEO・計測を標準搭載。予約/決済などは必要に応じて拡張可能です。",
+        "スマートフォン対応、表示の速さ、基本的な検索対策、問い合わせフォームまで標準対応。必要に応じて予約・会員・決済などの機能を追加できます。",
       features: [
-        "Next.js + Tailwind 実装",
-        "レスポンシブ／表示速度の最適化",
-        "基本SEO（OGP／sitemap／robots）",
-        "問い合わせフォーム",
-        "予約・会員・決済（別見積で拡張可）",
+        "スマホ最適化と表示速度の改善",
+        "基本的な検索対策（タイトル・画像の見え方・サイトマップ 等）",
+        "お問い合わせフォームの設置",
+        "画像の最適化と表示品質の調整",
+        "予約・会員・決済などの追加（別途お見積もり）",
       ],
       color: "from-green-500 to-teal-500",
     },
     {
       icon: Settings,
       title: "運用",
-      subtitle: "保守・改善（SLA付き）",
+      subtitle: "保守・改善（体制あり）",
       description:
-        "公開後はデータに基づく継続改善。Liteは稼働/フォームの簡易監視・バックアップに加え、月1回はテキスト1箇所または画像3点まで対応。障害は優先度に応じて初動し、必要に応じてA/Bテストを実施します。",
+        "公開後はアクセス状況を確認し、計画に沿って改善します。監視やバックアップ、軽微な修正に対応。重大な不具合は4時間以内に対応を開始します。",
       features: [
-        "Lite：稼働/フォームの簡易監視・バックアップ。月1回、テキスト1箇所または画像3点まで対応。",
-        "依存アップデート（月1回目安）",
-        "監視・障害初動（P1＝4時間以内）",
-        "月次レポート／改善提案",
-        "A/Bテスト（プランに応じて）",
+        "基本保守：監視・バックアップ・軽微な修正（月1回：文言1箇所または画像3点）",
+        "ソフトウェア更新（目安：月1回）",
+        "監視と緊急対応（重大な不具合は4時間以内に対応開始）",
+        "月次レポートと改善提案",
+        "比較検証（2案を比べて良い方を採用）※プランにより実施",
       ],
       color: "from-orange-500 to-red-500",
     },
@@ -74,10 +72,9 @@ export default function ServicesSection() {
           <h2 id="services-heading" className="text-3xl font-bold text-gray-900 sm:text-4xl">
             サービス内容
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            設計 → 制作 → 運用をワンチームで。オンライン（メール中心）のヒアリングで
-            <span className="font-medium">最短公開</span>、公開後は
-            <span className="font-medium">保守で継続改善</span>します。
+          <p className="mx-auto max-w-2xl text-lg text-gray-700">
+            設計 → 制作 → 運用をひとつの体制でご提供します。オンライン（メール中心）のヒアリングで
+            無理なく進行し、公開後も計画に沿って改善します。
           </p>
         </div>
 
@@ -97,20 +94,20 @@ export default function ServicesSection() {
                       <CardTitle className="text-2xl font-bold text-gray-900">
                         {service.title}
                       </CardTitle>
-                      <CardDescription className="text-lg font-medium text-gray-500">
+                      <CardDescription className="text-lg font-medium text-gray-600">
                         {service.subtitle}
                       </CardDescription>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <p className="text-center leading-relaxed text-gray-600">
+                    <p className="text-center leading-relaxed text-gray-700">
                       {service.description}
                     </p>
                     <div className="space-y-3">
-                      <p className="font-medium text-gray-700">主要サービス</p>
+                      <p className="font-medium text-gray-800">提供内容（例）</p>
                       <ul className="space-y-2">
                         {service.features.map((f) => (
-                          <li key={f} className="flex items-center text-sm text-gray-600">
+                          <li key={f} className="flex items-center text-sm text-gray-700">
                             <span
                               className="mr-3 inline-block h-1.5 w-1.5 rounded-full bg-gray-400"
                               aria-hidden="true"
@@ -133,50 +130,21 @@ export default function ServicesSection() {
             );
           })}
         </div>
-
-        {/* クイックウィンとCTA */}
-        <div className="mt-16 text-center">
-          <Card className="mx-auto max-w-4xl border-2 border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50">
-            <CardContent className="p-8">
-              <h3 className="mb-4 text-2xl font-bold text-gray-900">公開直後のクイックウィン</h3>
-              <p className="mb-4 text-gray-600">初月は「成果に直結する導線」を最優先で最適化します。</p>
-              <ul className="mx-auto mb-6 grid max-w-3xl grid-cols-1 gap-2 text-left text-sm text-gray-700 sm:grid-cols-3">
-                <li>・第一CTAの統一（迷わせない）</li>
-                <li>・電話/予約ボタンの固定</li>
-                <li>・料金/営業時間の即決表</li>
-              </ul>
-              <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button
-                  asChild
-                  size="lg"
-                  className="group bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  <Link
-                    href="/#pricing"
-                    aria-label="料金プランへ"
-                    data-umami-event="cta_pricing"
-                    data-umami-event-section="services-quickwins"
-                  >
-                    最適プランを見る
-                    <ArrowRight
-                      className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1"
-                      aria-hidden="true"
-                    />
-                  </Link>
-                </Button>
-                {/* 入口は /contact に一本化 */}
-                <ContactCTA />
-              </div>
-              <p className="mt-4 text-xs text-gray-500">
-                キャンペーンの条件・対象・注意事項は{" "}
-                <Link href="/campaign" className="underline underline-offset-4">
-                  キャンペーン案内
-                </Link>
-                をご確認ください。
-              </p>
-            </CardContent>
-          </Card>
+{/* 中腹CTA（/contact に統一） */}
+      <section
+        aria-label="mid-cta"
+        className="container mx-auto my-12 px-4 sm:px-6 lg:px-8"
+      >
+        <div className="rounded-2xl border bg-white/60 p-6 text-center shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/60">
+          <h2 className="mb-3 text-xl font-semibold">お問い合わせ</h2>
+          <p className="mx-auto mb-4 max-w-2xl text-sm text-gray-600 dark:text-gray-400">約2分で完了。営業電話は行いません。メールで丁寧にご案内します。
+          </p>
+          <div className="flex justify-center">
+            <ContactCTA />
+          </div>
         </div>
+      </section>
+
       </div>
     </section>
   );

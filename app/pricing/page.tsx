@@ -8,7 +8,7 @@ import ContactCTA from "@/components/cta/ContactCTA";
 import { PRICING } from "@/lib/pricing";
 
 const siteDescription =
-  "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。";
+  "中小企業・個人事業主向けのホームページ制作。オンライン完結で最短2〜4週間で公開。スマホ対応・高速表示・基本的な検索対策・お問い合わせフォームまで標準対応。予約・決済・会員・SNS連携の追加にも対応し、公開後の運用・保守まで一貫してサポートします。";
 
 export const metadata: Metadata = {
   title: "料金",
@@ -57,7 +57,7 @@ export default function PricingPage() {
       ...setPlans.map((p) => ({
         "@type": "Offer" as const,
         name: p.name,
-        price: p.price.text.replace(/[^\d]/g, ""), // 数値だけを抽出（検索エンジン向け）
+        price: p.price.text.replace(/[^\d]/g, ""),
         priceCurrency: "JPY",
       })),
       {
@@ -81,15 +81,14 @@ export default function PricingPage() {
       <section className="space-y-4">
         <h1 className="text-3xl font-bold">料金</h1>
         <p className="text-muted-foreground">
-          情報は <strong>セットプラン</strong> → <strong>LPパック</strong> →{" "}
-          <strong>単体メニュー</strong> → <strong>月額</strong> の順に掲載。価格はすべて
-          <strong> {meta.tax}</strong> です。ドメイン/サーバ等の実費は別途となります。
+          本ページは <strong>セットプラン</strong> → <strong>LPパック</strong> →{" "}
+          <strong>単体メニュー</strong> → <strong>月額</strong> の順にご案内します。
+          価格は<strong>すべて {meta.tax}</strong>です。ドメイン／サーバー等の実費は別途となります。
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <Tag>{meta.tax}表示</Tag>
-          <Tag>契約縛りなし</Tag>
-          <Tag>無料見積</Tag>
-          <Tag>{meta.businessHours}</Tag>
+          <Tag>契約の縛りなし</Tag>
+          <Tag>見積無料</Tag>
         </div>
         <div className="mt-2 flex gap-3">
           <ContactCTA />
@@ -127,13 +126,17 @@ export default function PricingPage() {
                 </ul>
                 <div className="space-y-1 text-sm text-muted-foreground">
                   <p>
-                    SLA：{p.sla.label}
-                    {p.sla.p1 ? `（P1=${p.sla.p1}` : ""}
-                    {p.sla.p2 ? `／P2=${p.sla.p2}` : ""}
-                    {p.sla.p3 ? `／P3=${p.sla.p3}` : ""}
-                    {p.sla.p1 ? "）" : ""}
+                    <strong>サポート体制（対応開始の目安）：</strong>
+                    {p.sla.label}
+                    {(p.sla.p1 || p.sla.p2 || p.sla.p3) && "／"}
+                    {p.sla.p1 && <span>重大：{p.sla.p1}</span>}
+                    {p.sla.p2 && <span>／中度：{p.sla.p2}</span>}
+                    {p.sla.p3 && <span>／軽度：{p.sla.p3}</span>}
                   </p>
-                  <p>納期目安：{p.leadTime.note}</p>
+                  <p>
+                    <strong>納期目安：</strong>
+                    {p.leadTime.note}
+                  </p>
                 </div>
                 <div className="pt-2">
                   <ContactCTA />
@@ -151,7 +154,7 @@ export default function PricingPage() {
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl">{lpPack.name}</CardTitle>
-              <Badge>まず出す</Badge>
+              <Badge>短期公開</Badge>
             </div>
             <p className="text-2xl font-bold">{lpPack.price.text}</p>
           </CardHeader>
@@ -163,13 +166,17 @@ export default function PricingPage() {
             </ul>
             <div className="space-y-1 text-sm text-muted-foreground">
               <p>
-                SLA：{lpPack.sla.label}
-                {lpPack.sla.p1 ? `（P1=${lpPack.sla.p1}` : ""}
-                {lpPack.sla.p2 ? `／P2=${lpPack.sla.p2}` : ""}
-                {lpPack.sla.p3 ? `／P3=${lpPack.sla.p3}` : ""}
-                {lpPack.sla.p1 ? "）" : ""}
+                <strong>サポート体制（対応開始の目安）：</strong>
+                {lpPack.sla.label}
+                {(lpPack.sla.p1 || lpPack.sla.p2 || lpPack.sla.p3) && "／"}
+                {lpPack.sla.p1 && <span>重大：{lpPack.sla.p1}</span>}
+                {lpPack.sla.p2 && <span>／中度：{lpPack.sla.p2}</span>}
+                {lpPack.sla.p3 && <span>／軽度：{lpPack.sla.p3}</span>}
               </p>
-              <p>納期目安：{lpPack.leadTime.note}</p>
+              <p>
+                <strong>納期目安：</strong>
+                {lpPack.leadTime.note}
+              </p>
             </div>
             <div className="pt-2">
               <ContactCTA />
@@ -211,7 +218,7 @@ export default function PricingPage() {
           ))}
         </div>
         <p className="text-xs text-muted-foreground/80">
-          ※ 「〜」表記は要件により変動。個別見積は無料です。
+          ※ 「〜」表記は要件により変動します。個別のお見積りは無料です。
         </p>
       </section>
 
@@ -231,14 +238,16 @@ export default function PricingPage() {
                     <li key={b}>{b}</li>
                   ))}
                 </ul>
-                <p className="text-sm text-muted-foreground">初動：{m.initial}</p>
+                <p className="text-sm text-muted-foreground">
+                  対応開始の目安：{m.initial}
+                </p>
                 <ContactCTA />
               </CardContent>
             </Card>
           ))}
         </div>
         <p className="text-sm text-muted-foreground">
-          すべて契約縛りなし／翌月からアップ/ダウン可。「これだけやってほしい」に合わせて単発パックのみでの運用も可能です。
+          契約の縛りはありません。翌月からのアップ／ダウンも可能です。単発パックのみでの運用も承ります。
         </p>
       </section>
 
@@ -248,18 +257,18 @@ export default function PricingPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="border-border">
             <CardHeader>
-              <CardTitle className="text-base">解約後のサイトは？</CardTitle>
+              <CardTitle className="text-base">解約後もサイトは使えますか？</CardTitle>
             </CardHeader>
             <CardContent className="text-muted-foreground">
-              納品物はお客さま名義の資産。運用SaaSの契約は別ですが、サイト自体は使い続けられます。
+              はい。原則としてドメイン／ホスティング／計測ツールはお客様名義で運用します。納品物はお客様の資産として継続利用いただけます（外部SaaSの契約・料金は別管理です）。
             </CardContent>
           </Card>
           <Card className="border-border">
             <CardHeader>
-              <CardTitle className="text-base">見積のブレについて</CardTitle>
+              <CardTitle className="text-base">見積の変動はありますか？</CardTitle>
             </CardHeader>
             <CardContent className="text-muted-foreground">
-              本ページの価格は標準ケースの定額です。範囲が増える場合のみ、事前に追加メニューでご相談のうえ調整します。
+              本ページは標準ケースの定額です。範囲追加や外部サービス連携が増える場合のみ、事前に追加メニューをご提案し、合意のうえ反映します。
             </CardContent>
           </Card>
           <Card className="border-border">
@@ -267,9 +276,9 @@ export default function PricingPage() {
               <CardTitle className="text-base">納期の目安</CardTitle>
             </CardHeader>
             <CardContent className="text-muted-foreground">
-              Starter-LP：{lpPack.leadTime.note}／Standard：
-              {setPlans.find((p) => p.code === "standard")?.leadTime.note}／Growth：
-              {setPlans.find((p) => p.code === "growth")?.leadTime.note}
+              {lpPack.name}：{lpPack.leadTime.note}／
+              Standard：{setPlans.find((p) => p.code === "standard")?.leadTime.note}／
+              Growth：{setPlans.find((p) => p.code === "growth")?.leadTime.note}
             </CardContent>
           </Card>
         </div>
@@ -281,13 +290,13 @@ export default function PricingPage() {
         <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.25)] p-4 text-[hsl(var(--foreground))]">
           <p className="flex items-start gap-2">
             <Info className="mt-0.5 h-5 w-5" />
-            表示価格は{meta.tax}です。ドメイン/サーバ等の実費は別。要件・素材の準備状況・連携サービス・セキュリティ要件により増減します。
+            価格は{meta.tax}表示です。ドメイン／サーバー等の実費は別途。要件・素材のご準備状況・外部サービス連携・セキュリティ要件により増減します。
           </p>
         </div>
         <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.25)] p-4 text-[hsl(var(--foreground))]">
           <p className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-5 w-5" />
-            契約前に範囲と前提、除外項目、変更管理、SLAを明文化します。まずは「お問い合わせ」から。
+            契約前に、範囲・前提・除外項目・変更管理・サポート体制（対応開始の目安）を文書で確認します。まずは「お問い合わせ」からご相談ください。
           </p>
         </div>
         <div className="flex gap-3">
