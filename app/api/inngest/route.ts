@@ -1,4 +1,4 @@
-// app/api/inngest/route.ts（本番用・最小）
+// app/api/inngest/route.ts
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -8,8 +8,13 @@ import { serve } from "inngest/next";
 import { inngest } from "@/lib/inngest";
 import { sendEmails } from "@/inngest/send-emails";
 
-export const { GET, POST, PUT } = serve({
+/**
+ * ❌ ここで環境変数チェックや throw をしないこと！
+ *  import時に例外を投げると、build の "Collecting page data" で落ちます。
+ */
+
+// INNGEST_SIGNING_KEY は env から自動取得されます（未設定でも serve 自体は通る）
+export const { GET, POST } = serve({
   client: inngest,
-  functions: [sendEmails], // ← 1本だけ登録（重複起動を防ぐ）
-  // signingKey は指定しない：INNGEST_SIGNING_KEY を使う
+  functions: [sendEmails],
 });

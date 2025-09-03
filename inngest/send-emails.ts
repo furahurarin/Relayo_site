@@ -1,7 +1,7 @@
 // inngest/send-emails.ts
 import "server-only";
 import { inngest } from "@/lib/inngest";
-import { resend, EMAIL_FROM, EMAIL_TO } from "@/lib/resend";
+import { makeResend, getEMAIL_FROM, getEMAIL_TO } from "@/lib/resend";
 
 type ApplicationPayload = {
   name: string;
@@ -40,14 +40,6 @@ const buildSummary = (p: {
   return lines.join("\n");
 };
 
-/**
- * 申込イベント受信時の一連のメール送信
- * - 社内通知
- * - 申込者への自動返信（控え付き）
- * - 24時間後のフォロー通知
- *
- * トリガーイベント: "application/received"
- */
 export const sendEmails = inngest.createFunction(
   { id: "send-emails-on-application" },
   { event: "application/received" },
@@ -55,7 +47,7 @@ export const sendEmails = inngest.createFunction(
     const raw = event.data as ApplicationPayload | undefined;
     if (!raw) throw new Error("No event data");
 
-    // ---- フィールド正規化（互換キーを吸収）----
+    // ---- フィールド正規化 ----
     const name = raw.name?.trim();
     const email = raw.email?.trim();
     const company = raw.company?.trim();
@@ -67,6 +59,20 @@ export const sendEmails = inngest.createFunction(
     if (!name || !email || !message) {
       throw new Error("Missing required fields: name, email, message/detail");
     }
+
+    // ✅ 実行時チェック（import時に落とさない）
+    const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
+    const EMAIL_FROM = getEMAIL_FROM();
+    const EMAIL_TO = getEMAIL_TO();
+    if (!RESEND_API_KEY || !EMAIL_FROM || !EMAIL_TO) {
+      console.warn(
+        "[send-emails] Missing one of RESEND_API_KEY / EMAIL_FROM / EMAIL_TO. Skip sending."
+      );
+      return { ok: false, skipped: true };
+    }
+
+    // ここで初めて Resend を生成（遅延）
+    const resend = makeResend(RESEND_API_KEY);
 
     const summary = buildSummary({
       name,
@@ -113,18 +119,14 @@ export const sendEmails = inngest.createFunction(
       });
     });
 
-    // 3) 24時間後フォロー（未対応防止）
+    // 3) 24時間後フォロー
     await step.sleep("wait-24h", "PT24H");
     await step.run("follow-up", async () => {
       await resend.emails.send({
         from: EMAIL_FROM,
         to: [EMAIL_TO],
         subject: "【Relayo】24h未対応フォロー",
-        text: [
-          "24時間前の申込みに対応していますか？",
-          "",
-          summary,
-        ].join("\n"),
+        text: ["24時間前の申込みに対応していますか？", "", summary].join("\n"),
       });
     });
 

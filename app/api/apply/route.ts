@@ -1,10 +1,13 @@
 // app/api/apply/route.ts
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const maxDuration = 300;
 
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isIP } from "node:net";
-import { supabaseAdmin } from "@/lib/supabase";
+import { getSupabaseAdmin } from "@/lib/supabase"; // ← ここがポイント
 import { applyRatelimit } from "@/lib/ratelimit";
 import { verifyTurnstile } from "@/lib/turnstile";
 import { inngest } from "@/lib/inngest";
@@ -42,9 +45,7 @@ type Normalized = {
 
 export async function POST(req: Request) {
   // ---- IP 取得（Header の優先順位を増やす）----
-  const forwarded = (req.headers.get("x-forwarded-for") ?? "")
-    .split(",")[0]
-    ?.trim();
+  const forwarded = (req.headers.get("x-forwarded-for") ?? "").split(",")[0]?.trim();
   const cf = (req.headers.get("cf-connecting-ip") ?? "").trim();
   const real = (req.headers.get("x-real-ip") ?? "").trim();
 
@@ -52,7 +53,8 @@ export async function POST(req: Request) {
   const ipForDb = isIP(ipRaw) ? ipRaw : null; // inet に安全な値のみ保存
 
   // ---- レート制限（本番：Upstash）----
-  const { success } = await applyRatelimit.limit(ipRaw || "unknown");
+  // ▼ ここを修正：.limit(...) ではなく関数として呼ぶ
+  const { success } = await applyRatelimit(ipRaw || "unknown", "/api/apply");
   if (!success) {
     return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
   }
@@ -115,31 +117,39 @@ export async function POST(req: Request) {
 
   // ---- DB 保存（Supabase / service role）----
   try {
-    const { data: inserted, error: dbErr } = await supabaseAdmin
-      .from("applications")
-      .insert([
-        {
-          name: data.name,
-          company: data.company ?? "",
-          email: data.email,
-          phone: data.phone ?? "",
-          detail: data.detail,
-          ua,
-          ip: ipForDb, // inet 型
-          status: "received",
-        },
-      ])
-      .select();
+    const supabase = getSupabaseAdmin(); // ← 実行時にだけ生成（未設定なら null）
+    let insertedId: string | number | undefined = undefined;
 
-    if (dbErr) {
-      // 可能な限り詳細を出して原因特定を早くする
-      console.error("[apply] DB insert error:", {
-        message: dbErr.message,
-        details: (dbErr as any).details,
-        hint: (dbErr as any).hint,
-        code: dbErr.code,
-      });
-      return NextResponse.json({ ok: false, error: "db_error" }, { status: 500 });
+    if (supabase) {
+      const { data: inserted, error: dbErr } = await supabase
+        .from("applications")
+        .insert([
+          {
+            name: data.name,
+            company: data.company ?? "",
+            email: data.email,
+            phone: data.phone ?? "",
+            detail: data.detail,
+            ua,
+            ip: ipForDb, // inet 型
+            status: "received",
+          },
+        ])
+        .select();
+
+      if (dbErr) {
+        // 可能な限り詳細を出して原因特定を早くする
+        console.error("[apply] DB insert error:", {
+          message: dbErr.message,
+          details: (dbErr as any).details,
+          hint: (dbErr as any).hint,
+          code: (dbErr as any).code,
+        });
+        return NextResponse.json({ ok: false, error: "db_error" }, { status: 500 });
+      }
+      insertedId = inserted?.[0]?.id;
+    } else {
+      console.warn("[apply] Supabase env missing; skipped DB insert.");
     }
 
     // ---- 非同期処理（メール通知など）----
@@ -152,7 +162,7 @@ export async function POST(req: Request) {
       phone: data.phone ?? "",
       ip: ipRaw || undefined, // ログ用途
       ua,
-      id: inserted?.[0]?.id, // 作成レコードIDがあれば付与
+      id: insertedId, // 作成レコードIDがあれば付与
     };
 
     // Inngest 失敗は非致命に

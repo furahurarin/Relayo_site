@@ -1,60 +1,62 @@
 // lib/supabase.ts
-import { createClient } from "@supabase/supabase-js";
-import { Buffer } from "node:buffer";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-function mustEnvAscii(name: string, fallback?: string) {
-  const raw = process.env[name] ?? fallback;
-  if (!raw) throw new Error(`ENV ${name} is missing`);
-  const v = raw.trim();
-  for (let i = 0; i < v.length; i++) {
-    const code = v.charCodeAt(i);
-    if (code > 255) {
-      throw new Error(
-        `ENV ${name} contains non-ASCII at index ${i} (U+${code.toString(
-          16
-        )})`
-      );
-    }
-  }
-  return v;
-}
+/**
+ * ✅ ポリシー
+ * - import時に一切 throw しない（= build を落とさない）
+ * - 実行時にだけ環境変数を読み、無ければ null を返す
+ * - 本番(Vercel)のみ軽いバリデーションを行い、壊れていそうなら null + warn
+ */
 
-function assertServiceRoleJWT(jwt: string) {
+function looksLikeServiceRoleJWT(jwt: string): boolean {
+  // "xxx.yyy.zzz" の3区切りになっていて、payload の role に "service" を含むかを軽く見る
   const parts = jwt.split(".");
-  if (parts.length !== 3) {
-    throw new Error(
-      `SUPABASE_SERVICE_ROLE_KEY がJWT形式ではありません（"."で3分割できない）`
-    );
-  }
+  if (parts.length !== 3) return false;
   try {
-    const payloadJson = Buffer.from(
-      parts[1].replace(/-/g, "+").replace(/_/g, "/") +
-        "=".repeat((4 - (parts[1].length % 4)) % 4),
-      "base64"
-    ).toString("utf8");
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+    const payloadJson =
+      typeof atob === "function"
+        ? atob(padded) // edge/runtime 互換
+        : Buffer.from(padded, "base64").toString("utf8");
     const payload = JSON.parse(payloadJson);
-    const role =
-      String(payload?.role || payload?.user_role || payload?.type || "") || "";
-    if (!/service/i.test(role)) {
-      throw new Error(
-        `SUPABASE_SERVICE_ROLE_KEY は service role ではありません（role="${role || "unknown"}"）`
-      );
-    }
-  } catch (e) {
-    throw new Error(
-      `SUPABASE_SERVICE_ROLE_KEY のJWTデコードに失敗（値が壊れている可能性）`
-    );
+    const role = String(payload?.role || payload?.user_role || payload?.type || "");
+    return /service/i.test(role);
+  } catch {
+    return false;
   }
 }
 
-// URL は NEXT_PUBLIC_SUPABASE_URL 優先、無ければ SUPABASE_URL
-const url = mustEnvAscii(
-  "NEXT_PUBLIC_SUPABASE_URL",
-  process.env.SUPABASE_URL
-);
-const serviceRoleKey = mustEnvAscii("SUPABASE_SERVICE_ROLE_KEY");
-assertServiceRoleJWT(serviceRoleKey);
+export function getSupabaseAdmin(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
-export const supabaseAdmin = createClient(url, serviceRoleKey, {
-  auth: { persistSession: false },
-});
+  if (!url || !serviceKey) {
+    // 環境が未設定なら利用側でスキップできるように null を返す
+    if (process.env.VERCEL) {
+      console.warn("[supabase] missing url or service role key; skip creating admin client");
+    }
+    return null;
+  }
+
+  // 本番(Vercel)のみ軽い妥当性チェック（壊れていそうなら null）
+  if (process.env.VERCEL && !looksLikeServiceRoleJWT(serviceKey)) {
+    console.warn("[supabase] service role key doesn't look like a service JWT; skip creating admin client");
+    return null;
+  }
+
+  return createClient(url, serviceKey, { auth: { persistSession: false } });
+}
+
+/**
+ * もし anon クライアントも使うならこちらを利用（未設定なら null）
+ */
+export function getSupabaseAnon(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (!url || !anon) return null;
+  return createClient(url, anon, {
+    auth: { persistSession: false },
+    global: { headers: { "X-Client-Info": "relayo-site" } },
+  });
+}
