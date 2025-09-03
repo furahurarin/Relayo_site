@@ -4,12 +4,16 @@ export const runtime = "nodejs";
 // API は常に動的実行（キャッシュ回避）
 export const dynamic = "force-dynamic";
 
-// ---- ENV ----
+/* =========================
+ * ENV
+ * ========================= */
 const RESEND_API_KEY = process.env.RESEND_API_KEY!;
-const FROM = process.env.EMAIL_FROM!;        // 例: "Relayo <noreply@relayo.jp>"
-const ADMIN = process.env.EMAIL_TO!;         // 例: "owner@relayo.jp"
+const FROM = process.env.EMAIL_FROM!;  // 例: Relayo <noreply@relayo.jp>
+const ADMIN = process.env.EMAIL_TO!;   // 例: contact.relayo@gmail.com
 
-// ---- Utils ----
+/* =========================
+ * Utils
+ * ========================= */
 function esc(input: unknown): string {
   return String(input ?? "")
     .replace(/&/g, "&amp;")
@@ -20,9 +24,16 @@ function esc(input: unknown): string {
 type SendOpts = {
   replyTo?: string | string[];
   text?: string;
-  tags?: string[];
+  /** Resendは {name,value}[] 形式。Record指定も許容し、内部で変換する */
+  tags?: Record<string, string> | { name: string; value: string }[];
 };
-async function sendMail(to: string[], subject: string, html: string, opts: SendOpts = {}) {
+
+async function sendMail(
+  to: string[],
+  subject: string,
+  html: string,
+  opts: SendOpts = {}
+) {
   const payload: Record<string, any> = {
     from: FROM,
     to,
@@ -31,7 +42,20 @@ async function sendMail(to: string[], subject: string, html: string, opts: SendO
   };
   if (opts.replyTo) payload.reply_to = opts.replyTo;
   if (opts.text) payload.text = opts.text;
-  if (opts.tags) payload.tags = opts.tags;
+
+  // ✅ Resendの正しいtags形式に変換
+  if (opts.tags) {
+    const arr = Array.isArray(opts.tags)
+      ? (opts.tags as { name: string; value: string }[]).map((t) => ({
+          name: String(t.name),
+          value: String(t.value),
+        }))
+      : Object.entries(opts.tags).map(([k, v]) => ({
+          name: String(k),
+          value: String(v),
+        }));
+    payload.tags = arr;
+  }
 
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -41,6 +65,7 @@ async function sendMail(to: string[], subject: string, html: string, opts: SendO
     },
     body: JSON.stringify(payload),
   });
+
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(`Resend ${r.status}: ${JSON.stringify(data)}`);
   return data;
@@ -64,19 +89,20 @@ function getClientIp(req: Request) {
   );
 }
 
-// ---- Handler ----
+/* =========================
+ * Handler
+ * ========================= */
 export async function POST(req: Request) {
   try {
     if (!RESEND_API_KEY || !FROM || !ADMIN) {
       return NextResponse.json({ ok: false, error: "ENV missing" }, { status: 500 });
     }
 
-    // Content-Type が JSON でない場合に備え、例外は握りつぶして空オブジェクトに
+    // Content-Type が JSON でない場合も空オブジェクトにフォールバック
     const body = (await req.json().catch(() => ({}))) as Record<string, any>;
 
-    // --- 蜜壺（honeypot）：値が入っていれば即拒否（人間は触らない） ---
+    // --- 蜜壺（honeypot）: 人間は触らない隠しフィールド。値があればBotと判断して成功風レスポンス ---
     if (typeof body.hp === "string" && body.hp.trim() !== "") {
-      // 成功風レスポンスで早期 return（Bot に手掛かりを与えない）
       return NextResponse.json({ ok: true });
     }
 
@@ -87,7 +113,7 @@ export async function POST(req: Request) {
     const tel: string | undefined = normalizeTel(body.tel ?? body.phone);
     const messageRaw: string = (body.detail ?? body.message ?? "").toString().trim();
 
-    // 軽いサニタイズ前の基本バリデーション
+    // バリデーション
     if (!name || !email || !messageRaw) {
       return NextResponse.json(
         { ok: false, error: "name, email, message/detail は必須です" },
@@ -107,13 +133,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // --- 付随情報（任意） ---
+    // 付随情報
     const ip = getClientIp(req);
     const ua = req.headers.get("user-agent") || "";
-    const now = new Date();
-    const stamp = now.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+    const stamp = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 
-    // --- 自動返信（ユーザー向け）---
+    // --- 自動返信（ユーザー向け） ---
     const userSubject = "【Relayo】お問い合わせありがとうございます";
     const userHtml = `
       <p>${esc(name)} 様</p>
@@ -134,18 +159,18 @@ export async function POST(req: Request) {
     `;
 
     await sendMail([email], userSubject, userHtml, {
-      // 返信先は運営側（ユーザーがそのまま返信→運営に届く）
-      replyTo: ADMIN,
-      tags: ["contact", "auto-reply"],
+      replyTo: ADMIN, // ユーザーが返信→運営に届く
       text:
         `${name} 様\n` +
         `お問い合わせありがとうございます。原則24時間以内にご連絡します。\n\n` +
         `--- 送信内容の控え ---\n` +
         `お名前: ${name}\n会社名: ${company || "-"}\nメール: ${email}\n電話番号: ${tel || "-"}\n送信日時: ${stamp}\n\n` +
         `${messageRaw}\n`,
+      // ✅ 正しいtags形式
+      tags: { category: "contact", kind: "auto-reply" },
     });
 
-    // --- 社内通知（ADMIN 向け）---
+    // --- 社内通知（ADMIN向け） ---
     const adminSubject = `【Relayo】新規お問い合わせ：${name}`;
     const adminHtml = `
       <p><strong>新規お問い合わせ</strong>（${esc(stamp)}）</p>
@@ -162,31 +187,25 @@ export async function POST(req: Request) {
     `;
 
     await sendMail([ADMIN], adminSubject, adminHtml, {
-      // 返信先はユーザー（そのまま返信でやり取り開始できる）
-      replyTo: email,
-      tags: ["contact", "notify"],
+      replyTo: email, // そのまま返信でやり取り開始
       text:
         `新規お問い合わせ（${stamp}）\n` +
         `氏名: ${name}\n会社名: ${company || "-"}\nメール: ${email}\n電話番号: ${tel || "-"}\n` +
         `IP: ${ip}\nUA: ${ua}\n\n` +
         `${messageRaw}\n`,
+      // ✅ 正しいtags形式
+      tags: { category: "contact", kind: "notify" },
     });
 
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-  console.error("contact API error:", e);
-
-  return NextResponse.json(
-    {
-      ok: false,
-      error: "DEBUG",
-      detail: String(e?.message || e),
-      stack: e?.stack ?? null,
-    },
-    { status: 500 },
-  );
-}
-
+    // 調査中は詳細を返す（復旧後は汎用メッセージに戻してください）
+    console.error("contact API error:", e);
+    return NextResponse.json(
+      { ok: false, error: "DEBUG", detail: String(e?.message || e), stack: e?.stack ?? null },
+      { status: 500 },
+    );
+  }
 }
 
 /* -------------------------
@@ -194,17 +213,5 @@ export async function POST(req: Request) {
  *  - フロントから cfToken / turnstileToken を受け取り、
  *  - SECRET_KEY で https://challenges.cloudflare.com/turnstile/v0/siteverify を検証、
  *  - 成功時のみ送信処理を続行する。
- * 例：
- *   const cfToken = body.cfToken ?? body.turnstileToken;
- *   if (process.env.TURNSTILE_SECRET_KEY) {
- *     const vr = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
- *       method: "POST",
- *       body: new URLSearchParams({
- *         secret: process.env.TURNSTILE_SECRET_KEY!,
- *         response: String(cfToken || ""),
- *         remoteip: getClientIp(req),
- *       }),
- *     }).then(r => r.json());
- *     if (!vr.success) return NextResponse.json({ ok:false, error:"Bot verification failed" }, { status: 400 });
- *   }
+ * ※現状は無効（honeypot のみ）
  * ------------------------- */
