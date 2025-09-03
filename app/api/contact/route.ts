@@ -174,13 +174,19 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (e: any) {
-    console.error("contact API error:", e?.message ?? e);
-    // 内部詳細は伏せ、汎用メッセージを返す
-    return NextResponse.json(
-      { ok: false, error: "送信に失敗しました。時間をおいて再度お試しください。" },
-      { status: 500 },
-    );
-  }
+  console.error("contact API error:", e);
+
+  return NextResponse.json(
+    {
+      ok: false,
+      error: "DEBUG",
+      detail: String(e?.message || e),
+      stack: e?.stack ?? null,
+    },
+    { status: 500 },
+  );
+}
+
 }
 
 /* -------------------------
