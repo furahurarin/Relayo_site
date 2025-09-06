@@ -89,6 +89,23 @@ function getClientIp(req: Request) {
   );
 }
 
+/** 管理者向けにだけ載せる参照情報を抽出（ユーザー向けには絶対に使わない） */
+function extractReferContext(req: Request) {
+  const url = new URL(req.url);
+  const search = url.searchParams;
+  const referrerHeader = req.headers.get("referer") || req.headers.get("referrer") || "-";
+
+  return {
+    referrer: referrerHeader,
+    pathname: url.pathname || "-",
+    utm_source: search.get("utm_source") || "-",
+    utm_medium: search.get("utm_medium") || "-",
+    utm_campaign: search.get("utm_campaign") || "-",
+    utm_content: search.get("utm_content") || "-",
+    utm_term: search.get("utm_term") || "-",
+  };
+}
+
 /* =========================
  * Handler
  * ========================= */
@@ -133,12 +150,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // 付随情報
+    // 付随情報（ユーザー向けメールには載せない）
     const ip = getClientIp(req);
     const ua = req.headers.get("user-agent") || "";
     const stamp = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+    const refer = extractReferContext(req);
 
     // --- 自動返信（ユーザー向け） ---
+    // ✅ 要望により「参照情報（referrer / pathname / utm_*）」は一切記載しない
     const userSubject = "【Relayo】お問い合わせありがとうございます";
     const userHtml = `
       <p>${esc(name)} 様</p>
@@ -166,11 +185,11 @@ export async function POST(req: Request) {
         `--- 送信内容の控え ---\n` +
         `お名前: ${name}\n会社名: ${company || "-"}\nメール: ${email}\n電話番号: ${tel || "-"}\n送信日時: ${stamp}\n\n` +
         `${messageRaw}\n`,
-      // ✅ 正しいtags形式
       tags: { category: "contact", kind: "auto-reply" },
     });
 
     // --- 社内通知（ADMIN向け） ---
+    // ここにだけ参照情報を載せる
     const adminSubject = `【Relayo】新規お問い合わせ：${name}`;
     const adminHtml = `
       <p><strong>新規お問い合わせ</strong>（${esc(stamp)}）</p>
@@ -184,6 +203,14 @@ export async function POST(req: Request) {
       </p>
       <p><strong>ご要件・相談内容</strong></p>
       <pre style="white-space:pre-wrap;word-wrap:break-word;">${esc(messageRaw)}</pre>
+      <hr/>
+      <p><strong>参照情報（内部用）</strong></p>
+      <pre style="white-space:pre-wrap;word-wrap:break-word;">
+referrer: ${esc(refer.referrer)}
+pathname: ${esc(refer.pathname)}
+utm_source: ${esc(refer.utm_source)} / utm_medium: ${esc(refer.utm_medium)} / utm_campaign: ${esc(refer.utm_campaign)}
+utm_content: ${esc(refer.utm_content)} / utm_term: ${esc(refer.utm_term)}
+      </pre>
     `;
 
     await sendMail([ADMIN], adminSubject, adminHtml, {
@@ -192,19 +219,23 @@ export async function POST(req: Request) {
         `新規お問い合わせ（${stamp}）\n` +
         `氏名: ${name}\n会社名: ${company || "-"}\nメール: ${email}\n電話番号: ${tel || "-"}\n` +
         `IP: ${ip}\nUA: ${ua}\n\n` +
-        `${messageRaw}\n`,
-      // ✅ 正しいtags形式
+        `${messageRaw}\n\n` +
+        `--- 参照情報（内部用） ---\n` +
+        `referrer: ${refer.referrer}\n` +
+        `pathname: ${refer.pathname}\n` +
+        `utm_source: ${refer.utm_source} / utm_medium: ${refer.utm_medium} / utm_campaign: ${refer.utm_campaign}\n` +
+        `utm_content: ${refer.utm_content} / utm_term: ${refer.utm_term}\n`,
       tags: { category: "contact", kind: "notify" },
     });
 
     return NextResponse.json({ ok: true });
-    } catch (e: any) {
-  console.error("contact API error:", e);
-  return NextResponse.json(
-    { ok: false, error: "送信に失敗しました。時間をおいて再度お試しください。" },
-    { status: 500 },
-  );
-}
+  } catch (e: any) {
+    console.error("contact API error:", e);
+    return NextResponse.json(
+      { ok: false, error: "送信に失敗しました。時間をおいて再度お試しください。" },
+      { status: 500 },
+    );
+  }
 }
 
 /* -------------------------
