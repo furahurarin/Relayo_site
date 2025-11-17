@@ -1,4 +1,4 @@
-﻿// app/services/_client.tsx  ← クライアントコンポーネント（改善版）
+﻿// app/services/_client.tsx  
 "use client";
 
 import Link from "next/link";
