@@ -1,4 +1,4 @@
-// app/services/page.tsx  ← サーバーコンポーネント（静的）
+// app/services/page.tsx  
 import type { Metadata } from "next";
 import ServicesPageClient from "./_client";
 
