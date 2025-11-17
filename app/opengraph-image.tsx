@@ -23,15 +23,35 @@ export default function OGImage() {
           fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
         }}
       >
-        <div style={{ color: "#111827", fontWeight: 800, marginBottom: 12 }}>
+        {/* ロゴ的なタイトル */}
+        <div
+          style={{
+            color: "#111827",
+            fontWeight: 800,
+            marginBottom: 12,
+          }}
+        >
           Relayo
         </div>
-        <div style={{ color: "#1f2937", lineHeight: 1.4 }}>
-          メール中心の非対面ヒアリングで最短公開。<br />
-          先着3社は制作費¥0 × 保守3ヶ月¥0（完全無料解約OK）
+
+        {/* テキスト部分：複数行なので display:flex を明示する */}
+        <div
+          style={{
+            display: "flex", // ★ 複数子要素を持つので必須
+            flexDirection: "column",
+            color: "#1f2937",
+            lineHeight: 1.4,
+            gap: 8,
+          }}
+        >
+          <span>メール中心の非対面ヒアリングで最短公開。</span>
+          <span>先着3社は制作費¥0 × 保守3ヶ月¥0（完全無料解約OK）</span>
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    {
+      width: size.width,
+      height: size.height,
+    }
   );
 }
