@@ -1,318 +1,307 @@
 // app/pricing/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Info, ShieldCheck, CheckCircle2, Sparkles } from "lucide-react";
-import ContactCTA from "@/components/cta/ContactCTA";
-import { PRICING } from "@/lib/pricing";
+import { Check } from "lucide-react";
 
-const siteDescription =
-  "中小企業・個人事業主向けのホームページ制作。オンライン完結で最短2〜4週間で公開。スマホ対応・高速表示・基本的な検索対策・お問い合わせフォームまで標準対応。予約・決済・会員・SNS連携の追加にも対応し、公開後の運用・保守まで一貫してサポートします。";
+import { BRAND } from "@/lib/constants";
+import { PRICING } from "@/lib/pricing";
+import PricingSection from "@/components/sections/PricingSection";
+import ContactCTA from "@/components/cta/ContactCTA";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+const { meta, setPlans, lpPack, soloGroups, monthlyPlans } = PRICING;
 
 export const metadata: Metadata = {
-  title: "料金",
-  description: siteDescription,
-  alternates: { canonical: "/pricing" },
-  openGraph: {
-    title: "料金",
-    description: siteDescription,
-    url: "/pricing",
-    type: "website",
-    images: ["/og.png"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "料金",
-    description: siteDescription,
-    images: ["/og.png"],
-  },
+  title: `料金・プラン | ${BRAND.name}`,
+  description: `RelayoのWebサイト制作・LP制作、運用・保守の料金とプランのご案内です。Essential / Standard / Growthのセットプランに加え、LP特化プランや月額保守、単発の更新・改善パックなどを用意しています。価格はすべて${meta.tax}表示です。`,
 };
 
-// ---------- tiny components (tokenized colors) ----------
-const Tag = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.35)] px-2 py-0.5 text-xs text-[hsl(var(--foreground))/0.9]">
-    <CheckCircle2 className="h-3.5 w-3.5" /> {children}
-  </span>
-);
-
-const Badge = ({ children }: { children: React.ReactNode }) => (
-  <span className="inline-flex items-center gap-1 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.45)] px-2 py-0.5 text-xs text-[hsl(var(--foreground))]">
-    <Sparkles className="h-3.5 w-3.5" /> {children}
-  </span>
-);
-
-// ---------- page ----------
-export const dynamic = "force-static";
-
 export default function PricingPage() {
-  const { setPlans, lpPack, soloGroups, monthlyPlans, meta } = PRICING;
-
-  // 構造化データ（OfferCatalog）
-  const offerCatalogLd = {
-    "@context": "https://schema.org",
-    "@type": "OfferCatalog",
-    name: "Relayo Pricing",
-    itemListElement: [
-      ...setPlans.map((p) => ({
-        "@type": "Offer" as const,
-        name: p.name,
-        price: p.price.text.replace(/[^\d]/g, ""),
-        priceCurrency: "JPY",
-      })),
-      {
-        "@type": "Offer" as const,
-        name: lpPack.name,
-        price: lpPack.price.text.replace(/[^\d]/g, ""),
-        priceCurrency: "JPY",
-      },
-      ...monthlyPlans.map((m) => ({
-        "@type": "Offer" as const,
-        name: m.name,
-        price: m.price.text.replace(/[^\d]/g, "") || "0",
-        priceCurrency: "JPY",
-      })),
-    ],
-  };
-
   return (
-    <main className="container mx-auto space-y-12 px-4 py-12">
-      {/* Hero */}
-      <section className="space-y-4">
-        <h1 className="text-3xl font-bold">料金</h1>
-        <p className="text-muted-foreground">
-          本ページは <strong>セットプラン</strong> → <strong>LPパック</strong> →{" "}
-          <strong>単体メニュー</strong> → <strong>月額</strong> の順にご案内します。
-          価格は<strong>すべて {meta.tax}</strong>です。ドメイン／サーバー等の実費は別途となります。
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
-          <Tag>{meta.tax}表示</Tag>
-          <Tag>契約の縛りなし</Tag>
-          <Tag>見積無料</Tag>
-        </div>
-        <div className="mt-2 flex gap-3">
-          <ContactCTA />
-          <Button asChild variant="secondary" size="lg">
-            <Link href="/services">サービス内容を確認</Link>
-          </Button>
-        </div>
-      </section>
+    <main
+      className="bg-gray-50 pb-20 pt-16 sm:pt-20"
+      aria-labelledby="pricing-page-heading"
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* ページヘッダー */}
+        <header className="mb-10 space-y-4 text-center">
+          <h1
+            id="pricing-page-heading"
+            className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl"
+          >
+            料金・プラン
+          </h1>
+          <p className="mx-auto max-w-2xl text-lg text-gray-700">
+            Webサイト制作・LP制作、公開後の運用・保守までを
+            わかりやすいプランにまとめています。まずはおおよその
+            目安をご確認いただき、詳細はお問い合わせください。
+          </p>
+          <p className="mx-auto max-w-2xl text-sm text-gray-500">
+            表示価格は<strong>すべて {meta.tax}</strong>です。
+            ドメイン／サーバーなどの実費は別途となります。
+          </p>
+        </header>
 
-      {/* セットプラン */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">セットプラン</h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          {setPlans.map((p) => (
-            <Card
-              key={p.code}
-              className={p.popular ? "border-border bg-secondary" : "border-border"}
+        {/* セットプランのダイジェスト（トップと同じUIを再利用） */}
+        <section
+          aria-label="制作セットプランの概要"
+          className="mb-16"
+        >
+          <PricingSection />
+        </section>
+
+        {/* LP特化パック */}
+        <section
+          aria-labelledby="lp-pack-heading"
+          className="mb-16"
+        >
+          <div className="mb-6 text-center">
+            <h2
+              id="lp-pack-heading"
+              className="text-2xl font-bold text-gray-900 sm:text-3xl"
             >
-              <CardHeader className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">{p.name}</CardTitle>
-                  {p.popular && <Badge>いちばん人気</Badge>}
-                </div>
-                {p.catch && <p className="text-sm text-muted-foreground">{p.catch}</p>}
-                <p className="text-2xl font-bold">{p.price.text}</p>
-                <p className="text-xs text-muted-foreground">
-                  ページ構成：{p.pages} ／ {p.form}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-                  {p.includes.map((b) => (
-                    <li key={b}>{b}</li>
-                  ))}
-                </ul>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>
-                    <strong>サポート体制（対応開始の目安）：</strong>
-                    {p.sla.label}
-                    {(p.sla.p1 || p.sla.p2 || p.sla.p3) && "／"}
-                    {p.sla.p1 && <span>重大：{p.sla.p1}</span>}
-                    {p.sla.p2 && <span>／中度：{p.sla.p2}</span>}
-                    {p.sla.p3 && <span>／軽度：{p.sla.p3}</span>}
-                  </p>
-                  <p>
-                    <strong>納期目安：</strong>
-                    {p.leadTime.note}
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <ContactCTA />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+              LP特化プラン
+            </h2>
+            <p className="mx-auto mt-2 max-w-2xl text-sm text-gray-700">
+              広告やキャンペーン用など、まずは1本のLPから試したい方向けの
+              プランです。のちにコーポレートサイトや他のLPへ拡張していく前提でもご相談いただけます。
+            </p>
+          </div>
 
-      {/* LPパック */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">LPパック</h2>
-        <Card className="border-border">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl">{lpPack.name}</CardTitle>
-              <Badge>短期公開</Badge>
-            </div>
-            <p className="text-2xl font-bold">{lpPack.price.text}</p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-              {lpPack.includes.map((b) => (
-                <li key={b}>{b}</li>
-              ))}
-            </ul>
-            <div className="space-y-1 text-sm text-muted-foreground">
-              <p>
-                <strong>サポート体制（対応開始の目安）：</strong>
-                {lpPack.sla.label}
-                {(lpPack.sla.p1 || lpPack.sla.p2 || lpPack.sla.p3) && "／"}
-                {lpPack.sla.p1 && <span>重大：{lpPack.sla.p1}</span>}
-                {lpPack.sla.p2 && <span>／中度：{lpPack.sla.p2}</span>}
-                {lpPack.sla.p3 && <span>／軽度：{lpPack.sla.p3}</span>}
+          <Card className="mx-auto max-w-3xl border border-blue-200 bg-white">
+            <CardHeader className="space-y-2 text-center">
+              <Badge className="mx-auto w-fit bg-blue-600 text-xs font-semibold text-white">
+                LP特化
+              </Badge>
+              <CardTitle className="text-2xl font-bold text-gray-900">
+                {lpPack.name}
+              </CardTitle>
+              <CardDescription className="text-base text-gray-700">
+                {lpPack.price.text}（{meta.tax}）
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 text-sm text-gray-700">
+              <ul className="space-y-2">
+                {lpPack.includes.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <Check
+                      className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-600"
+                      aria-hidden="true"
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-gray-500">
+                素材のご準備状況や外部サービスとの連携内容により、
+                実際の費用や納期は前後する場合があります。
               </p>
-              <p>
-                <strong>納期目安：</strong>
-                {lpPack.leadTime.note}
-              </p>
-            </div>
-            <div className="pt-2">
-              <ContactCTA />
-            </div>
-          </CardContent>
-        </Card>
-      </section>
+            </CardContent>
+          </Card>
+        </section>
 
-      {/* 単体メニュー */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">単体メニュー（サービスごとの定額）</h2>
-        <div className="grid gap-6 md:grid-cols-2">
-          {soloGroups.map((group) => (
-            <Card key={group.code} className="border-border">
-              <CardHeader>
-                <CardTitle className="text-lg">{group.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="divide-y divide-border">
-                  {group.items.map((it) => (
-                    <li
-                      key={it.name}
-                      className="flex items-start justify-between gap-4 py-2 text-foreground"
-                    >
-                      <span className="pr-4">{it.name}</span>
-                      <span className="shrink-0 font-semibold">{it.price.text}</span>
-                    </li>
-                  ))}
-                </ul>
-                <ul className="mt-2 space-y-1 text-xs text-muted-foreground/80">
-                  {group.items
-                    .filter((it) => it.note)
-                    .map((it) => (
-                      <li key={`${it.name}-note`}>※ {it.note}</li>
+        {/* 月額（運用・保守） */}
+        <section
+          aria-labelledby="monthly-heading"
+          className="mb-16"
+        >
+          <div className="mb-6 text-center">
+            <h2
+              id="monthly-heading"
+              className="text-2xl font-bold text-gray-900 sm:text-3xl"
+            >
+              月額プラン（運用・保守）
+            </h2>
+            <p className="mx-auto mt-2 max-w-2xl text-sm text-gray-700">
+              公開後の監視・バックアップ・軽微な修正、
+              改善サイクルの実行などを、月額プランとしてご提供します。
+              「まずは自分たちで更新したい」という方向けの無料枠も用意しています。
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {monthlyPlans.map((m) => (
+              <Card
+                key={m.code}
+                className="flex h-full flex-col border border-gray-200 bg-white shadow-sm"
+              >
+                <CardHeader className="pb-3 text-center">
+                  <CardTitle className="text-xl font-semibold text-gray-900">
+                    {m.name}
+                  </CardTitle>
+                  <CardDescription className="mt-1 text-base text-gray-700">
+                    月額{" "}
+                    <span className="text-2xl font-bold">
+                      {m.price.text}
+                    </span>
+                    （{meta.tax}）
+                  </CardDescription>
+                  <p className="mt-2 text-xs text-gray-500">
+                    対応開始の目安：{m.initial || "—"}
+                  </p>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col justify-between pb-5 text-sm text-gray-700">
+                  <ul className="space-y-2">
+                    {m.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2">
+                        <span
+                          className="mt-1 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400"
+                          aria-hidden="true"
+                        />
+                        <span>{f}</span>
+                      </li>
                     ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <p className="text-xs text-muted-foreground/80">
-          ※ 「〜」表記は要件により変動します。個別のお見積りは無料です。
-        </p>
-      </section>
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-      {/* 月額（運用・保守） */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">月額（運用・保守）</h2>
-        <div className="grid gap-6 md:grid-cols-5">
-          {monthlyPlans.map((m) => (
-            <Card key={m.code} className="border-border">
-              <CardHeader>
-                <CardTitle className="text-lg">{m.name}</CardTitle>
-                <p className="text-xl font-bold">{m.price.text}</p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-                  {m.features.map((b) => (
-                    <li key={b}>{b}</li>
+          <p className="mt-4 text-center text-xs text-gray-500">
+            契約の縛りはありません。必要な期間のみご利用いただけます。
+            詳細な条件やSLA（対応開始の定義など）は、
+            お見積り時のご案内および利用規約にてご確認いただけます。
+          </p>
+        </section>
+
+        {/* 単体メニュー（セットに含まれない追加オプションや単発作業） */}
+        <section
+          aria-labelledby="solo-heading"
+          className="mb-16"
+        >
+          <div className="mb-6 text-center">
+            <h2
+              id="solo-heading"
+              className="text-2xl font-bold text-gray-900 sm:text-3xl"
+            >
+              単体メニュー・追加オプション
+            </h2>
+            <p className="mx-auto mt-2 max-w-3xl text-sm text-gray-700">
+              既存サイトの一部だけを直したい場合や、特定の機能だけを追加したい場合は、
+              単体メニューや追加オプションとしてご依頼いただけます。
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {soloGroups.map((group) => (
+              <section key={group.code} aria-label={group.title}>
+                <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                  {group.title}
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {group.items.map((item) => (
+                    <Card
+                      key={item.name}
+                      className="border border-gray-200 bg-white"
+                    >
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-semibold text-gray-900">
+                          {item.name}
+                        </CardTitle>
+                        <CardDescription className="text-base text-gray-800">
+                          {item.price.text}（{meta.tax}）
+                        </CardDescription>
+                      </CardHeader>
+                      {item.note && (
+                        <CardContent className="pt-0 text-xs text-gray-600">
+                          {item.note}
+                        </CardContent>
+                      )}
+                    </Card>
                   ))}
-                </ul>
-                <p className="text-sm text-muted-foreground">
-                  対応開始の目安：{m.initial}
-                </p>
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <p className="mt-6 text-xs text-gray-500">
+            作業内容がメニュー表に収まらない場合は、必要な範囲をヒアリングのうえ、
+            個別にお見積りいたします。小さな修正からでもご相談ください。
+          </p>
+        </section>
+
+        {/* 注記・支払い条件の抜粋（SSOTのnoteを活かす） */}
+        <section
+          aria-labelledby="notes-heading"
+          className="mb-16"
+        >
+          <Card className="mx-auto max-w-4xl border-2 border-gray-100 bg-white">
+            <CardHeader>
+              <CardTitle
+                id="notes-heading"
+                className="text-lg font-semibold text-gray-900"
+              >
+                料金に関する補足・ご注意
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-700">
+                ご検討時に知っておいていただきたい条件や注意点をまとめています。
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm leading-relaxed text-gray-800">
+              <ul className="list-disc space-y-2 pl-5">
+                {meta.notes.included.map((line) => (
+                  <li key={`included-${line}`}>
+                    <span className="font-medium">標準で含まれる例：</span>
+                    <span className="ml-1">{line}</span>
+                  </li>
+                ))}
+                {meta.notes.excluded.map((line) => (
+                  <li key={`excluded-${line}`}>
+                    <span className="font-medium">含まれない例：</span>
+                    <span className="ml-1">{line}</span>
+                  </li>
+                ))}
+                <li>
+                  <span className="font-medium">お支払い：</span>
+                  <span className="ml-1">{meta.notes.payment}</span>
+                </li>
+                <li>
+                  <span className="font-medium">上位プランへの変更：</span>
+                  <span className="ml-1">{meta.notes.upgrade}</span>
+                </li>
+                {meta.notes.disclaimers.map((line) => (
+                  <li key={`disc-${line}`}>{line}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* 最終CTA */}
+        <section
+          aria-label="料金に関するお問い合わせ"
+          className="mt-10"
+        >
+          <Card className="mx-auto max-w-4xl border-2 border-emerald-100 bg-gradient-to-r from-emerald-50 to-green-50">
+            <CardContent className="p-8 text-center">
+              <h2 className="mb-3 text-2xl font-bold text-gray-900">
+                料金の詳細や最適なプランについて相談したい方へ
+              </h2>
+              <p className="mx-auto mb-6 max-w-2xl text-sm text-gray-700">
+                具体的なページ数や機能、ご予算の目安を教えていただければ、
+                最適なプランを整理してご提案します。
+                「どれを選べば良いか分からない」という段階でも構いません。
+              </p>
+              <div className="flex justify-center">
                 <ContactCTA />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <p className="text-sm text-muted-foreground">
-          契約の縛りはありません。翌月からのアップ／ダウンも可能です。単発パックのみでの運用も承ります。
-        </p>
-      </section>
-
-      {/* FAQ */}
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">よくある質問</h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="text-base">解約後もサイトは使えますか？</CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground">
-              はい。原則としてドメイン／ホスティング／計測ツールはお客様名義で運用します。納品物はお客様の資産として継続利用いただけます（外部SaaSの契約・料金は別管理です）。
+              </div>
+              <p className="mt-3 text-xs text-gray-500">
+                約2分で完了。営業電話は行いません。ご案内はメールでお送りします。
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                契約前のご相談やお見積りは無料です。
+              </p>
             </CardContent>
           </Card>
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="text-base">見積の変動はありますか？</CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground">
-              本ページは標準ケースの定額です。範囲追加や外部サービス連携が増える場合のみ、事前に追加メニューをご提案し、合意のうえ反映します。
-            </CardContent>
-          </Card>
-          <Card className="border-border">
-            <CardHeader>
-              <CardTitle className="text-base">納期の目安</CardTitle>
-            </CardHeader>
-            <CardContent className="text-muted-foreground">
-              {lpPack.name}：{lpPack.leadTime.note}／
-              Standard：{setPlans.find((p) => p.code === "standard")?.leadTime.note}／
-              Growth：{setPlans.find((p) => p.code === "growth")?.leadTime.note}
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* 注意書き */}
-      <section className="space-y-3">
-        <h2 className="text-2xl font-semibold">注意書き（重要）</h2>
-        <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.25)] p-4 text-[hsl(var(--foreground))]">
-          <p className="flex items-start gap-2">
-            <Info className="mt-0.5 h-5 w-5" />
-            価格は{meta.tax}表示です。ドメイン／サーバー等の実費は別途。要件・素材のご準備状況・外部サービス連携・セキュリティ要件により増減します。
-          </p>
-        </div>
-        <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--accent)/0.25)] p-4 text-[hsl(var(--foreground))]">
-          <p className="flex items-start gap-2">
-            <ShieldCheck className="mt-0.5 h-5 w-5" />
-            契約前に、範囲・前提・除外項目・変更管理・サポート体制（対応開始の目安）を文書で確認します。まずは「お問い合わせ」からご相談ください。
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <ContactCTA />
-          <Button asChild variant="secondary">
-            <Link href="/services">サービス内容を確認</Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* 構造化データ */}
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(offerCatalogLd) }}
-      />
+        </section>
+      </div>
     </main>
   );
 }

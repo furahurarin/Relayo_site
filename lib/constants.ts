@@ -7,34 +7,34 @@ export const BRAND = {
 
 export const CAMPAIGN = {
   // キャンペーン名
-  name: "短納期・低コスト Web/アプリ制作キャンペーン",
+  name: "短納期・低コスト Webサイト／アプリ制作キャンペーン",
 
   // 枠数（例：先着3社 → seats=3）
   seats: 3,
 
   // 提供スコープ（Legal/LP内の表記と整合）
-  scope: "LP 3–5p / 作業40h相当",
+  scope: "LP 3〜5ページ／作業40時間目安",
 
   // 無料保守期間（月）
   freeCareMonths: 3,
 
   // 無料解約・移管注記（Legalで参照）
-  freeCancelNote: "無料解約＆移管2h",
+  freeCancelNote: "無料解約＆移管2時間分つき",
 
   // リボン表示文言（必要なら帯で使用）
-  ribbonText: "先着3社｜短納期・低コスト",
+  ribbonText: "先着3社限定｜短納期・低コスト",
 
   // サイト全体の meta description 用（layout.tsx で参照）
   // ※ 恒常的・中立的な説明に寄せ、キャンペーン固有文言は含めない
   metaDescription:
-    "オンライン（メール中心）の非対面ヒアリングで、中小企業・個人事業主向けのWeb/アプリを短納期で構築。公開後は保守・運用まで一貫対応します。",
+    "オンライン（メール中心）のヒアリングで、中小企業・個人事業主向けのWebサイトやシンプルなWebアプリを短納期で制作。公開後の保守・運用まで一貫してサポートします。",
 
   // メール件名（mailto: の subject に利用）
-  mailSubject: "料金相談／お問い合わせ",
+  mailSubject: "料金・制作のご相談",
 
   // ボタン等のラベル（任意で参照）
   labels: {
-    email: "メールで相談",
+    email: "メールで相談する",
     sheet: "診断シートを受け取る",
   },
 
@@ -42,7 +42,7 @@ export const CAMPAIGN = {
   sheetHref: "/contact#get-sheet",
 
   // 補足注記（Legalの注意文に使用）
-  note: "状況により予告なく終了する場合があります",
+  note: "キャンペーンは状況により予告なく終了する場合があります。",
 } as const;
 
 export const CONTACT = {
@@ -51,22 +51,23 @@ export const CONTACT = {
     CAMPAIGN.mailSubject
   )}&body=${encodeURIComponent(
     [
-      "以下をご記入のうえ、そのまま送信してください。",
+      "以下、わかる範囲でご記入のうえ、そのまま送信してください。",
+      "未定の項目は「未定」とご記入いただいて構いません。",
       "",
       "■会社名／屋号：",
       "■ご担当者名：",
-      "■ご連絡先（電話任意）：",
+      "■ご連絡先（電話番号・任意）：",
       "■ご相談概要：",
-      "■ご希望時期：",
-      "■ご予算目安：",
+      "■ご希望の公開時期：",
+      "■ご予算の目安：",
       "",
-      "（本メールはサイトの「メールで相談」から送信されています）",
+      "（本メールはサイトの「メールで相談する」ボタンから送信されています）",
     ].join("\n")
   )}`,
 } as const;
 
 export const PLANS = {
-  lp: { code: "LP", label: "LP（3–5頁）" },
-  corporate: { code: "CORP", label: "コーポレート（8–15頁）" },
-  pro: { code: "PRO", label: "プロ（15頁〜）" },
+  lp: { code: "LP", label: "LP（3〜5ページ想定）" },
+  corporate: { code: "CORP", label: "コーポレートサイト（8〜15ページ）" },
+  pro: { code: "PRO", label: "プロプラン（15ページ〜）" },
 } as const;

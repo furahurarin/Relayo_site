@@ -15,21 +15,33 @@ const Schema = z.object({
   company: z.string().optional(),
   email: z.string().email("メールアドレスの形式が正しくありません"),
   phone: z.string().optional(),
-  website: z.string().url("URLの形式が正しくありません").optional().or(z.literal("")),
-  type: z.enum(["new", "renew", "lp"], { required_error: "ご相談種別を選択してください" }),
+  website: z
+    .string()
+    .url("URLの形式が正しくありません")
+    .optional()
+    .or(z.literal("")),
+  type: z.enum(["new", "renew", "lp"], {
+    required_error: "ご相談種別を選択してください",
+  }),
   // 予算の代わりに「希望プラン（任意）」でヒアリング
   plan: PlanEnum.optional(),
   // 旧: budget はプラン整合のため残すが、値は plan と同一（サーバ側での集計互換目的）
   budget: PlanEnum.optional(),
   // 公開目標（任意）※短納期加算は無し
-  timeline: z.enum(["lp_5_10", "ess_2_3w", "std_3_4w", "gro_4_6w", "undecided"]).optional(),
+  timeline: z
+    .enum(["lp_5_10", "ess_2_3w", "std_3_4w", "gro_4_6w", "undecided"])
+    .optional(),
   // 優先度・素材・決裁
   priority: z.enum(["speed", "cost", "scope"]).optional(),
-  assets: z.array(z.enum(["texts", "photos", "logo", "existing_site", "none"])).optional(),
+  assets: z
+    .array(z.enum(["texts", "photos", "logo", "existing_site", "none"]))
+    .optional(),
   decision: z.enum(["now_1w", "by_2w", "over_1m"]).optional(),
 
   features: z.array(z.string()).optional(),
-  message: z.string().min(10, "ご要件を具体的にご記入ください（10文字以上）"),
+  message: z
+    .string()
+    .min(10, "ご要件を具体的にご記入ください（10文字以上）"),
   hp: z.string().optional(), // 蜜壺（bot対策）
 
   // メタ
@@ -51,6 +63,9 @@ export default function ApplicationForm() {
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState<null | string>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<keyof FormData, string>>
+  >({});
 
   // ===== 既定値（/pricing?plan=standard 等を反映）=====
   const defaults = useMemo(() => {
@@ -100,6 +115,7 @@ export default function ApplicationForm() {
     setLoading(true);
     setErr(null);
     setOk(null);
+    setFieldErrors({});
 
     const payload: FormData = {
       name: (data.name ?? "").trim(),
@@ -125,8 +141,12 @@ export default function ApplicationForm() {
       utm_campaign: (data.utm_campaign as string) ?? undefined,
       utm_content: (data.utm_content as string) ?? undefined,
       utm_term: (data.utm_term as string) ?? undefined,
-      referrer: (data.referrer as string) ?? (typeof document !== "undefined" ? document.referrer : undefined),
-      pathname: (data.pathname as string) ?? (typeof window !== "undefined" ? window.location.pathname : undefined),
+      referrer:
+        (data.referrer as string) ??
+        (typeof document !== "undefined" ? document.referrer : undefined),
+      pathname:
+        (data.pathname as string) ??
+        (typeof window !== "undefined" ? window.location.pathname : undefined),
     };
 
     // 蜜壺ヒットは即中止（成功扱いにしない）
@@ -137,6 +157,14 @@ export default function ApplicationForm() {
 
     const parsed = Schema.safeParse(payload);
     if (!parsed.success) {
+      const map: Partial<Record<keyof FormData, string>> = {};
+      for (const issue of parsed.error.issues) {
+        const path = issue.path?.[0] as keyof FormData | undefined;
+        if (path && !map[path]) {
+          map[path] = issue.message;
+        }
+      }
+      setFieldErrors(map);
       setErr(parsed.error.issues[0]?.message ?? "入力内容をご確認ください。");
       setLoading(false);
       return;
@@ -152,116 +180,183 @@ export default function ApplicationForm() {
       setOk("送信しました。折り返しメールでご連絡します（通常、翌営業日以内）。");
       setData({});
       localStorage.removeItem("contact.tmp");
-    } catch (e: any) {
+    } catch (_e: any) {
       setErr("送信に失敗しました。時間をおいて再度お試しください。");
     } finally {
       setLoading(false);
     }
   };
 
+  const nameError = fieldErrors.name;
+  const emailError = fieldErrors.email;
+  const typeError = fieldErrors.type;
+  const websiteError = fieldErrors.website;
+  const messageError = fieldErrors.message;
+
   // ===== UI =====
   return (
     <Card>
       <CardHeader>
-        <CardTitle>お問い合わせ（無料診断つき）</CardTitle>
+        <CardTitle>お問い合わせ・ご相談（無料診断つき）</CardTitle>
         <p className="text-sm text-muted-foreground">
-          必須は最小限です。送信すると、折り返しメールでご連絡します。
+          必須項目は最小限です。送信後、内容を確認して折り返しメールでご連絡します。
         </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={onSubmit} className="space-y-6">
+        <form onSubmit={onSubmit} className="space-y-6" noValidate>
           {/* 基本（必須を先頭に） */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-1">
-              <label className="block text-sm font-medium" htmlFor="name">お名前 *</label>
+              <label className="block text-sm font-medium" htmlFor="name">
+                お名前 <span aria-hidden="true">*</span>
+              </label>
               <input
                 id="name"
-                className="mt-1 w-full rounded-md border p-2"
+                className={`mt-1 w-full rounded-md border p-2 ${
+                  nameError ? "border-red-500" : ""
+                }`}
                 value={data.name ?? ""}
                 onChange={(e) => set("name", e.target.value)}
                 required
                 aria-required={true}
+                aria-invalid={!!nameError}
+                aria-describedby={nameError ? "name-error" : undefined}
+                autoComplete="name"
               />
+              {nameError && (
+                <p id="name-error" className="mt-1 text-xs text-red-600">
+                  {nameError}
+                </p>
+              )}
             </div>
             <div>
-              <label className="block text-sm font-medium" htmlFor="company">会社名（任意）</label>
+              <label className="block text-sm font-medium" htmlFor="company">
+                会社名／屋号（任意）
+              </label>
               <input
                 id="company"
                 className="mt-1 w-full rounded-md border p-2"
                 value={data.company ?? ""}
                 onChange={(e) => set("company", e.target.value)}
+                autoComplete="organization"
               />
             </div>
             <div className="md:col-span-1">
-              <label className="block text-sm font-medium" htmlFor="email">メールアドレス *</label>
+              <label className="block text-sm font-medium" htmlFor="email">
+                メールアドレス <span aria-hidden="true">*</span>
+              </label>
               <input
                 id="email"
                 type="email"
-                className="mt-1 w-full rounded-md border p-2"
+                className={`mt-1 w-full rounded-md border p-2 ${
+                  emailError ? "border-red-500" : ""
+                }`}
                 value={data.email ?? ""}
                 onChange={(e) => set("email", e.target.value)}
                 required
                 aria-required={true}
+                aria-invalid={!!emailError}
+                aria-describedby={emailError ? "email-error" : undefined}
+                autoComplete="email"
               />
+              {emailError && (
+                <p id="email-error" className="mt-1 text-xs text-red-600">
+                  {emailError}
+                </p>
+              )}
             </div>
             <div>
-              <label className="block text-sm font-medium" htmlFor="phone">電話番号（任意）</label>
+              <label className="block text-sm font-medium" htmlFor="phone">
+                電話番号（任意）
+              </label>
               <input
                 id="phone"
                 className="mt-1 w-full rounded-md border p-2"
                 value={data.phone ?? ""}
                 onChange={(e) => set("phone", e.target.value)}
                 placeholder="ハイフンなし可"
+                autoComplete="tel"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium" htmlFor="website">現状URL（任意）</label>
+              <label className="block text-sm font-medium" htmlFor="website">
+                現在お持ちのサイトURL（任意）
+              </label>
               <input
                 id="website"
                 type="url"
-                className="mt-1 w-full rounded-md border p-2"
+                className={`mt-1 w-full rounded-md border p-2 ${
+                  websiteError ? "border-red-500" : ""
+                }`}
                 value={data.website ?? ""}
                 onChange={(e) => set("website", e.target.value)}
                 placeholder="https://"
+                aria-invalid={!!websiteError}
+                aria-describedby={websiteError ? "website-error" : undefined}
               />
+              {websiteError && (
+                <p id="website-error" className="mt-1 text-xs text-red-600">
+                  {websiteError}
+                </p>
+              )}
             </div>
           </div>
 
           {/* 相談種別 & 希望プラン */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium" htmlFor="type">ご相談種別 *</label>
+              <label className="block text-sm font-medium" htmlFor="type">
+                ご相談種別 <span aria-hidden="true">*</span>
+              </label>
               <select
                 id="type"
-                className="mt-1 w-full rounded-md border p-2"
+                className={`mt-1 w-full rounded-md border p-2 ${
+                  typeError ? "border-red-500" : ""
+                }`}
                 value={(data.type as string) ?? ""}
-                onChange={(e) => set("type", e.target.value as FormData["type"]) }
+                onChange={(e) =>
+                  set("type", e.target.value as FormData["type"])
+                }
                 required
                 aria-required={true}
+                aria-invalid={!!typeError}
+                aria-describedby={typeError ? "type-error" : undefined}
               >
-                <option value="" disabled>選択してください</option>
+                <option value="" disabled>
+                  選択してください
+                </option>
                 <option value="new">新規サイト</option>
                 <option value="renew">リニューアル</option>
                 <option value="lp">LP制作</option>
               </select>
+              {typeError && (
+                <p id="type-error" className="mt-1 text-xs text-red-600">
+                  {typeError}
+                </p>
+              )}
             </div>
 
             <div>
               <fieldset className="mt-1">
-                <legend className="block text-sm font-medium">希望プラン（任意）</legend>
+                <legend className="block text-sm font-medium">
+                  希望プラン（任意）
+                </legend>
                 <div className="mt-2 grid grid-cols-1 gap-2 text-sm">
                   {[
-                    ["starter_lp","Starter-LP（〜約¥80k目安）"],
-                    ["essential","Essential（〜約¥138k目安）"],
-                    ["standard","Standard（〜約¥198k目安）"],
-                    ["growth","Growth（約¥348k〜目安）"],
-                  ].map(([val,label]) => (
+                    ["starter_lp", "Starter-LP（〜約¥80k目安）"],
+                    ["essential", "Essential（〜約¥138k目安）"],
+                    ["standard", "Standard（〜約¥198k目安）"],
+                    ["growth", "Growth（約¥348k〜目安）"],
+                  ].map(([val, label]) => (
                     <label key={val} className="inline-flex items-center gap-2">
                       <input
                         type="radio"
                         name="plan"
                         checked={data.plan === (val as any)}
-                        onChange={() => { set("plan", val as any); set("budget", val as any); }}
+                        onChange={() => {
+                          set("plan", val as any);
+                          set("budget", val as any);
+                        }}
                       />
                       {label}
                     </label>
@@ -271,7 +366,10 @@ export default function ApplicationForm() {
                       type="radio"
                       name="plan"
                       checked={!data.plan}
-                      onChange={() => { set("plan", undefined as any); set("budget", undefined as any); }}
+                      onChange={() => {
+                        set("plan", undefined as any);
+                        set("budget", undefined as any);
+                      }}
                     />
                     未定・相談したい
                   </label>
@@ -283,18 +381,28 @@ export default function ApplicationForm() {
           {/* 公開目標・優先度・素材 */}
           <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium" htmlFor="timeline">公開目標（任意）</label>
+              <label className="block text-sm font-medium" htmlFor="timeline">
+                公開目標（任意）
+              </label>
               <select
                 id="timeline"
                 className="mt-1 w-full rounded-md border p-2"
                 value={(data.timeline as string) ?? ""}
-                onChange={(e) => set("timeline", e.target.value as FormData["timeline"]) }
+                onChange={(e) =>
+                  set("timeline", e.target.value as FormData["timeline"])
+                }
               >
-                <option value="">未定 / 相談したい</option>
+                <option value="">未定／相談したい</option>
                 <option value="lp_5_10">5–10 営業日（LP想定）</option>
-                <option value="ess_2_3w">2–3 週間（Essential目安）</option>
-                <option value="std_3_4w">3–4 週間（Standard目安）</option>
-                <option value="gro_4_6w">4–6 週間（Growth目安）</option>
+                <option value="ess_2_3w">
+                  2–3 週間（Essential 目安）
+                </option>
+                <option value="std_3_4w">
+                  3–4 週間（Standard 目安）
+                </option>
+                <option value="gro_4_6w">
+                  4–6 週間（Growth 目安）
+                </option>
                 <option value="undecided">未定</option>
               </select>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -303,31 +411,39 @@ export default function ApplicationForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium" htmlFor="priority">優先したいこと（任意）</label>
+              <label className="block text-sm font-medium" htmlFor="priority">
+                優先したいこと（任意）
+              </label>
               <select
                 id="priority"
                 className="mt-1 w-full rounded-md border p-2"
                 value={(data.priority as string) ?? ""}
-                onChange={(e) => set("priority", e.target.value as FormData["priority"])}
+                onChange={(e) =>
+                  set("priority", e.target.value as FormData["priority"])
+                }
               >
                 <option value="">未選択</option>
                 <option value="speed">スピード（できるだけ早く）</option>
                 <option value="cost">コスト（費用を抑えたい）</option>
-                <option value="scope">内容（機能やページを優先）</option>
+                <option value="scope">
+                  内容（機能やページ構成を重視したい）
+                </option>
               </select>
             </div>
 
             <div>
               <fieldset className="mt-1">
-                <legend className="block text-sm font-medium">素材の準備状況（任意）</legend>
+                <legend className="block text-sm font-medium">
+                  素材の準備状況（任意）
+                </legend>
                 <div className="mt-2 grid grid-cols-2 gap-y-2 text-sm">
                   {[
-                    ["texts","原稿あり"],
-                    ["photos","写真あり"],
-                    ["logo","ロゴあり"],
-                    ["existing_site","既存サイトあり"],
-                    ["none","未準備が多い"],
-                  ].map(([v,l]) => {
+                    ["texts", "原稿あり"],
+                    ["photos", "写真あり"],
+                    ["logo", "ロゴあり"],
+                    ["existing_site", "既存サイトあり"],
+                    ["none", "未準備が多い"],
+                  ].map(([v, l]) => {
                     const assets = new Set(data.assets ?? []);
                     const checked = assets.has(v as any);
                     return (
@@ -337,7 +453,9 @@ export default function ApplicationForm() {
                           checked={checked}
                           onChange={(e) => {
                             const next = new Set(assets);
-                            e.target.checked ? next.add(v as any) : next.delete(v as any);
+                            e.target.checked
+                              ? next.add(v as any)
+                              : next.delete(v as any);
                             set("assets", Array.from(next) as any);
                           }}
                         />
@@ -353,12 +471,16 @@ export default function ApplicationForm() {
           {/* 決裁 */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium" htmlFor="decision">社内決裁の見込み（任意）</label>
+              <label className="block text-sm font-medium" htmlFor="decision">
+                社内決裁の見込み（任意）
+              </label>
               <select
                 id="decision"
                 className="mt-1 w-full rounded-md border p-2"
                 value={(data.decision as string) ?? ""}
-                onChange={(e) => set("decision", e.target.value as FormData["decision"])}
+                onChange={(e) =>
+                  set("decision", e.target.value as FormData["decision"])
+                }
               >
                 <option value="">未定</option>
                 <option value="now_1w">即決〜1週間</option>
@@ -369,9 +491,20 @@ export default function ApplicationForm() {
 
             <div>
               <fieldset className="mt-1">
-                <legend className="block text-sm font-medium">検討中の機能（任意）</legend>
+                <legend className="block text-sm font-medium">
+                  検討中の機能（任意）
+                </legend>
                 <div className="mt-2 grid grid-cols-2 gap-y-2 text-sm">
-                  {["予約", "決済", "会員", "多言語", "ブログ/CMS", "LP追加", "API連携", "その他"].map((f) => {
+                  {[
+                    "予約",
+                    "決済",
+                    "会員",
+                    "多言語",
+                    "ブログ/CMS",
+                    "LP追加",
+                    "API連携",
+                    "その他",
+                  ].map((f) => {
                     const features = new Set(data.features ?? []);
                     const checked = features.has(f);
                     return (
@@ -396,17 +529,28 @@ export default function ApplicationForm() {
 
           {/* 詳細 */}
           <div>
-            <label className="block text-sm font-medium" htmlFor="message">ご要件・現状の課題 *</label>
+            <label className="block text-sm font-medium" htmlFor="message">
+              ご要件・現状の課題 <span aria-hidden="true">*</span>
+            </label>
             <textarea
               id="message"
-              className="mt-1 w-full rounded-md border p-2"
+              className={`mt-1 w-full rounded-md border p-2 ${
+                messageError ? "border-red-500" : ""
+              }`}
               rows={5}
               value={data.message ?? ""}
               onChange={(e) => set("message", e.target.value)}
-              placeholder="例）先にLPを公開し、後から会社概要と事例を追加したい／問い合わせを月◯件に増やしたい 等"
+              placeholder="例）先にLPを公開し、その後会社概要と事例ページを追加したい／問い合わせ件数を月◯件に増やしたい 等"
               required
               aria-required={true}
+              aria-invalid={!!messageError}
+              aria-describedby={messageError ? "message-error" : undefined}
             />
+            {messageError && (
+              <p id="message-error" className="mt-1 text-xs text-red-600">
+                {messageError}
+              </p>
+            )}
           </div>
 
           {/* 蜜壺（人には見えない） */}
@@ -421,18 +565,24 @@ export default function ApplicationForm() {
           />
 
           {/* 送信 */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button type="submit" disabled={loading}>
               {loading ? "送信中..." : "送信する"}
             </Button>
             {ok && <p className="text-sm text-emerald-600">{ok}</p>}
-            {err && <p className="text-sm text-red-600">{err}</p>}
+            {err && !ok && <p className="text-sm text-red-600">{err}</p>}
           </div>
 
           {/* 免責・注記 */}
           <p className="text-xs text-muted-foreground">
-            価格は税別。ドメイン/サーバ等の実費は別。入力内容は見積・連絡のみに使用します（
-            <a href="/legal/privacy" className="underline underline-offset-4">プライバシーポリシー</a>）。
+            価格は税別表示です。ドメイン／サーバー等の実費は別途となります。入力内容はお見積もり・ご連絡のみに使用します（
+            <a
+              href="/legal/privacy"
+              className="underline underline-offset-4"
+            >
+              プライバシーポリシー
+            </a>
+            をご確認ください）。
           </p>
         </form>
       </CardContent>

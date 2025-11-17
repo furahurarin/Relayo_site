@@ -132,7 +132,12 @@ export const SET_PLANS: readonly SetPlan[] = [
       "計測設定の強化",
       "全体の見直し（お問い合わせに繋がる構成へ適切に調整）",
     ],
-    sla: { label: "重大な不具合は4時間以内に対応開始", p1: "4時間以内", p2: "翌営業日", p3: "週内" },
+    sla: {
+      label: "重大な不具合は4時間以内に対応開始",
+      p1: "4時間以内",
+      p2: "翌営業日",
+      p3: "週内",
+    },
     leadTime: { note: "要件確定後 4〜6週間" },
   },
 ];
@@ -184,7 +189,10 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
         price: { text: "¥29,800", taxExcluded: true },
         note: "各セットプランに含まれます",
       },
-      { name: "検索対策の初期設定（単体でご依頼の場合）", price: { text: "¥6,800", taxExcluded: true } },
+      {
+        name: "検索対策の初期設定（単体でご依頼の場合）",
+        price: { text: "¥6,800", taxExcluded: true },
+      },
     ],
   },
   {
@@ -196,7 +204,10 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
         name: "コーポレート基本（テンプレート・5ページ）",
         price: { text: "¥139,800", taxExcluded: true },
       },
-      { name: "ページ追加（テンプレート下層・1ページ）", price: { text: "¥9,800", taxExcluded: true } },
+      {
+        name: "ページ追加（テンプレート下層・1ページ）",
+        price: { text: "¥9,800", taxExcluded: true },
+      },
       {
         name: "ページ追加（オリジナル要素が多い場合・1ページ）",
         price: { text: "¥19,800", taxExcluded: true },
@@ -205,10 +216,22 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
         name: "ブログ／お知らせ（CMS導入＋基本テンプレート）",
         price: { text: "¥39,800", taxExcluded: true },
       },
-      { name: "FAQブロック作成（10項目まで）", price: { text: "¥9,800", taxExcluded: true } },
-      { name: "事例／メニュー一覧のテンプレート導入", price: { text: "¥19,800", taxExcluded: true } },
-      { name: "画像の最適化（最大20点）", price: { text: "¥4,980", taxExcluded: true } },
-      { name: "ロゴの微調整・配置（既存データ前提）", price: { text: "¥9,800", taxExcluded: true } },
+      {
+        name: "FAQブロック作成（10項目まで）",
+        price: { text: "¥9,800", taxExcluded: true },
+      },
+      {
+        name: "事例／メニュー一覧のテンプレート導入",
+        price: { text: "¥19,800", taxExcluded: true },
+      },
+      {
+        name: "画像の最適化（最大20点）",
+        price: { text: "¥4,980", taxExcluded: true },
+      },
+      {
+        name: "ロゴの微調整・配置（既存データ前提）",
+        price: { text: "¥9,800", taxExcluded: true },
+      },
     ],
   },
   {
@@ -219,9 +242,18 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
         name: "予約（既存SaaS設定の代行・カレンダー／通知連携）",
         price: { text: "¥29,800〜", taxExcluded: true },
       },
-      { name: "予約（Firebaseカスタム・最小構成）", price: { text: "¥98,000〜", taxExcluded: true } },
-      { name: "オンライン決済（Stripe）", price: { text: "¥59,800〜", taxExcluded: true } },
-      { name: "会員／ログイン（限定ページ）", price: { text: "¥120,000〜", taxExcluded: true } },
+      {
+        name: "予約（Firebaseカスタム・最小構成）",
+        price: { text: "¥98,000〜", taxExcluded: true },
+      },
+      {
+        name: "オンライン決済（Stripe）",
+        price: { text: "¥59,800〜", taxExcluded: true },
+      },
+      {
+        name: "会員／ログイン（限定ページ）",
+        price: { text: "¥120,000〜", taxExcluded: true },
+      },
       {
         name: "多言語追加（日本語＋英語／1言語あたり）",
         price: { text: "¥69,800", taxExcluded: true },
@@ -257,19 +289,28 @@ export type MonthlyPlan = {
   initial: string;
 };
 
+/** Lite の説明文の“正”（FAQ・料金ページ等で共通利用するため） */
+export const LITE_LINE =
+  "稼働・フォームの簡易監視／バックアップ。月1回：文言1箇所 または 画像3点までの軽微な更新。" as const;
+
 export const MONTHLY_PLANS: readonly MonthlyPlan[] = [
   {
     code: "self",
     name: "Self（セルフ運用）",
     price: { text: "¥0／月", taxExcluded: true },
-    features: ["定期作業は行いません。更新や不具合対応は単発パックでその都度ご依頼ください。"],
+    features: [
+      "定期作業は行いません。更新や不具合対応は単発パックでその都度ご依頼ください。",
+    ],
     initial: "—",
   },
   {
     code: "lite",
     name: "Lite",
     price: { text: "¥3,980／月", taxExcluded: true },
-    features: ["稼働・フォームの簡易監視／バックアップ", "月1回：文言1箇所 または 画像3点までの軽微な更新"],
+    features: [
+      "稼働・フォームの簡易監視／バックアップ",
+      "月1回：文言1箇所 または 画像3点までの軽微な更新",
+    ],
     initial: "翌営業日",
   },
   {

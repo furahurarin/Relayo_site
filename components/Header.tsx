@@ -1,11 +1,11 @@
-﻿// components/Header.tsx
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
+import { umami } from "@/lib/track";
 
 type NavItem = { href: string; label: string };
 
@@ -16,14 +16,14 @@ const NAV: NavItem[] = [
   { href: "/faq", label: "FAQ" },
   // 法的情報は現状ページ分割（利用規約／プライバシー／特定商取引法）
   { href: "/legal/terms", label: "利用規約" },
-  { href: "/legal/privacy", label: "プライバシー" },
-  { href: "/legal/tokusho", label: "特定商取引法" },
+  { href: "/legal/privacy", label: "プライバシーポリシー" },
+  { href: "/legal/tokusho", label: "特定商取引法に基づく表記" },
 ];
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
+  const pathname = usePathname() || "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -60,18 +60,33 @@ export default function Header() {
           >
             {BRAND.name}
           </Link>
+          <p className="hidden text-xs text-gray-500 sm:block">
+            中小企業・個人事業主向け Web/アプリ制作・運用支援
+          </p>
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden items-center gap-6 md:flex" aria-label="グローバルナビゲーション">
+        <nav
+          className="hidden items-center gap-6 md:flex"
+          aria-label="グローバルナビゲーション"
+        >
           {NAV.map((n) => {
             const active = isActive(n.href);
+            const tracking = umami("nav_click", {
+              href: n.href,
+              label: n.label,
+              area: "header",
+            });
+
             return (
               <Link
                 key={n.href}
                 href={n.href}
+                {...tracking}
                 aria-current={active ? "page" : undefined}
-                className={`${linkBase} ${active ? "font-semibold text-black dark:text-white" : ""}`}
+                className={`${linkBase} ${
+                  active ? "font-semibold text-black dark:text-white" : ""
+                }`}
               >
                 {n.label}
               </Link>
@@ -83,6 +98,7 @@ export default function Header() {
 
         {/* Mobile menu toggle */}
         <button
+          type="button"
           aria-label={open ? "メニューを閉じる" : "メニューを開く"}
           aria-expanded={open}
           aria-controls="mobile-nav"
@@ -102,10 +118,17 @@ export default function Header() {
           <div className="container mx-auto grid gap-4 px-4 py-4 sm:px-6 lg:px-8">
             {NAV.map((n) => {
               const active = isActive(n.href);
+              const tracking = umami("nav_click", {
+                href: n.href,
+                label: n.label,
+                area: "header_mobile",
+              });
+
               return (
                 <Link
                   key={n.href}
                   href={n.href}
+                  {...tracking}
                   aria-current={active ? "page" : undefined}
                   className={`rounded-md px-2 py-2 ${
                     active
@@ -121,7 +144,8 @@ export default function Header() {
             {/* モバイルでも入口を統一 */}
             <div className="pt-2">
               <ContactCTA full />
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">約2分で完了。営業電話は行いません。回答はメールでお送りします。
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                約2分で完了。営業電話は行いません。回答はメールでお送りします。
               </p>
             </div>
           </div>
@@ -130,5 +154,3 @@ export default function Header() {
     </header>
   );
 }
-
-

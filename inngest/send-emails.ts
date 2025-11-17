@@ -2,15 +2,16 @@
 import "server-only";
 import { inngest } from "@/lib/inngest";
 import { makeResend, getEMAIL_FROM, getEMAIL_TO } from "@/lib/resend";
+import { BRAND } from "@/lib/constants";
 
 type ApplicationPayload = {
   name: string;
   email: string;
   company?: string;
-  tel?: string;        // フォームA
-  phone?: string;      // フォームB互換
-  message?: string;    // フォームA
-  detail?: string;     // フォームB互換
+  tel?: string; // フォームA
+  phone?: string; // フォームB互換
+  message?: string; // フォームA
+  detail?: string; // フォームB互換
   referer?: string | null;
 };
 
@@ -34,7 +35,7 @@ const buildSummary = (p: {
     `電話番号: ${p.tel || "-"}`,
     p.referer ? `参照元: ${p.referer}` : "",
     "",
-    "ご要件・相談内容:",
+    "お問い合わせ内容:",
     p.message || "-",
   ].filter(Boolean);
   return lines.join("\n");
@@ -84,49 +85,65 @@ export const sendEmails = inngest.createFunction(
       stamp,
     });
 
-    // 1) 社内通知
+    // 1) 管理者向け通知（社内）
     await step.run("notify-admin", async () => {
       await resend.emails.send({
         from: EMAIL_FROM,
         to: [EMAIL_TO],
         replyTo: [email],
-        subject: `【Relayo】新規申込み: ${name} さん`,
-        text: `新規申込みを受信しました。\n\n${summary}`,
+        subject: `【${BRAND.name}】新規お問い合わせ: ${name} 様`,
+        text: [
+          "新しいお問い合わせを受信しました。",
+          "",
+          summary,
+          "",
+          `このメールには返信できます（返信先: ${email}）。`,
+        ].join("\n"),
       });
     });
 
-    // 2) 自動返信（控えつき）
+    // 2) 自動返信（テキスト版・控えつき）
     await step.run("auto-reply", async () => {
       const lines = [
         `${name} 様`,
         "",
-        "Relayoです。お問い合わせありがとうございます。",
-        "内容を確認し、1営業日以内にご連絡いたします。",
+        `${BRAND.name}です。お問い合わせありがとうございます。`,
+        "お送りいただいた内容を確認のうえ、通常1営業日以内にメールでご連絡いたします。",
         "",
-        "—— 送信内容の控え ——",
+        "追加で共有いただける情報（ご予算・公開時期・参考サイトなど）がありましたら、",
+        "このメールにそのままご返信ください。",
+        "",
+        "—— お問い合わせ内容の控え ——",
         summary,
         "",
         "—",
-        "Relayo",
-        "contact@relayo.jp",
+        BRAND.name,
+        BRAND.siteUrl,
+        BRAND.email,
       ];
+
       await resend.emails.send({
         from: EMAIL_FROM,
         to: [email],
         bcc: [EMAIL_TO], // 社内控え
-        subject: "【Relayo】お問い合わせありがとうございます",
+        subject: `【${BRAND.name}】お問い合わせありがとうございます`,
         text: lines.join("\n"),
       });
     });
 
-    // 3) 24時間後フォロー
+    // 3) 24時間後フォロー（未対応チェック用・社内向け）
     await step.sleep("wait-24h", "PT24H");
     await step.run("follow-up", async () => {
       await resend.emails.send({
         from: EMAIL_FROM,
         to: [EMAIL_TO],
-        subject: "【Relayo】24h未対応フォロー",
-        text: ["24時間前の申込みに対応していますか？", "", summary].join("\n"),
+        subject: `【${BRAND.name}】24時間フォロー（お問い合わせ対応のご確認）`,
+        text: [
+          "24時間前に受信したお問い合わせへの対応状況をご確認ください。",
+          "",
+          "▼ 該当のお問い合わせ概要",
+          summary,
+        ].join("\n"),
       });
     });
 

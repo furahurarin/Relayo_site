@@ -9,8 +9,7 @@ type Props = {
 };
 
 export function AdminNotification({ name, email, message, submittedAt }: Props) {
-  const submitted =
-    submittedAt ? new Date(submittedAt) : null;
+  const submitted = submittedAt ? new Date(submittedAt) : null;
 
   return (
     <div
@@ -38,8 +37,7 @@ export function AdminNotification({ name, email, message, submittedAt }: Props) 
           style={{
             padding: "16px 20px",
             borderBottom: "1px solid #e5e7eb",
-            background:
-              "linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)",
+            background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)",
           }}
         >
           <h1
@@ -49,7 +47,7 @@ export function AdminNotification({ name, email, message, submittedAt }: Props) 
               margin: 0,
             }}
           >
-            新規申込みが届きました
+            新しいお問い合わせを受信しました
           </h1>
           <p
             style={{
@@ -87,7 +85,9 @@ export function AdminNotification({ name, email, message, submittedAt }: Props) 
                 >
                   お名前
                 </td>
-                <td style={{ padding: "10px 0" }}>{name || "（未入力）"}</td>
+                <td style={{ padding: "10px 0" }}>
+                  {name || "（未入力）"}
+                </td>
               </tr>
               <tr>
                 <td
@@ -107,7 +107,16 @@ export function AdminNotification({ name, email, message, submittedAt }: Props) 
                     borderTop: "1px solid #f1f5f9",
                   }}
                 >
-                  {email || "（未入力）"}
+                  {email ? (
+                    <a
+                      href={`mailto:${email}`}
+                      style={{ color: "#1d4ed8", textDecoration: "underline" }}
+                    >
+                      {email}
+                    </a>
+                  ) : (
+                    "（未入力）"
+                  )}
                 </td>
               </tr>
             </tbody>
@@ -127,7 +136,7 @@ export function AdminNotification({ name, email, message, submittedAt }: Props) 
                 marginBottom: 6,
               }}
             >
-              メッセージ
+              ご要件・メッセージ
             </div>
             <pre
               style={{
@@ -165,8 +174,8 @@ export function AdminNotification({ name, email, message, submittedAt }: Props) 
               lineHeight: "18px",
             }}
           >
-            このメールは Relayo の申込みフォームからの自動通知です。
-            必要に応じてこのまま返信してください（返信先は申込者のメールです）。
+            このメールは Relayo のお問い合わせ／お申込みフォームから送信された内容の自動通知です。
+            必要に応じて、このまま返信してください（返信先は送信者のメールアドレスです）。
           </p>
         </div>
       </div>

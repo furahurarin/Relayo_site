@@ -1,247 +1,241 @@
-// app/api/contact/route.ts
-import { NextResponse } from "next/server";
-export const runtime = "nodejs";
-// API は常に動的実行（キャッシュ回避）
-export const dynamic = "force-dynamic";
+import { NextRequest, NextResponse } from "next/server";
 
-/* =========================
- * ENV
- * ========================= */
-const RESEND_API_KEY = process.env.RESEND_API_KEY!;
-const FROM = process.env.EMAIL_FROM!;  // 例: Relayo <noreply@relayo.jp>
-const ADMIN = process.env.EMAIL_TO!;   // 例: contact.relayo@gmail.com
+import { inngest } from "@/lib/inngest";
+import { applyRatelimit } from "@/lib/ratelimit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
-/* =========================
- * Utils
- * ========================= */
-function esc(input: unknown): string {
-  return String(input ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
+/**
+ * JSON / form-data 両対応で body をオブジェクト化
+ */
+async function parseBody(req: NextRequest): Promise<Record<string, any>> {
+  const contentType = req.headers.get("content-type") || "";
 
-type SendOpts = {
-  replyTo?: string | string[];
-  text?: string;
-  /** Resendは {name,value}[] 形式。Record指定も許容し、内部で変換する */
-  tags?: Record<string, string> | { name: string; value: string }[];
-};
-
-async function sendMail(
-  to: string[],
-  subject: string,
-  html: string,
-  opts: SendOpts = {}
-) {
-  const payload: Record<string, any> = {
-    from: FROM,
-    to,
-    subject,
-    html,
-  };
-  if (opts.replyTo) payload.reply_to = opts.replyTo;
-  if (opts.text) payload.text = opts.text;
-
-  // ✅ Resendの正しいtags形式に変換
-  if (opts.tags) {
-    const arr = Array.isArray(opts.tags)
-      ? (opts.tags as { name: string; value: string }[]).map((t) => ({
-          name: String(t.name),
-          value: String(t.value),
-        }))
-      : Object.entries(opts.tags).map(([k, v]) => ({
-          name: String(k),
-          value: String(v),
-        }));
-    payload.tags = arr;
+  if (contentType.includes("application/json")) {
+    try {
+      return (await req.json()) as Record<string, any>;
+    } catch {
+      return {};
+    }
   }
 
-  const r = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+  if (
+    contentType.includes("application/x-www-form-urlencoded") ||
+    contentType.includes("multipart/form-data")
+  ) {
+    const formData = await req.formData();
+    const obj: Record<string, any> = {};
+    for (const [key, value] of formData.entries()) {
+      if (obj[key] === undefined) {
+        obj[key] = value;
+      } else if (Array.isArray(obj[key])) {
+        (obj[key] as any[]).push(value);
+      } else {
+        obj[key] = [obj[key], value];
+      }
+    }
+    return obj;
+  }
 
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(`Resend ${r.status}: ${JSON.stringify(data)}`);
-  return data;
+  // content-type 不明の場合は空で返す
+  return {};
 }
 
-function emailValid(v: string) {
-  // シンプルな構文チェック（RFC完全準拠にはしない）
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-}
-function normalizeTel(v: string | undefined) {
-  if (!v) return undefined;
-  const digits = v.replace(/[^\d+]/g, "");
-  return digits.length ? digits : undefined;
-}
-function getClientIp(req: Request) {
-  const h = Object.fromEntries(req.headers.entries());
-  return (
-    h["x-forwarded-for"]?.split(",")[0]?.trim() ||
-    h["x-real-ip"] ||
-    "unknown"
-  );
-}
-
-/** 管理者向けにだけ載せる参照情報を抽出（ユーザー向けには絶対に使わない） */
-function extractReferContext(req: Request) {
-  const url = new URL(req.url);
-  const search = url.searchParams;
-  const referrerHeader = req.headers.get("referer") || req.headers.get("referrer") || "-";
-
-  return {
-    referrer: referrerHeader,
-    pathname: url.pathname || "-",
-    utm_source: search.get("utm_source") || "-",
-    utm_medium: search.get("utm_medium") || "-",
-    utm_campaign: search.get("utm_campaign") || "-",
-    utm_content: search.get("utm_content") || "-",
-    utm_term: search.get("utm_term") || "-",
-  };
+/**
+ * 単一 or 配列 or カンマ区切り文字列を string[] に正規化
+ */
+function toStringArray(value: unknown): string[] | undefined {
+  if (value == null) return undefined;
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => (typeof v === "string" ? v.trim() : String(v)))
+      .filter(Boolean);
+  }
+  if (typeof value === "string") {
+    // "a,b,c" 形式ならカンマ区切りとして扱う（そうでなければ単一要素）
+    if (value.includes(",")) {
+      return value
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean);
+    }
+    const trimmed = value.trim();
+    return trimmed ? [trimmed] : undefined;
+  }
+  return [String(value)];
 }
 
-/* =========================
- * Handler
- * ========================= */
-export async function POST(req: Request) {
-  try {
-    if (!RESEND_API_KEY || !FROM || !ADMIN) {
-      return NextResponse.json({ ok: false, error: "ENV missing" }, { status: 500 });
-    }
+/**
+ * クライアントIPの推定
+ */
+function getClientIp(req: NextRequest): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) {
+    const ip = xff.split(",")[0]?.trim();
+    if (ip) return ip;
+  }
+  // Next.js の req.ip は環境により undefined の場合あり
+  // 型エラー回避のため any キャスト
+  const reqAny = req as any;
+  if (typeof reqAny.ip === "string" && reqAny.ip) {
+    return reqAny.ip;
+  }
+  return "unknown";
+}
 
-    // Content-Type が JSON でない場合も空オブジェクトにフォールバック
-    const body = (await req.json().catch(() => ({}))) as Record<string, any>;
+export async function POST(req: NextRequest) {
+  const ip = getClientIp(req);
 
-    // --- 蜜壺（honeypot）: 人間は触らない隠しフィールド。値があればBotと判断して成功風レスポンス ---
-    if (typeof body.hp === "string" && body.hp.trim() !== "") {
-      return NextResponse.json({ ok: true });
-    }
-
-    // クライアント互換（複数キー許容）
-    const name: string = (body.name ?? "").toString().trim();
-    const email: string = (body.email ?? "").toString().trim().toLowerCase();
-    const company: string | undefined = body.company ? String(body.company).trim() : undefined;
-    const tel: string | undefined = normalizeTel(body.tel ?? body.phone);
-    const messageRaw: string = (body.detail ?? body.message ?? "").toString().trim();
-
-    // バリデーション
-    if (!name || !email || !messageRaw) {
-      return NextResponse.json(
-        { ok: false, error: "name, email, message/detail は必須です" },
-        { status: 400 },
-      );
-    }
-    if (!emailValid(email)) {
-      return NextResponse.json({ ok: false, error: "email の形式が不正です" }, { status: 400 });
-    }
-    if (name.length > 100) {
-      return NextResponse.json({ ok: false, error: "name が長すぎます（100文字以内）" }, { status: 400 });
-    }
-    if (messageRaw.length < 10 || messageRaw.length > 8000) {
-      return NextResponse.json(
-        { ok: false, error: "message/detail は10〜8000文字で入力してください" },
-        { status: 400 },
-      );
-    }
-
-    // 付随情報（ユーザー向けメールには載せない）
-    const ip = getClientIp(req);
-    const ua = req.headers.get("user-agent") || "";
-    const stamp = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
-    const refer = extractReferContext(req);
-
-    // --- 自動返信（ユーザー向け） ---
-    // ✅ 要望により「参照情報（referrer / pathname / utm_*）」は一切記載しない
-    const userSubject = "【Relayo】お問い合わせありがとうございます";
-    const userHtml = `
-      <p>${esc(name)} 様</p>
-      <p>この度はお問い合わせありがとうございます。原則24時間以内（営業日）に担当よりご連絡いたします。</p>
-      <hr />
-      <p><strong>送信内容の控え</strong></p>
-      <p>
-        お名前：${esc(name)}<br/>
-        会社名：${esc(company) || "-"}<br/>
-        メール：${esc(email)}<br/>
-        電話番号：${esc(tel) || "-"}<br/>
-        送信日時：${esc(stamp)}
-      </p>
-      <p><strong>ご要件・相談内容</strong></p>
-      <pre style="white-space:pre-wrap;word-wrap:break-word;">${esc(messageRaw)}</pre>
-      <hr/>
-      <p>このメールに返信いただければ、そのまま担当に届きます。</p>
-    `;
-
-    await sendMail([email], userSubject, userHtml, {
-      replyTo: ADMIN, // ユーザーが返信→運営に届く
-      text:
-        `${name} 様\n` +
-        `お問い合わせありがとうございます。原則24時間以内にご連絡します。\n\n` +
-        `--- 送信内容の控え ---\n` +
-        `お名前: ${name}\n会社名: ${company || "-"}\nメール: ${email}\n電話番号: ${tel || "-"}\n送信日時: ${stamp}\n\n` +
-        `${messageRaw}\n`,
-      tags: { category: "contact", kind: "auto-reply" },
-    });
-
-    // --- 社内通知（ADMIN向け） ---
-    // ここにだけ参照情報を載せる
-    const adminSubject = `【Relayo】新規お問い合わせ：${name}`;
-    const adminHtml = `
-      <p><strong>新規お問い合わせ</strong>（${esc(stamp)}）</p>
-      <p>
-        氏名：${esc(name)}<br/>
-        会社名：${esc(company) || "-"}<br/>
-        メール：${esc(email)}<br/>
-        電話番号：${esc(tel) || "-"}<br/>
-        IP：${esc(ip)}<br/>
-        UA：${esc(ua)}
-      </p>
-      <p><strong>ご要件・相談内容</strong></p>
-      <pre style="white-space:pre-wrap;word-wrap:break-word;">${esc(messageRaw)}</pre>
-      <hr/>
-      <p><strong>参照情報（内部用）</strong></p>
-      <pre style="white-space:pre-wrap;word-wrap:break-word;">
-referrer: ${esc(refer.referrer)}
-pathname: ${esc(refer.pathname)}
-utm_source: ${esc(refer.utm_source)} / utm_medium: ${esc(refer.utm_medium)} / utm_campaign: ${esc(refer.utm_campaign)}
-utm_content: ${esc(refer.utm_content)} / utm_term: ${esc(refer.utm_term)}
-      </pre>
-    `;
-
-    await sendMail([ADMIN], adminSubject, adminHtml, {
-      replyTo: email, // そのまま返信でやり取り開始
-      text:
-        `新規お問い合わせ（${stamp}）\n` +
-        `氏名: ${name}\n会社名: ${company || "-"}\nメール: ${email}\n電話番号: ${tel || "-"}\n` +
-        `IP: ${ip}\nUA: ${ua}\n\n` +
-        `${messageRaw}\n\n` +
-        `--- 参照情報（内部用） ---\n` +
-        `referrer: ${refer.referrer}\n` +
-        `pathname: ${refer.pathname}\n` +
-        `utm_source: ${refer.utm_source} / utm_medium: ${refer.utm_medium} / utm_campaign: ${refer.utm_campaign}\n` +
-        `utm_content: ${refer.utm_content} / utm_term: ${refer.utm_term}\n`,
-      tags: { category: "contact", kind: "notify" },
-    });
-
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    console.error("contact API error:", e);
+  // ---- レート制限 ----
+  const rl = await applyRatelimit(ip, "/api/contact");
+  if (!rl.success) {
     return NextResponse.json(
-      { ok: false, error: "送信に失敗しました。時間をおいて再度お試しください。" },
-      { status: 500 },
+      {
+        ok: false,
+        error: "TOO_MANY_REQUESTS",
+        message: "短時間に複数回送信されています。少し時間をおいて再度お試しください。",
+      },
+      { status: 429 }
     );
   }
-}
 
-/* -------------------------
- * Turnstile（Cloudflare）再導入メモ：
- *  - フロントから cfToken / turnstileToken を受け取り、
- *  - SECRET_KEY で https://challenges.cloudflare.com/turnstile/v0/siteverify を検証、
- *  - 成功時のみ送信処理を続行する。
- * ※現状は無効（honeypot のみ）
- * ------------------------- */
+  const body = await parseBody(req);
+
+  // ---- Turnstile 検証（本番でのみ必須）----
+  // Cloudflare の標準フィールド名: "cf-turnstile-response"
+  const turnstileToken =
+    body["cf-turnstile-response"] ??
+    body.turnstileToken ??
+    body.token ??
+    null;
+
+  if (process.env.TURNSTILE_SECRET_KEY) {
+    if (!turnstileToken || typeof turnstileToken !== "string") {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "TURNSTILE_TOKEN_MISSING",
+          message: "確認に失敗しました。お手数ですが、ページを再読み込みしてもう一度お試しください。",
+        },
+        { status: 400 }
+      );
+    }
+
+    const isHuman = await verifyTurnstile(turnstileToken, ip);
+    if (!isHuman) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "TURNSTILE_FAILED",
+          message: "確認に失敗しました。お手数ですが、ページを再読み込みしてもう一度お試しください。",
+        },
+        { status: 400 }
+      );
+    }
+  } else {
+    // 開発環境などでキー未設定の場合は Turnstile をスキップ（ログだけ残す）
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[contact] TURNSTILE_SECRET_KEY is not set; skip verification");
+    }
+  }
+
+  // ---- 必須項目の正規化 ----
+  const name = String(body.name ?? "").trim();
+  const email = String(body.email ?? "").trim();
+
+  const rawMessage = (body.message ?? body.detail ?? "").toString();
+  const message = rawMessage.trim();
+
+  if (!name || !email || !message) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "VALIDATION_ERROR",
+        message: "お名前・メールアドレス・ご相談内容は必須です。",
+      },
+      { status: 400 }
+    );
+  }
+
+  // ---- 任意項目の正規化 ----
+  const company =
+    body.company != null ? String(body.company).trim() : undefined;
+  const tel =
+    body.tel != null
+      ? String(body.tel).trim()
+      : body.phone != null
+      ? String(body.phone).trim()
+      : undefined;
+
+  // 相談種別・プランなど（値自体のバリデーションは send-emails 側でラベル化）
+  const type = body.type != null ? String(body.type) : undefined;
+  const plan = body.plan != null ? String(body.plan) : undefined;
+  const timeline =
+    body.timeline != null ? String(body.timeline) : undefined;
+  const priority =
+    body.priority != null ? String(body.priority) : undefined;
+
+  const assets = toStringArray(body.assets);
+  const decision =
+    body.decision != null ? String(body.decision) : undefined;
+  const features = toStringArray(body.features);
+
+  // 参照元・ページ情報
+  const headerReferer = req.headers.get("referer");
+  const referer =
+    body.referer ??
+    body.referrer ??
+    headerReferer ??
+    null;
+  const pathname =
+    body.pathname ??
+    req.nextUrl?.pathname ??
+    null;
+
+  // UTM（snake / camel 両対応で受け取れるようにする）
+  const utm_source = body.utm_source ?? body.utmSource;
+  const utm_medium = body.utm_medium ?? body.utmMedium;
+  const utm_campaign = body.utm_campaign ?? body.utmCampaign;
+  const utm_content = body.utm_content ?? body.utmContent;
+  const utm_term = body.utm_term ?? body.utmTerm;
+
+  // ---- Inngest イベント送信 ----
+  await inngest.send({
+    name: "application/received",
+    data: {
+      name,
+      email,
+      company,
+      tel,
+      // 互換性のため両方持たせておく
+      phone: body.phone,
+      message,
+      detail: body.detail,
+
+      referer,
+      referrer: body.referrer ?? null,
+      pathname,
+
+      type,
+      plan,
+      timeline,
+      priority,
+      assets,
+      decision,
+      features,
+
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      utm_content,
+      utm_term,
+
+      utmSource: utm_source,
+      utmMedium: utm_medium,
+      utmCampaign: utm_campaign,
+      utmContent: utm_content,
+      utmTerm: utm_term,
+    },
+  });
+
+  return NextResponse.json({ ok: true });
+}

@@ -1,11 +1,13 @@
-// emails/UserAutoreply.tsx
 import * as React from "react";
+import { BRAND } from "@/lib/constants";
 
 type Props = {
   name: string;
 };
 
 export function UserAutoreply({ name }: Props) {
+  const displayName = name ? `${name} 様` : "お客様";
+
   return (
     <div
       style={{
@@ -42,22 +44,28 @@ export function UserAutoreply({ name }: Props) {
               margin: 0,
             }}
           >
-            お申込みありがとうございます
+            お問い合わせありがとうございます
           </h1>
         </div>
 
         {/* 本文 */}
-        <div style={{ padding: 20, fontSize: 14, lineHeight: "22px" }}>
+        <div
+          style={{
+            padding: 20,
+            fontSize: 14,
+            lineHeight: "22px",
+          }}
+        >
+          <p style={{ margin: "0 0 12px 0" }}>{displayName}</p>
+
           <p style={{ margin: "0 0 12px 0" }}>
-            {name ? `${name} 様` : "お客様"}、
+            このたびは {BRAND.name} にお問い合わせいただき、ありがとうございます。
+            お送りいただいた内容を確認のうえ、通常<b>1営業日以内</b>にメールでご連絡いたします。
           </p>
+
           <p style={{ margin: "0 0 12px 0" }}>
-            このたびは Relayo にお申込みいただき、ありがとうございます。
-            内容を確認のうえ、<b>1営業日以内</b>に担当者よりご連絡いたします。
-          </p>
-          <p style={{ margin: "0 0 12px 0" }}>
-            追加で共有いただける情報やご要望がございましたら、
-            このメールにそのままご返信ください。
+            追加で共有いただきたい点や、ご希望の条件（ご予算・公開時期・参考サイトなど）がありましたら、
+            このメールにそのままご返信ください。いただいた情報をもとに、より具体的なご提案を行います。
           </p>
 
           <div
@@ -74,15 +82,20 @@ export function UserAutoreply({ name }: Props) {
             <p style={{ margin: 0 }}>
               ▼ 今後の流れ（目安）
               <br />
-              1) ヒアリング（オンライン15分）
+              1）メールにて簡単なヒアリング
               <br />
-              2) ご提案・お見積り
+              2）現状とご希望に合わせたご提案・お見積り
               <br />
-              3) 要件確定 → デザイン/実装
+              3）要件のすり合わせ・確定
               <br />
-              4) ご確認後、公開・初期運用
+              4）デザイン・実装 → ご確認 → 公開・初期運用
             </p>
           </div>
+
+          <p style={{ margin: "16px 0 0 0", fontSize: 13, lineHeight: "20px" }}>
+            「こういうことはお願いできるか」「まだ検討段階だけれど相談したい」など、
+            具体度が高くなくても構いません。お気軽にご相談ください。
+          </p>
         </div>
 
         {/* フッター */}
@@ -101,9 +114,10 @@ export function UserAutoreply({ name }: Props) {
               lineHeight: "18px",
             }}
           >
-            本メールは自動送信です。心当たりがない場合は破棄してください。
+            本メールは {BRAND.name} のお問い合わせフォームからの自動送信です。
+            心当たりがない場合は、このメールは破棄してください。
             <br />
-            © Relayo
+            © {BRAND.name} ({BRAND.siteUrl})
           </p>
         </div>
       </div>

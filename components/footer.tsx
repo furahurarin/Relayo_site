@@ -1,5 +1,4 @@
-﻿// components/footer.tsx
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Building, MapPin, Mail } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
@@ -8,20 +7,27 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 py-16 text-white">
+    <footer
+      className="bg-gray-900 py-16 text-white"
+      role="contentinfo"
+      aria-label={`${BRAND.name} フッター`}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-4">
           {/* Company Info */}
           <div className="space-y-4 lg:col-span-2">
             <h2 className="text-2xl font-bold">{BRAND.name}</h2>
             <p className="max-w-md leading-relaxed text-gray-300">
-              全国の中小企業・個人事業主のデジタル化を支援。
+              全国の中小企業・個人事業主のデジタル化を支援しています。
               <br className="hidden sm:block" />
-              テンプレートとAIを活用して<span className="font-semibold">短納期・高品質</span>の Web/アプリを構築し、
-              公開後も<span className="font-semibold">運用まで伴走</span>します（オンライン中心のヒアリング）。
+              テンプレートとAIを活用して
+              <span className="font-semibold">短納期・高品質</span>の
+              Webサイト／小規模アプリを構築し、
+              公開後も<span className="font-semibold">運用まで伴走</span>
+              します（オンライン中心のヒアリング）。
             </p>
 
-            <div className="space-y-3">
+            <div className="space-y-3" aria-label="運営情報">
               <div className="flex items-center space-x-3">
                 <Building className="h-5 w-5 text-gray-400" aria-hidden="true" />
                 <span className="text-gray-300">個人事業（将来法人化予定）</span>
@@ -39,12 +45,12 @@ export default function Footer() {
           </div>
 
           {/* Services */}
-          <nav aria-label="サービス" className="space-y-4">
+          <nav aria-label="提供サービス" className="space-y-4">
             <h3 className="text-lg font-semibold">サービス</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
                 <Link href="/services" className="transition-colors hover:text-white">
-                  Web制作（LP/コーポレート）
+                  Web制作（LP／コーポレート）
                 </Link>
               </li>
               <li>
@@ -61,7 +67,7 @@ export default function Footer() {
           </nav>
 
           {/* Site / Legal */}
-          <nav aria-label="サイト" className="space-y-4">
+          <nav aria-label="サイトナビゲーション" className="space-y-4">
             <h3 className="text-lg font-semibold">サイト</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
@@ -83,6 +89,14 @@ export default function Footer() {
               <li>
                 <Link href="/faq" className="transition-colors hover:text-white">
                   FAQ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/campaign"
+                  className="transition-colors hover:text-white"
+                >
+                  キャンペーン
                 </Link>
               </li>
               <li>
@@ -115,19 +129,24 @@ export default function Footer() {
         </div>
 
         {/* CTA + Copyright */}
-        <div className="mt-12 border-t border-gray-800 pt-8">
+        <div className="mt-12 border-top border-gray-800 pt-8">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <p className="text-sm text-gray-400">© {year} {BRAND.name}. All rights reserved.</p>
+            <p className="text-sm text-gray-400">
+              © {year} {BRAND.name}. All rights reserved.
+            </p>
             {/* CTAはフォームへ一本化 */}
             <div className="w-full sm:w-auto">
-              <ContactCTA />
+              <ContactCTA
+                small
+                full={false}
+              />
             </div>
           </div>
-          <p className="mt-2 text-center text-xs text-gray-500">約2分で完了。営業電話は行いません。回答はメールでお送りします。
+          <p className="mt-2 text-center text-xs text-gray-500">
+            約2分で完了。営業電話は行いません。回答はメールでお送りします。
           </p>
         </div>
       </div>
     </footer>
   );
 }
-
