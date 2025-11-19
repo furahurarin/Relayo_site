@@ -15,193 +15,184 @@ import ContactCTA from "@/components/cta/ContactCTA";
 import { PRICING } from "@/lib/pricing";
 
 export default function PricingSection() {
-  const { setPlans, monthlyPlans, meta } = PRICING;
+  const { setPlans, monthlyPlans } = PRICING;
 
-  // トップ用は3プランのダイジェストのみ（LPパックは /pricing で詳しく）
-  // 月額は代表4つをダイジェスト表示
+  // 3つの制作プラン（Starter / Standard / Growth）
+  const orderedPlans = setPlans;
+
+  // 運用・保守プランのダイジェスト
   const monthlyDigest = monthlyPlans.filter((m) =>
-    ["self", "lite", "standard", "growth"].includes(m.code)
+    ["lite", "assist", "standard", "growth"].includes(m.code),
   );
 
-  // Lite の統一文言（“正”）
+  // テキスト：運用・保守プランの概要
   const LITE_LINE =
-    "稼働・フォームの簡易監視／バックアップ。月1回：文言1箇所 または 画像3点までの軽微な更新。";
+    "公開後の稼働確認や軽微な修正、システム更新などをまとめた、継続運用のための保守プランです。";
 
   return (
-    <section className="bg-gray-50 py-20" aria-labelledby="pricing-heading">
+    <section
+      className="bg-gray-50 py-16 sm:py-20 lg:py-24"
+      aria-labelledby="pricing-heading"
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* 見出し */}
         <div className="mb-10 space-y-4 text-center">
-          <h2 id="pricing-heading" className="text-3xl font-bold text-gray-900 sm:text-4xl">
-            料金プラン
+          <h2
+            id="pricing-heading"
+            className="text-2xl font-bold text-gray-900 sm:text-3xl"
+          >
+            料金とプラン
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-gray-700">
-            価格は<strong>すべて {meta.tax}</strong>です。ドメイン／サーバー等の実費は別途となります。
-            公開後は月額プランでの運用・保守もご利用いただけます。
-          </p>
-          <p className="mx-auto max-w-2xl text-xs text-gray-500">
-            ※ キャンペーンの適用には条件があります。詳しくは{" "}
-            <Link href="/campaign" className="underline underline-offset-2">
-              キャンペーン案内
-            </Link>
-            をご確認ください。
+          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-gray-700">
+            目的や規模に応じて、3つの制作プランをご用意しています。
+            詳しい内容やカスタマイズ例は、料金ページにてご確認いただけます。
           </p>
         </div>
 
-        {/* 制作セット（Essential / Standard / Growth） */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          {setPlans.map((plan) => (
-            <Card
-              key={plan.code}
-              className={`relative h-full bg-white transition-all duration-300 ${
-                plan.popular
-                  ? "scale-105 border-2 border-blue-500 shadow-xl"
-                  : "border border-gray-200 shadow-md hover:shadow-lg"
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <Badge className="flex items-center bg-blue-600 px-4 py-1 text-white">
-                    <Star className="mr-1 h-4 w-4" />
-                    人気プラン
-                  </Badge>
-                </div>
-              )}
-
-              <CardHeader className="space-y-4 pb-8 text-center">
-                <div>
-                  <CardTitle className="text-2xl font-bold text-gray-900">
-                    {plan.name}
-                  </CardTitle>
-                  <CardDescription className="mt-1 text-base text-gray-600">
-                    {plan.pages}／{plan.form}
-                  </CardDescription>
-                  {plan.catch && (
-                    <p className="mt-2 text-sm text-gray-700">{plan.catch}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-sm text-gray-500">初期費用</span>
-                    <span className="text-4xl font-bold text-gray-900">
-                      {plan.price.text}
-                    </span>
+        {/* 3つの制作プラン */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {orderedPlans.map((plan) => {
+            const isPopular = plan.popular;
+            return (
+              <Card
+                key={plan.code}
+                className="flex h-full flex-col border border-gray-200 bg-white shadow-sm"
+              >
+                <CardHeader className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="text-base font-semibold text-gray-900">
+                      {plan.name}
+                    </CardTitle>
+                    {isPopular && (
+                      <Badge className="inline-flex items-center gap-1 bg-amber-500 text-[11px] font-semibold text-white hover:bg-amber-600">
+                        <Star className="h-3 w-3" aria-hidden />
+                        人気
+                      </Badge>
+                    )}
                   </div>
-                </div>
-              </CardHeader>
+                  <p className="text-lg font-bold text-gray-900">
+                    {plan.price.text}
+                    <span className="ml-1 text-xs font-normal text-gray-500">
+                      （税別）
+                    </span>
+                  </p>
+                  {plan.catch && (
+                    <CardDescription className="text-xs leading-relaxed text-gray-700">
+                      {plan.catch}
+                    </CardDescription>
+                  )}
+                </CardHeader>
 
-              <CardContent className="space-y-6">
-                <div>
-                  <p className="mb-4 font-medium text-gray-800">標準に含まれるもの</p>
-                  <ul className="space-y-3">
-                    {plan.includes.map((f) => (
-                      <li key={f} className="flex items-start">
-                        <Check className="mr-3 h-5 w-5 flex-shrink-0 text-green-600" />
-                        <span className="text-sm text-gray-700">{f}</span>
+                <CardContent className="flex flex-1 flex-col gap-3 text-xs text-gray-800">
+                  {/* 原稿の2文目に相当する補足 */}
+                  {plan.code === "essential" && (
+                    <p className="leading-relaxed">
+                      ランディングページ1枚など、小さな構成で
+                      「誰に・何を伝えるか」を絞ったサイトを制作します。
+                    </p>
+                  )}
+                  {plan.code === "standard" && (
+                    <p className="leading-relaxed">
+                      トップページに加え、会社概要・サービス紹介・お問い合わせなど、
+                      複数ページ構成のサイトを基本とします。
+                    </p>
+                  )}
+                  {plan.code === "growth" && (
+                    <p className="leading-relaxed">
+                      将来的なページ追加や、会員・予約・決済などの機能拡張を見据えて設計します。
+                    </p>
+                  )}
+
+                  <ul className="mt-1 space-y-1">
+                    {plan.includes.slice(0, 3).map((item) => (
+                      <li key={item} className="flex items-start gap-1.5">
+                        <Check
+                          className="mt-[2px] h-3.5 w-3.5 text-blue-600"
+                          aria-hidden
+                        />
+                        <span className="leading-snug text-gray-800">
+                          {item}
+                        </span>
                       </li>
                     ))}
                   </ul>
-                </div>
 
-                <div className="border-t border-gray-100 pt-4 text-sm text-gray-700">
-                  <p>
-                    <strong>サポート体制（対応開始の目安）：</strong>
-                    {plan.sla.label}
-                    {(plan.sla.p1 || plan.sla.p2 || plan.sla.p3) && "／"}
-                    {plan.sla.p1 && <span>重大：{plan.sla.p1}</span>}
-                    {plan.sla.p2 && <span>／中度：{plan.sla.p2}</span>}
-                    {plan.sla.p3 && <span>／軽度：{plan.sla.p3}</span>}
+                  <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                    ページ数・機能・原稿量により、実際のお見積りは前後します。
                   </p>
-                  <p className="mt-1">
-                    <strong>納期目安：</strong>
-                    {plan.leadTime.note}
-                  </p>
-                </div>
-
-                <div className="pt-2">
-                  <ContactCTA />
-                  <p className="mt-2 text-center text-xs text-gray-500">
-                    約2分で完了。ご案内はメールでお送りします。
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* 月額（ダイジェスト） */}
-        <div className="mt-16">
-          <h3 className="mb-6 text-center text-2xl font-bold text-gray-900">月額（運用・保守）</h3>
-          <div className="grid gap-6 md:grid-cols-4">
-            {monthlyDigest.map((m) => (
-              <Card key={m.code} className="border border-gray-200 bg-white">
-                <CardHeader className="pb-2 text-center">
-                  <CardTitle className="text-xl">{m.name}</CardTitle>
-                  <CardDescription className="text-base">
-                    月額 <span className="text-2xl font-bold">{m.price.text}</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-center text-sm text-gray-700">
-                  {/* Liteだけは“正”の一行に強制統一（元データのゆれを吸収） */}
-                  {m.code === "lite" ? LITE_LINE : m.features[0]}
                 </CardContent>
               </Card>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* 運用・保守プランのダイジェスト */}
+        <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <div className="rounded-2xl border border-blue-100 bg-blue-50/80 p-6 text-sm text-gray-900 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-900">
+              運用・保守プラン　月額 ¥3,980〜
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-gray-800">
+              {LITE_LINE}
+            </p>
+            <div className="mt-3 grid gap-2 text-[11px] text-gray-800 sm:grid-cols-2">
+              {monthlyDigest.map((m) => (
+                <div key={m.code} className="rounded-lg bg-white/60 p-3">
+                  <p className="text-xs font-semibold text-gray-900">
+                    {m.name}
+                  </p>
+                  <p className="text-xs font-bold text-gray-900">
+                    {m.price.text}
+                    <span className="ml-1 font-normal text-gray-500">
+                      （税別）
+                    </span>
+                  </p>
+                  <ul className="mt-1 space-y-0.5">
+                    {m.features.slice(0, 2).map((f) => (
+                      <li key={f} className="flex items-start gap-1.5">
+                        <Check
+                          className="mt-[1px] h-3 w-3 text-blue-600"
+                          aria-hidden
+                        />
+                        <span className="leading-snug">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-1 text-[10px] text-gray-500">
+                    対応開始目安：{m.initial}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="mt-3 text-center text-sm text-gray-600">
-            契約の縛りはありません。詳しくは{" "}
-            <Link
-              href="/pricing"
-              className="font-medium text-blue-600 underline-offset-2 hover:underline"
-            >
-              料金ページ
-            </Link>
-            をご覧ください。
-          </p>
-        </div>
 
-        {/* 取引条件・注記（支払条件／変更管理／対応目安 抜粋） */}
-        <div className="mt-16">
-          <Card className="mx-auto max-w-4xl border-2 border-gray-100 bg-white">
-            <CardContent className="p-6 text-sm leading-relaxed text-gray-800">
-              <ul className="list-disc space-y-2 pl-5">
-                <li>
-                  <strong>お支払い条件：</strong>着手20%／中間30%／検収50%（お支払い期日：請求書発行から30日以内）
-                </li>
-                <li>
-                  <strong>変更管理：</strong>仕様変更は「変更管理票」で合意のうえ、範囲・費用・納期・リスクを更新します。
-                </li>
-                <li>
-                  <strong>サポート体制（抜粋）：</strong>重大：4時間以内に対応開始／中度：翌営業日から順次／軽度：週内
-                  （プランにより異なる場合があります）
-                </li>
-                <li>
-                  <strong>ご注意：</strong>価格は{meta.tax}表示。ドメイン／サーバー等の実費は別途。要件により変動します。
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* カスタム案内 */}
-        <div className="mt-16 text-center">
-          <Card className="mx-auto max-w-4xl border-2 border-orange-100 bg-gradient-to-r from-orange-50 to-yellow-50">
-            <CardContent className="p-8">
-              <h3 className="mb-4 text-2xl font-bold text-gray-900">個別のご要望にも対応します</h3>
-              <p className="mb-6 leading-relaxed text-gray-700">
-                予約・決済・会員・多言語・外部サービス連携などの追加にも対応可能です。課題と目標に合わせ、最適な構成をご提案します。
+          {/* CTA + 詳細リンク */}
+          <div className="flex flex-col justify-between gap-4">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 text-center shadow-sm">
+              <p className="text-xs leading-relaxed text-gray-800">
+                「どのプランが良いか分からない」という段階でも構いません。
+                現在の状況とご予算感を伺いながら、無理のないプランをご提案します。
               </p>
-              <div className="flex justify-center">
+              <div className="mt-4 flex justify-center">
                 <ContactCTA />
               </div>
-              <p className="mt-6 text-xs leading-relaxed text-gray-500">
-                ※ 「〜」表記は要件により変動します。価格は{meta.tax}表示。ドメイン／サーバー等の実費は別途です。
-                個別お見積りは無料です。
-              </p>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="text-center">
+              <Link
+                href="/pricing"
+                className="inline-flex items-center justify-center text-xs font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-900"
+                aria-label="料金の詳細ページを見る"
+              >
+                料金の詳細を見る
+              </Link>
+            </div>
+          </div>
         </div>
+
+        {/* 備考 */}
+        <p className="mt-6 text-[11px] leading-relaxed text-gray-500">
+          表示価格はすべて税別です。有料SaaSや外部決済手数料などの実費は、別途ご負担となる場合があります。
+        </p>
       </div>
     </section>
   );

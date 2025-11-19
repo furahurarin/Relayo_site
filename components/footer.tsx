@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+﻿// components/footer.tsx
+import Link from "next/link";
 import { Building, MapPin, Mail } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
@@ -18,13 +19,13 @@ export default function Footer() {
           <div className="space-y-4 lg:col-span-2">
             <h2 className="text-2xl font-bold">{BRAND.name}</h2>
             <p className="max-w-md leading-relaxed text-gray-300">
-              全国の中小企業・個人事業主のデジタル化を支援しています。
+              {BRAND.name}
+              （リレイオ）は、中小企業・スタートアップ・個人事業主のための
+              ホームページ制作・運用サービスです。
               <br className="hidden sm:block" />
-              テンプレートとAIを活用して
-              <span className="font-semibold">短納期・高品質</span>の
-              Webサイト／小規模アプリを構築し、
-              公開後も<span className="font-semibold">運用まで伴走</span>
-              します（オンライン中心のヒアリング）。
+              必要なページだけに絞ったシンプルな構成で
+              「まずは小さく立ち上げ」、公開後も更新・保守までまとめてお任せいただけます。
+              全国対応・オンライン中心でご相談いただけます。
             </p>
 
             <div className="space-y-3" aria-label="運営情報">
@@ -44,31 +45,48 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Services */}
-          <nav aria-label="提供サービス" className="space-y-4">
-            <h3 className="text-lg font-semibold">サービス</h3>
+          {/* Menu */}
+          <nav aria-label="メニュー" className="space-y-4">
+            <h3 className="text-lg font-semibold">メニュー</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
-                <Link href="/services" className="transition-colors hover:text-white">
-                  Web制作（LP／コーポレート）
+                <Link
+                  href="/#services"
+                  className="transition-colors hover:text-white"
+                >
+                  サービス内容
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="transition-colors hover:text-white">
-                  アプリ開発・小規模SaaS
+                <Link
+                  href="/#pricing"
+                  className="transition-colors hover:text-white"
+                >
+                  料金とプラン
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="transition-colors hover:text-white">
-                  情報設計・要件定義
+                <Link
+                  href="/#faq"
+                  className="transition-colors hover:text-white"
+                >
+                  よくある質問
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#company"
+                  className="transition-colors hover:text-white"
+                >
+                  運営者情報
                 </Link>
               </li>
             </ul>
           </nav>
 
           {/* Site / Legal */}
-          <nav aria-label="サイトナビゲーション" className="space-y-4">
-            <h3 className="text-lg font-semibold">サイト</h3>
+          <nav aria-label="各種ページ" className="space-y-4">
+            <h3 className="text-lg font-semibold">各種ページ</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
                 <Link href="/" className="transition-colors hover:text-white">
@@ -78,17 +96,17 @@ export default function Footer() {
               <li>
                 <Link
                   href="/pricing"
-                  className="group inline-flex items-center gap-2 transition-colors hover:text-white"
+                  className="transition-colors hover:text-white"
                 >
-                  料金
-                  <span className="rounded-full border border-emerald-700/40 bg-emerald-900/20 px-2 py-0.5 text-xs text-emerald-200">
-                    パッケージ割あり
-                  </span>
+                  料金ページ
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="transition-colors hover:text-white">
-                  FAQ
+                <Link
+                  href="/faq"
+                  className="transition-colors hover:text-white"
+                >
+                  FAQページ
                 </Link>
               </li>
               <li>
@@ -101,7 +119,10 @@ export default function Footer() {
               </li>
               <li>
                 {/* 入口はフォームに統一 */}
-                <Link href="/contact" className="transition-colors hover:text-white">
+                <Link
+                  href="/contact"
+                  className="transition-colors hover:text-white"
+                >
                   お問い合わせ
                 </Link>
               </li>
@@ -110,17 +131,26 @@ export default function Footer() {
             <h3 className="mt-6 text-lg font-semibold">法的情報</h3>
             <ul className="space-y-2 text-gray-300">
               <li>
-                <Link href="/legal/terms" className="transition-colors hover:text-white">
+                <Link
+                  href="/legal/terms"
+                  className="transition-colors hover:text-white"
+                >
                   利用規約
                 </Link>
               </li>
               <li>
-                <Link href="/legal/privacy" className="transition-colors hover:text-white">
+                <Link
+                  href="/legal/privacy"
+                  className="transition-colors hover:text-white"
+                >
                   プライバシーポリシー
                 </Link>
               </li>
               <li>
-                <Link href="/legal/tokusho" className="transition-colors hover:text-white">
+                <Link
+                  href="/legal/tokusho"
+                  className="transition-colors hover:text-white"
+                >
                   特定商取引法に基づく表記
                 </Link>
               </li>
@@ -129,21 +159,18 @@ export default function Footer() {
         </div>
 
         {/* CTA + Copyright */}
-        <div className="mt-12 border-top border-gray-800 pt-8">
+        <div className="mt-12 border-t border-gray-800 pt-8">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <p className="text-sm text-gray-400">
               © {year} {BRAND.name}. All rights reserved.
             </p>
             {/* CTAはフォームへ一本化 */}
             <div className="w-full sm:w-auto">
-              <ContactCTA
-                small
-                full={false}
-              />
+              <ContactCTA small full={false} />
             </div>
           </div>
           <p className="mt-2 text-center text-xs text-gray-500">
-            約2分で完了。営業電話は行いません。回答はメールでお送りします。
+            お問い合わせは24時間受付。通常1〜2営業日以内にメールでご連絡いたします。
           </p>
         </div>
       </div>

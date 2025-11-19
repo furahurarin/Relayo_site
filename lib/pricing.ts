@@ -82,33 +82,18 @@ export type SetPlan = {
 export const SET_PLANS: readonly SetPlan[] = [
   {
     code: "essential",
-    name: "Essential（ミニコーポレート）",
-    catch: "最小限の情報を整え、短期間で公開",
-    price: { text: "¥138,000", taxExcluded: true },
-    pages: "3〜5ページ",
+    name: "Starter プラン",
+    catch:
+      "まずは最小限のページで、サービス概要とお問い合わせ窓口を整えたい方向けのプランです。",
+    price: { text: "¥138,000〜", taxExcluded: true },
+    pages: "1〜3ページ程度（LP 含む）",
     form: "お問い合わせフォーム：1種",
     includes: [
-      "初期セットアップ一式（ドメイン／DNS／SSL／計測／検索対策の初期設定／表示速度の最適化／OGP画像）",
-      "ブログ／お知らせ（CMS）",
-      "FAQブロック（10項目まで）",
-      "事例・メニュー一覧のテンプレート導入",
-      "画像の最適化（最大20点）",
-    ],
-    sla: { label: "翌営業日から対応開始", p1: "翌営業日内", p2: "3営業日内" },
-    leadTime: { note: "素材受領後 2〜3週間" },
-  },
-  {
-    code: "standard",
-    name: "Standard（いちばん人気）",
-    catch: "8ページ前後で情報を充実。更新もしやすい設計",
-    price: { text: "¥198,000", taxExcluded: true },
-    pages: "〜8ページ",
-    form: "お問い合わせフォーム：1種",
-    includes: [
-      "Essentialの全て",
-      "構成の拡張（下層3ページ相当）",
-      "更新レクチャー（基本操作）",
-      "計測強化に向けた初期整理（基本項目の確認）",
+      "トップまたはLP 1ページ＋簡易下層ページ（会社概要等）",
+      "スマホ最適化を前提としたデザイン・実装",
+      "基本的な検索対策（タイトル・説明文・見出し構造・OGP画像）",
+      "お問い合わせフォーム 1種（メール通知付き）",
+      "初期アクセス計測設定（例：Google アナリティクス等）",
     ],
     sla: {
       label: "翌営業日から対応開始",
@@ -116,21 +101,46 @@ export const SET_PLANS: readonly SetPlan[] = [
       p2: "3営業日内",
       p3: "週内",
     },
-    leadTime: { note: "要件確定後 3〜4週間" },
+    leadTime: { note: "要件と素材の確定後 2〜3週間前後" },
+  },
+  {
+    code: "standard",
+    name: "Standard プラン",
+    catch:
+      "会社情報やサービス紹介、よくある質問まで、一通りを整えたい中小企業・事務所向けのプランです。",
+    price: { text: "¥198,000〜", taxExcluded: true },
+    pages: "〜8ページ程度",
+    form: "お問い合わせフォーム：1種",
+    includes: [
+      "Starter プランの内容",
+      "トップページ＋下層ページ（会社概要・サービス紹介・お問い合わせ等）",
+      "よくある質問（FAQ）ブロックの設置（〜10項目）",
+      "ブログ／お知らせ機能（CMS）の導入（基本テンプレート）",
+      "更新しやすいナビゲーション・構成の設計",
+    ],
+    sla: {
+      label: "翌営業日から対応開始",
+      p1: "翌営業日内",
+      p2: "3営業日内",
+      p3: "週内",
+    },
+    leadTime: { note: "要件と素材の確定後 3〜4週間前後" },
     popular: true,
   },
   {
     code: "growth",
-    name: "Growth（運用強化）",
-    catch: "LP追加と検証設計で、集客の底上げを図る構成",
+    name: "Growth プラン",
+    catch:
+      "事例紹介やブログ、採用情報など、コンテンツを増やしながらサイトを育てていきたい方向けのプランです。",
     price: { text: "¥348,000〜", taxExcluded: true },
-    pages: "〜10ページ ＋ LP 1本",
-    form: "お問い合わせフォーム：1種",
+    pages: "〜12ページ程度＋LP 1本まで",
+    form: "お問い合わせフォーム：1〜2種",
     includes: [
-      "Standardの全て",
-      "比較検証の初期設定（2案を比較して良い方を採用）",
-      "計測設定の強化",
-      "全体の見直し（お問い合わせに繋がる構成へ適切に調整）",
+      "Standard プランの内容",
+      "事例紹介／実績・メニュー一覧などのコンテンツページ追加",
+      "採用情報ページやエントリーフォームの追加",
+      "LP（ランディングページ）1本分の追加制作（テンプレートベース）",
+      "将来的なページ追加や機能拡張（会員・予約・決済など）を見据えた構成",
     ],
     sla: {
       label: "重大な不具合は4時間以内に対応開始",
@@ -138,7 +148,7 @@ export const SET_PLANS: readonly SetPlan[] = [
       p2: "翌営業日",
       p3: "週内",
     },
-    leadTime: { note: "要件確定後 4〜6週間" },
+    leadTime: { note: "要件と素材の確定後 4〜6週間前後" },
   },
 ];
 
@@ -154,7 +164,7 @@ export type LpPack = {
 
 export const LP_PACK: LpPack = {
   code: "starter_lp",
-  name: "Starter-LP（短期公開）",
+  name: "LPパック（短期公開）",
   price: { text: "¥79,800", taxExcluded: true },
   includes: [
     "LP（テンプレート1ページ）＋ お問い合わせフォーム1種",
@@ -265,12 +275,30 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
     code: "updates",
     title: "単発の更新・改善パック",
     items: [
-      { name: "テキスト差し替え（最大5箇所）", price: { text: "¥4,980", taxExcluded: true } },
-      { name: "画像差し替え（最大10点）", price: { text: "¥4,980", taxExcluded: true } },
-      { name: "FAQ更新（10件まで）", price: { text: "¥4,980", taxExcluded: true } },
-      { name: "セクション追加（テンプレート1ブロック）", price: { text: "¥9,800", taxExcluded: true } },
-      { name: "下層ページ追加（テンプレート1ページ）", price: { text: "¥9,800", taxExcluded: true } },
-      { name: "LP追加（テンプレート1本）", price: { text: "¥49,800", taxExcluded: true } },
+      {
+        name: "テキスト差し替え（最大5箇所）",
+        price: { text: "¥4,980", taxExcluded: true },
+      },
+      {
+        name: "画像差し替え（最大10点）",
+        price: { text: "¥4,980", taxExcluded: true },
+      },
+      {
+        name: "FAQ更新（10件まで）",
+        price: { text: "¥4,980", taxExcluded: true },
+      },
+      {
+        name: "セクション追加（テンプレート1ブロック）",
+        price: { text: "¥9,800", taxExcluded: true },
+      },
+      {
+        name: "下層ページ追加（テンプレート1ページ）",
+        price: { text: "¥9,800", taxExcluded: true },
+      },
+      {
+        name: "LP追加（テンプレート1本）",
+        price: { text: "¥49,800", taxExcluded: true },
+      },
       {
         name: "軽微な不具合の対応（表示崩れ・リンク切れ等・1件）",
         price: { text: "¥3,980", taxExcluded: true },
@@ -288,10 +316,6 @@ export type MonthlyPlan = {
   /** 対応開始（SLA観点の一次対応表現） */
   initial: string;
 };
-
-/** Lite の説明文の“正”（FAQ・料金ページ等で共通利用するため） */
-export const LITE_LINE =
-  "稼働・フォームの簡易監視／バックアップ。月1回：文言1箇所 または 画像3点までの軽微な更新。" as const;
 
 export const MONTHLY_PLANS: readonly MonthlyPlan[] = [
   {

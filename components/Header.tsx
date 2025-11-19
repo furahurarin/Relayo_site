@@ -1,53 +1,63 @@
-﻿"use client";
+﻿// components/Header.tsx
+"use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
-import { umami } from "@/lib/track";
 
-type NavItem = { href: string; label: string };
+type NavItem = {
+  href: string;
+  label: string;
+};
 
+/**
+ * グローバルナビ：
+ *   - ホーム内のセクションへ： /#services, /#pricing, /#process, /#faq, /#company
+ *   - ホーム： /
+ */
 const NAV: NavItem[] = [
   { href: "/", label: "ホーム" },
-  { href: "/services", label: "サービス" },
-  { href: "/pricing", label: "料金" },
-  { href: "/faq", label: "FAQ" },
-  // 法的情報は現状ページ分割（利用規約／プライバシー／特定商取引法）
-  { href: "/legal/terms", label: "利用規約" },
-  { href: "/legal/privacy", label: "プライバシーポリシー" },
-  { href: "/legal/tokusho", label: "特定商取引法に基づく表記" },
+  { href: "/#services", label: "サービス" },
+  { href: "/#pricing", label: "料金" },
+  { href: "/#process", label: "制作の流れ" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/#company", label: "運営者情報" },
 ];
 
 export default function Header() {
+  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname() || "/";
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 4);
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ルート一致でactive（必要に応じて startsWith に変更可）
-  const isActive = (href: string) => pathname === href;
+  // パスベースの簡易アクティブ判定（/ とそれ以外）
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    // /#section は「ホーム」扱いとし、パスが / のときだけアクティブ風に
+    if (href.startsWith("/#")) return pathname === "/";
+    return pathname === href;
+  };
 
   const linkBase =
-    "text-sm text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors";
-
-  // ルートが変わったらモバイルメニューを閉じる
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+    "text-sm text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white transition-colors";
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full border-b border-transparent bg-white/70 backdrop-blur dark:bg-gray-950/70 ${
-        scrolled ? "border-gray-200 dark:border-gray-800" : ""
+      className={`sticky top-0 z-40 border-b bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-950/80 ${
+        isScrolled ? "shadow-sm" : ""
       }`}
+      aria-label="サイト全体のナビゲーション"
     >
       <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Brand */}
@@ -60,9 +70,6 @@ export default function Header() {
           >
             {BRAND.name}
           </Link>
-          <p className="hidden text-xs text-gray-500 sm:block">
-            中小企業・個人事業主向け Web/アプリ制作・運用支援
-          </p>
         </div>
 
         {/* Desktop Nav */}
@@ -72,17 +79,10 @@ export default function Header() {
         >
           {NAV.map((n) => {
             const active = isActive(n.href);
-            const tracking = umami("nav_click", {
-              href: n.href,
-              label: n.label,
-              area: "header",
-            });
-
             return (
               <Link
                 key={n.href}
                 href={n.href}
-                {...tracking}
                 aria-current={active ? "page" : undefined}
                 className={`${linkBase} ${
                   active ? "font-semibold text-black dark:text-white" : ""
@@ -92,49 +92,42 @@ export default function Header() {
               </Link>
             );
           })}
-          {/* 入口はフォームに統一 */}
-          <ContactCTA small />
+
+          {/* 入口は /contact に統一 */}
+          <ContactCTA />
         </nav>
 
-        {/* Mobile menu toggle */}
+        {/* Mobile menu button */}
         <button
           type="button"
+          className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:text-gray-200 dark:hover:bg-gray-900 dark:focus:ring-offset-gray-950 md:hidden"
           aria-label={open ? "メニューを閉じる" : "メニューを開く"}
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          className="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm md:hidden dark:border-gray-700"
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? "閉じる" : "メニュー"}
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Nav */}
       {open && (
-        <div
-          id="mobile-nav"
-          className="border-t border-gray-200 bg-white md:hidden dark:border-gray-800 dark:bg-gray-950"
-        >
-          <div className="container mx-auto grid gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="border-t border-gray-200 bg-white/95 px-4 pb-4 pt-2 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/95 md:hidden">
+          <nav
+            className="flex flex-col gap-1"
+            aria-label="モバイル用グローバルナビゲーション"
+          >
             {NAV.map((n) => {
               const active = isActive(n.href);
-              const tracking = umami("nav_click", {
-                href: n.href,
-                label: n.label,
-                area: "header_mobile",
-              });
-
               return (
                 <Link
                   key={n.href}
                   href={n.href}
-                  {...tracking}
                   aria-current={active ? "page" : undefined}
-                  className={`rounded-md px-2 py-2 ${
+                  className={`rounded-md px-2 py-2 text-sm ${
                     active
-                      ? "bg-gray-100 font-semibold dark:bg-gray-900"
-                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900"
+                      ? "bg-gray-100 font-semibold text-gray-900 dark:bg-gray-900 dark:text-white"
+                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900"
                   }`}
+                  onClick={() => setOpen(false)}
                 >
                   {n.label}
                 </Link>
@@ -143,12 +136,9 @@ export default function Header() {
 
             {/* モバイルでも入口を統一 */}
             <div className="pt-2">
-              <ContactCTA full />
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                約2分で完了。営業電話は行いません。回答はメールでお送りします。
-              </p>
+              <ContactCTA />
             </div>
-          </div>
+          </nav>
         </div>
       )}
     </header>

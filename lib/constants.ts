@@ -7,7 +7,7 @@ export const BRAND = {
 
 export const CAMPAIGN = {
   // キャンペーン名
-  name: "短納期・低コスト Webサイト／アプリ制作キャンペーン",
+  name: "短納期・低コスト Webサイト制作キャンペーン",
 
   // 枠数（例：先着3社 → seats=3）
   seats: 3,

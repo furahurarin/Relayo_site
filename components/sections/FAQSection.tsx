@@ -1,127 +1,171 @@
 ﻿// components/sections/FAQSection.tsx
 "use client";
 
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import type { ReactNode } from "react";
+import Link from "next/link";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Card, CardContent } from "@/components/ui/card";
 import ContactCTA from "@/components/cta/ContactCTA";
+import { Mail } from "lucide-react";
+import { BRAND } from "@/lib/constants";
 
-type FaqItem = {
-  question: string;
-  answer: string;
-};
+type QA = { q: string; a: ReactNode };
 
-const FAQ_ITEMS: FaqItem[] = [
+const faqs: QA[] = [
   {
-    question: "どのような業種に対応していますか？",
-    answer:
-      "美容院・整骨院・クリニック・飲食店・士業・教室・オンラインサービスなど、中小企業・個人事業主の方を中心に幅広く対応しています。専門用語だらけのサイトではなく、「お客さまに伝わる日本語」で組み立てることを重視しています。",
+    q: "公開までどのくらいの期間がかかりますか？",
+    a: (
+      <>
+        サイトの規模にもよりますが、
+        ランディングページであれば<span className="whitespace-nowrap">2週間前後</span>、
+        一般的な企業サイトであれば
+        <span className="whitespace-nowrap">2〜4週間前後</span>を目安としています。
+      </>
+    ),
   },
   {
-    question: "まだ内容が固まっていないのですが、相談だけでも可能ですか？",
-    answer:
-      "もちろん可能です。「何から決めればよいか分からない」という段階からご一緒します。目的（問い合わせ・予約・資料請求など）を整理したうえで、必要なページ構成や原稿の方向性をご提案します。",
+    q: "スマホ対応や検索対策は含まれますか？",
+    a: (
+      <>
+        はい、全プランに含まれます。
+        スマホでの見やすさを前提に構築し、表示速度やタイトル・説明文などの
+        基本的な検索対策もあわせて行います。
+      </>
+    ),
   },
   {
-    question: "制作期間はどれくらいかかりますか？",
-    answer:
-      "ページ数や準備状況にもよりますが、基本的な構成であれば、原稿・写真などの素材が揃ってから約3〜6週間を目安としています。お急ぎの場合はスケジュールを調整のうえ、可能な範囲で前倒し対応も検討いたします。",
-  },
-  {
-    question: "月額費用や、ドメイン・サーバーの費用はどうなりますか？",
-    answer:
-      "制作費とは別に、ドメイン・サーバーなどの実費が発生します（おおよそ月数百円〜千円台が目安です）。月額の運用・保守プランは任意加入で、契約の縛りはありません。料金の考え方は「料金プラン」セクションで詳しくご案内しています。",
-  },
-  {
-    question: "営業電話などはありますか？オンラインだけで完結できますか？",
-    answer:
-      "営業電話は行っておらず、やり取りは原則としてメール（必要に応じてオンライン通話）で完結します。対面での打ち合わせが難しい場合や、営業時間外に落ち着いて確認したい方にも安心してご利用いただけます。",
-  },
-  {
-    question: "途中でやめたくなった場合、違約金などは発生しますか？",
-    answer:
-      "着手後のキャンセル時は、進行状況に応じてそれまでに発生した作業分のみご請求いたします。月額プランには最低契約期間の縛りはなく、翌月以降の停止希望を事前にご連絡いただければ、違約金などはかかりません。",
+    q: "まだ内容が固まっていないのですが、相談できますか？",
+    a: (
+      <>
+        可能です。現状の事業内容や今後の方針を伺いながら、
+        「まず何ページから始めるか」「どこまで載せるか」といった整理からご一緒します。
+      </>
+    ),
   },
 ];
 
+// FAQ用：ReactNodeをプレーンテキストにする簡易関数（構造化データ用）
+const toPlainText = (node: ReactNode): string => {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(toPlainText).join(" ");
+
+  // React要素（childrenを辿る）
+  if (typeof node === "object" && "props" in (node as any)) {
+    return toPlainText((node as any).props.children);
+  }
+
+  return "";
+};
+
+// 構造化データ（FAQPage）
+const faqLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: toPlainText(f.a) },
+  })),
+};
+
 export default function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  const handleToggle = (index: number) => {
-    setOpenIndex((current) => (current === index ? null : index));
-  };
-
   return (
     <section
-      id="faq"
+      className="bg-white py-16 sm:py-20 lg:py-24"
       aria-labelledby="faq-heading"
-      className="bg-white py-20"
+      role="region"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* 見出し */}
-        <div className="mb-10 text-center">
+        <div className="mb-8 text-center">
           <h2
             id="faq-heading"
-            className="text-3xl font-bold text-gray-900 sm:text-4xl"
+            className="text-2xl font-bold text-gray-900 sm:text-3xl"
           >
-            よくあるご質問
+            よくある質問（抜粋）
           </h2>
-          <p className="mt-4 mx-auto max-w-2xl text-lg text-gray-700">
-            ご検討の際によくいただくご質問をまとめました。
-            ここにない内容も、お気軽にお問い合わせください。
+          <p className="mt-3 text-sm leading-relaxed text-gray-700">
+            初回のご相談でいただくことが多いご質問の一部です。
           </p>
         </div>
 
-        {/* FAQリスト */}
-        <div className="mx-auto max-w-3xl space-y-4">
-          {FAQ_ITEMS.map((item, index) => {
-            const isOpen = openIndex === index;
-            return (
-              <div
-                key={item.question}
-                className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+        {/* Q&A本体 */}
+        <div className="mx-auto max-w-3xl">
+          <Accordion
+            type="single"
+            collapsible
+            className="space-y-3"
+            aria-label="よくある質問"
+          >
+            {faqs.map((faq, index) => (
+              <AccordionItem
+                key={faq.q}
+                value={`item-${index}`}
+                className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
               >
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between px-5 py-4 text-left"
-                  onClick={() => handleToggle(index)}
-                  aria-expanded={isOpen}
-                  aria-controls={`faq-panel-${index}`}
-                >
-                  <span className="pr-4 text-base font-semibold text-gray-900">
-                    {item.question}
-                  </span>
-                  <ChevronDown
-                    className={`h-5 w-5 flex-shrink-0 text-gray-500 transition-transform duration-200 ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
-                    aria-hidden="true"
-                  />
-                </button>
-                <div
-                  id={`faq-panel-${index}`}
-                  className={`px-5 pb-4 text-sm leading-relaxed text-gray-700 transition-[max-height,opacity] duration-200 ${
-                    isOpen
-                      ? "max-h-96 opacity-100"
-                      : "max-h-0 opacity-0 [&>*]:hidden"
-                  }`}
-                >
-                  <p>{item.answer}</p>
-                </div>
-              </div>
-            );
-          })}
+                <AccordionTrigger className="px-4 py-4 text-left text-sm font-semibold text-gray-900 hover:no-underline sm:px-6">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="border-t px-4 pb-4 pt-3 text-sm leading-relaxed text-gray-800 sm:px-6">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
 
-        {/* 追いCTA */}
-        <div className="mt-12 text-center">
-          <p className="mb-4 text-sm text-gray-700">
-            「自分のケースではどうなるか？」など、
-            個別のご事情についてはフォームから直接ご相談いただけます。
-          </p>
-          <div className="flex justify-center">
-            <ContactCTA />
+        {/* 補足＆お問い合わせ */}
+        <div className="mt-10 grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)]">
+          {/* 「もっと見る」＋説明 */}
+          <div className="flex flex-col justify-between gap-4">
+            <p className="text-sm leading-relaxed text-gray-700">
+              契約やお支払い方法、解約・運用中のルールなど、ここに載せきれていないご質問もあります。
+              詳しく知りたい方は、よくある質問の詳細ページもあわせてご覧ください。
+            </p>
+            <div>
+              <Link
+                href="/faq"
+                className="inline-flex items-center justify-center text-xs font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-900"
+                aria-label="よくある質問をもっと見る"
+              >
+                よくある質問をもっと見る
+              </Link>
+            </div>
           </div>
+
+          {/* メール・CTAカード */}
+          <Card className="border border-gray-200 bg-gray-50/80 shadow-sm">
+            <CardContent className="flex flex-col gap-3 p-5">
+              <div className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-blue-600" aria-hidden="true" />
+                <p className="text-sm font-semibold text-gray-900">
+                  個別のご質問・ご相談
+                </p>
+              </div>
+              <p className="text-xs leading-relaxed text-gray-700">
+                運用中のご質問や、ここに載っていない内容についても、
+                メールでのご相談を随時受け付けています。
+              </p>
+              <p className="text-xs font-mono text-gray-800">{BRAND.email}</p>
+              <div className="mt-2">
+                <ContactCTA />
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* 構造化データ（FAQPage） */}
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
       </div>
     </section>
   );
