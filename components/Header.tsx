@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
@@ -64,11 +65,19 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="text-lg font-bold tracking-tight hover:opacity-90"
+            className="inline-flex items-center hover:opacity-90"
             aria-label={`${BRAND.name} ホームへ`}
             rel="home"
           >
-            {BRAND.name}
+            <Image
+              src="/images/relayo-logo.png"
+              alt={BRAND.name}
+              width={132}
+              height={32}
+              priority
+            />
+            {/* ロゴ内に「Relayo」の文字が含まれているため、表示テキストは隠しつつアクセシビリティ用に残す */}
+            <span className="sr-only">{BRAND.name}</span>
           </Link>
         </div>
 
@@ -97,7 +106,7 @@ export default function Header() {
           <ContactCTA />
         </nav>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu button（ハンバーガー） */}
         <button
           type="button"
           className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:text-gray-200 dark:hover:bg-gray-900 dark:focus:ring-offset-gray-950 md:hidden"
@@ -108,7 +117,7 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Nav */}
+      {/* Mobile Nav（ハンバーガーを押したときに開くメニュー） */}
       {open && (
         <div className="border-t border-gray-200 bg-white/95 px-4 pb-4 pt-2 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/95 md:hidden">
           <nav

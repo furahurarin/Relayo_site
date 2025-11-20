@@ -1,8 +1,13 @@
 // lib/constants.ts
+
 export const BRAND = {
   name: "Relayo",
   email: "contact.relayo@gmail.com",
   siteUrl: "https://relayo.jp", // 本番ドメイン
+
+  // サイト内で共通利用するロゴ／アイコン
+  logo: "/images/relayo-logo.png", // ヘッダーなどで使う横長ロゴ
+  icon: "/images/relayo-icon.png", // ファビコン・SNSアイコンなどで使うシンボル
 } as const;
 
 export const CAMPAIGN = {
@@ -24,10 +29,10 @@ export const CAMPAIGN = {
   // リボン表示文言（必要なら帯で使用）
   ribbonText: "先着3社限定｜短納期・低コスト",
 
-  // サイト全体の meta description 用（layout.tsx で参照）
+  // サイト全体の meta description 用（layout.tsx 相当と整合）
   // ※ 恒常的・中立的な説明に寄せ、キャンペーン固有文言は含めない
   metaDescription:
-    "オンライン（メール中心）のヒアリングで、中小企業・個人事業主向けのWebサイトやシンプルなWebアプリを短納期で制作。公開後の保守・運用まで一貫してサポートします。",
+    "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。",
 
   // メール件名（mailto: の subject に利用）
   mailSubject: "料金・制作のご相談",

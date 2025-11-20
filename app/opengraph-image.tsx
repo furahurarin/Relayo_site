@@ -1,6 +1,7 @@
 // app/opengraph-image.tsx
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "@vercel/og";
+import { BRAND } from "@/lib/constants";
 
 export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
@@ -19,7 +20,6 @@ export default function OGImage() {
           padding: 64,
           background:
             "linear-gradient(135deg, #eff6ff 0%, #ffffff 40%, #fff7ed 100%)",
-          fontSize: 42,
           fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
         }}
       >
@@ -28,24 +28,26 @@ export default function OGImage() {
           style={{
             color: "#111827",
             fontWeight: 800,
-            marginBottom: 12,
+            fontSize: 48,
+            marginBottom: 16,
           }}
         >
-          Relayo
+          {BRAND.name}
         </div>
 
         {/* テキスト部分：複数行なので display:flex を明示する */}
         <div
           style={{
-            display: "flex", // ★ 複数子要素を持つので必須
+            display: "flex",
             flexDirection: "column",
             color: "#1f2937",
             lineHeight: 1.4,
             gap: 8,
+            fontSize: 32,
           }}
         >
-          <span>メール中心の非対面ヒアリングで最短公開。</span>
-          <span>先着3社は制作費¥0 × 保守3ヶ月¥0（完全無料解約OK）</span>
+          <span>売上につながるホームページを、オンライン完結で。</span>
+          <span>中小企業・個人事業主向け。最短2〜4週間で公開します。</span>
         </div>
       </div>
     ),

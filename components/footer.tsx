@@ -1,5 +1,6 @@
 ﻿// components/footer.tsx
 import Link from "next/link";
+import Image from "next/image";
 import { Building, MapPin, Mail } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
@@ -17,7 +18,19 @@ export default function Footer() {
         <div className="grid gap-8 lg:grid-cols-4">
           {/* Company Info */}
           <div className="space-y-4 lg:col-span-2">
-            <h2 className="text-2xl font-bold">{BRAND.name}</h2>
+            {/* ロゴ（横長ロゴを小さめに表示） */}
+            <div className="inline-flex items-center">
+              <Image
+                src={BRAND.logo}
+                alt={BRAND.name}
+                width={132}
+                height={32}
+                priority={false}
+              />
+              <span className="sr-only">{BRAND.name}</span>
+            </div>
+
+            <h2 className="text-2xl font-bold mt-2">{BRAND.name}</h2>
             <p className="max-w-md leading-relaxed text-gray-300">
               {BRAND.name}
               （リレイオ）は、中小企業・スタートアップ・個人事業主のための

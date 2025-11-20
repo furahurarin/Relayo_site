@@ -47,7 +47,12 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png" },
+  // ✅ ファビコン類を relayo-icon.png に統一
+  icons: {
+    icon: "/images/relayo-icon.png",
+    shortcut: "/images/relayo-icon.png",
+    apple: "/images/relayo-icon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
