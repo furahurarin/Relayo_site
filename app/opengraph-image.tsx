@@ -7,6 +7,9 @@ export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+// alt テキスト（metadata からも参照される）
+export const alt = `${BRAND.name} | 中小企業・個人事業主向けWebサイト制作`;
+
 export default function OGImage() {
   return new ImageResponse(
     (
@@ -20,30 +23,41 @@ export default function OGImage() {
           padding: 64,
           background:
             "linear-gradient(135deg, #eff6ff 0%, #ffffff 40%, #fff7ed 100%)",
-          fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+          fontFamily:
+            "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
         }}
       >
-        {/* ロゴ的なタイトル */}
+        {/* ロゴ + ブランド名 */}
         <div
           style={{
-            color: "#111827",
-            fontWeight: 800,
-            fontSize: 48,
-            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 16,
+            marginBottom: 24,
           }}
         >
-          {BRAND.name}
+          {/* 正式ロゴ画像（横長） */}
+          <img
+            src={`${BRAND.siteUrl}${BRAND.logo}`}
+            alt={BRAND.name}
+            width={260}
+            height={64}
+            style={{
+              objectFit: "contain",
+            }}
+          />
         </div>
 
-        {/* テキスト部分：複数行なので display:flex を明示する */}
+        {/* キャッチコピー：複数行なので display:flex を明示する */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             color: "#1f2937",
             lineHeight: 1.4,
-            gap: 8,
+            gap: 10,
             fontSize: 32,
+            maxWidth: 880,
           }}
         >
           <span>売上につながるホームページを、オンライン完結で。</span>

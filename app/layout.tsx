@@ -16,6 +16,8 @@ export const viewport = {
 const siteDescription =
   "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。";
 
+const OG_IMAGE_ABS = `${BRAND.siteUrl}/opengraph-image`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(BRAND.siteUrl),
   title: { default: BRAND.name, template: `%s | ${BRAND.name}` },
@@ -25,23 +27,24 @@ export const metadata: Metadata = {
     description: siteDescription,
     url: BRAND.siteUrl,
     siteName: BRAND.name,
-    // /app/opengraph-image.tsx で生成しているOGP画像をそのまま使う
+    type: "website",
+    locale: "ja_JP",
     images: [
       {
-        url: "/opengraph-image",
+        // SNS向けのOGP画像（/app/opengraph-image.tsx）
+        url: OG_IMAGE_ABS,
         width: 1200,
         height: 630,
+        alt: `${BRAND.name} | 中小企業・個人事業主向けWeb/アプリ制作`,
       },
     ],
-    locale: "ja_JP",
-    type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: BRAND.name,
     description: siteDescription,
-    // Twitterカードでも同じOG画像を使用
-    images: ["/opengraph-image"],
+    // Twitter画像は絶対URL必須
+    images: [OG_IMAGE_ABS],
   },
   alternates: { canonical: "/" },
   robots: {
@@ -55,7 +58,7 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  // favicon / apple-touch-icon は app/icon.png 等に任せる
+  // favicon / apple-touch-icon は app/icon.png 等のファイル規約に任せる
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -65,6 +68,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "Organization",
     name: BRAND.name,
     url: BRAND.siteUrl,
+    // Google にロゴを明示（Knowledge Panel・ロゴ表示用）
+    logo: {
+      "@type": "ImageObject",
+      url: `${BRAND.siteUrl}${BRAND.logo}`,
+    },
     ...(BRAND.email ? { email: BRAND.email } : {}),
   };
 
