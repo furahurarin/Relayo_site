@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description: siteDescription,
     url: BRAND.siteUrl,
     siteName: BRAND.name,
-    // ✅ /app/opengraph-image.tsx で生成しているOGP画像をそのまま使う
+    // /app/opengraph-image.tsx で生成しているOGP画像をそのまま使う
     images: [
       {
         url: "/opengraph-image",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: BRAND.name,
     description: siteDescription,
-    // ✅ Twitterカードでも同じOG画像を使用
+    // Twitterカードでも同じOG画像を使用
     images: ["/opengraph-image"],
   },
   alternates: { canonical: "/" },
@@ -55,16 +55,11 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-  // ✅ ファビコン類を relayo-icon.png に統一
-  icons: {
-    icon: BRAND.icon,
-    shortcut: BRAND.icon,
-    apple: BRAND.icon,
-  },
+  // favicon / apple-touch-icon は app/icon.png 等に任せる
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // ✅ JSON-LD をオブジェクト2本に分ける（配列にしない）
+  // JSON-LD をオブジェクト2本に分ける（配列にしない）
   const orgLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -105,7 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Umami */}
         <Analytics />
 
-        {/* ✅ 構造化データを script 2本に分割して挿入 */}
+        {/* 構造化データを script 2本に分割して挿入 */}
         <script
           type="application/ld+json"
           suppressHydrationWarning

@@ -70,7 +70,7 @@ export default function Header() {
             rel="home"
           >
             <Image
-              src="/images/relayo-logo.png"
+              src={BRAND.logo}
               alt={BRAND.name}
               width={132}
               height={32}

@@ -6,8 +6,8 @@ export const BRAND = {
   siteUrl: "https://relayo.jp", // 本番ドメイン
 
   // サイト内で共通利用するロゴ／アイコン
-  logo: "/images/relayo-logo.png", // ヘッダーなどで使う横長ロゴ
-  icon: "/images/relayo-icon.png", // ファビコン・SNSアイコンなどで使うシンボル
+  logo: "/images/relayo-logo.png", // ヘッダー・フッターなどで使う横長ロゴ
+  icon: "/images/relayo-icon.png", // サイト内で使うシンボル（小さな装飾など）
 } as const;
 
 export const CAMPAIGN = {
