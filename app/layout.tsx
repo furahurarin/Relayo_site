@@ -25,7 +25,14 @@ export const metadata: Metadata = {
     description: siteDescription,
     url: BRAND.siteUrl,
     siteName: BRAND.name,
-    images: ["/og.png"],
+    // ✅ /app/opengraph-image.tsx で生成しているOGP画像をそのまま使う
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+      },
+    ],
     locale: "ja_JP",
     type: "website",
   },
@@ -33,7 +40,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: BRAND.name,
     description: siteDescription,
-    images: ["/og.png"],
+    // ✅ Twitterカードでも同じOG画像を使用
+    images: ["/opengraph-image"],
   },
   alternates: { canonical: "/" },
   robots: {
@@ -49,9 +57,9 @@ export const metadata: Metadata = {
   },
   // ✅ ファビコン類を relayo-icon.png に統一
   icons: {
-    icon: "/images/relayo-icon.png",
-    shortcut: "/images/relayo-icon.png",
-    apple: "/images/relayo-icon.png",
+    icon: BRAND.icon,
+    shortcut: BRAND.icon,
+    apple: BRAND.icon,
   },
 };
 
