@@ -1,38 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image"; // ▼ 追加
 import { FadeIn } from "@/components/ui/FadeIn";
 import { Card } from "@/components/ui/card";
 import { PageBreadcrumb } from "@/components/shared/PageBreadcrumb";
+import { posts } from "@/app/data/posts";
 
 export const metadata: Metadata = {
   title: "ブログ・お知らせ",
   description: "Web制作に関するノウハウやRelayoからのお知らせ。",
 };
-
-// ブログデータ（仮）
-const posts = [
-  {
-    slug: "web-renewal-tips",
-    title: "失敗しないホームページリニューアルのポイント",
-    date: "2025.03.15",
-    category: "ノウハウ",
-    excerpt: "リニューアルを成功させるために、事前に準備しておくべき3つのことについて解説します。",
-  },
-  {
-    slug: "campaign-start",
-    title: "【期間限定】短納期・低コスト制作キャンペーンを開始しました",
-    date: "2025.03.01",
-    category: "お知らせ",
-    excerpt: "先着3社様限定の特別プランのご案内です。",
-  },
-  {
-    slug: "why-nextjs",
-    title: "なぜRelayoはNext.jsを採用しているのか？",
-    date: "2025.02.20",
-    category: "技術コラム",
-    excerpt: "表示速度とSEO、そして将来の拡張性を考えた技術選定の理由。",
-  },
-];
 
 export default function BlogPage() {
   return (
@@ -49,29 +26,49 @@ export default function BlogPage() {
           </p>
         </div>
 
-        <div className="mx-auto max-w-3xl space-y-6">
-          {posts.map((post) => (
-            <Link 
-              key={post.slug}
-              href={`/blog/${post.slug}`}
-              className="group block transition-all duration-200 hover:-translate-x-[-4px]"
-            >
-              <Card className="p-6 border-gray-100 hover:border-blue-100 hover:shadow-sm transition-colors">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4 mb-2">
-                  <time className="text-xs text-gray-400 font-mono">{post.date}</time>
-                  <span className="inline-block rounded bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
-                    {post.category}
-                  </span>
-                </div>
-                <h2 className="text-lg font-bold text-gray-900 group-hover:text-blue-700 transition-colors">
-                  {post.title}
-                </h2>
-                <p className="mt-2 text-xs leading-relaxed text-gray-600 line-clamp-2">
-                  {post.excerpt}
-                </p>
-              </Card>
-            </Link>
-          ))}
+        <div className="mx-auto max-w-5xl">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <Link 
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group block h-full transition-all duration-200 hover:-translate-y-1"
+              >
+                <Card className="flex h-full flex-col overflow-hidden border-gray-100 hover:border-blue-100 hover:shadow-md transition-all">
+                  {/* ▼ 画像表示エリア */}
+                  {post.thumbnail ? (
+                    <div className="relative aspect-[1.91/1] w-full overflow-hidden bg-gray-200">
+                      <Image
+                        src={post.thumbnail}
+                        alt={post.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[1.91/1] w-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
+                      No Image
+                    </div>
+                  )}
+
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <time className="text-xs text-gray-400 font-mono">{post.date}</time>
+                      <span className="inline-block rounded bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+                        {post.category}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-3 line-clamp-2">
+                      {post.title}
+                    </h3>
+                    <p className="text-xs leading-relaxed text-gray-600 line-clamp-3 mt-auto">
+                      {post.excerpt}
+                    </p>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
       </FadeIn>
     </main>

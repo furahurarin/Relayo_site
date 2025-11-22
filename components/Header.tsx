@@ -14,17 +14,13 @@ type NavItem = {
   label: string;
 };
 
-/**
- * グローバルナビ：
- * - ブログと制作実績を一時的に隠蔽
- */
 const NAV: NavItem[] = [
   { href: "/", label: "ホーム" },
   { href: "/services", label: "サービス" },
-  // { href: "/works", label: "制作実績" }, // 準備中のため隠す
+  { href: "/works", label: "制作実績" },
   { href: "/pricing", label: "料金" },
   { href: "/process", label: "制作の流れ" },
-  // { href: "/blog", label: "ブログ" },    // 準備中のため隠す
+  { href: "/blog", label: "ブログ" },
   { href: "/company", label: "運営者情報" },
   { href: "/faq", label: "FAQ" },
 ];
@@ -43,10 +39,18 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // ▼▼▼ 追加・修正箇所 ▼▼▼
+  // デモページ（URLが /demo から始まる場合）は、この共通ヘッダーを表示しない
+  // ※Hooksのルールを守るため、useEffectなどの後に記述します
+  if (pathname?.startsWith("/demo")) {
+    return null;
+  }
+  // ▲▲▲ 追加ここまで ▲▲▲
+
   // パスベースのアクティブ判定
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
+    return pathname?.startsWith(href);
   };
 
   const linkBase =

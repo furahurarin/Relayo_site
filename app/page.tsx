@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, FileText, LayoutTemplate, Users } from "lucide-react";
 import HeroSection from "@/components/sections/HeroSection";
+import PortfolioSection from "@/components/sections/PortfolioSection"; // ▼追加
+import JournalSection from "@/components/sections/JournalSection";     // ▼追加
 import { FadeIn } from "@/components/ui/FadeIn";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { Button } from "@/components/ui/button";
@@ -70,10 +72,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NOTE: 制作実績(Portfolio)とブログ(Journal)は
-        コンテンツ準備中のため一時的に非表示にしています。
-        準備ができたらここにセクションを戻してください。
-      */}
+      {/* 制作実績セクション（復活） */}
+      <PortfolioSection />
+
+      {/* ブログセクション（復活・追加） */}
+      <JournalSection />
 
       {/* 制作の流れ・会社情報・お問い合わせへの誘導 */}
       <section className="py-16 sm:py-24">

@@ -1,31 +1,25 @@
-// app/works/[slug]/page.tsx
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ExternalLink, Lock } from "lucide-react"; // ▼ Lockアイコンを追加
 import { FadeIn } from "@/components/ui/FadeIn";
 import { PageBreadcrumb } from "@/components/shared/PageBreadcrumb";
+import { getWorkById, works } from "@/app/data/works";
 
-async function getWorkDetail(slug: string) {
-  return {
-    id: slug,
-    title: "制作実績詳細サンプル",
-    category: "サンプルカテゴリ",
-    date: "2025.01",
-    content: "ここに制作の背景や工夫した点などの詳細記事が入ります。",
-  };
+export async function generateStaticParams() {
+  return works.map((work) => ({
+    slug: work.id,
+  }));
 }
 
 type Props = {
-  // ▼▼▼ 修正: params を Promise 型に変更 ▼▼▼
   params: Promise<{ slug: string }>;
 };
 
 export default async function WorkDetailPage({ params }: Props) {
-  // ▼▼▼ 修正: params を await して展開 ▼▼▼
   const { slug } = await params;
-
-  const work = await getWorkDetail(slug);
+  const work = getWorkById(slug);
 
   if (!work) {
     notFound();
@@ -58,20 +52,48 @@ export default async function WorkDetailPage({ params }: Props) {
               </span>
               <time>{work.date}</time>
             </div>
+            
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
               {work.title}
             </h1>
+
+            {/* ▼ 修正: URLの有無でボタンを出し分け */}
+            <div className="pt-2">
+              {work.siteUrl ? (
+                <Button asChild variant="outline" size="sm" className="gap-2">
+                  <a href={work.siteUrl} target="_blank" rel="noopener noreferrer">
+                    Webサイトを見る
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              ) : (
+                <Button disabled variant="ghost" size="sm" className="gap-2 bg-gray-100 text-gray-500 cursor-not-allowed hover:bg-gray-100">
+                  Webサイト公開準備中
+                  <Lock className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
           </div>
 
-          <div className="mb-10 aspect-video w-full rounded-xl bg-gray-100 flex items-center justify-center text-gray-400">
-            Main Visual Area
-          </div>
+          {/* メインビジュアルエリア */}
+          {work.thumbnail ? (
+            <div className="relative mb-10 aspect-video w-full overflow-hidden rounded-xl bg-gray-100 border border-gray-100 shadow-sm">
+              <Image
+                src={work.thumbnail}
+                alt={work.title}
+                fill
+                priority
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className={`mb-10 aspect-video w-full rounded-xl ${work.imageColor} flex items-center justify-center text-gray-400`}>
+              No Image
+            </div>
+          )}
 
           <div className="prose prose-gray max-w-none">
-            <p>{work.content}</p>
-            <p className="text-sm text-gray-500 mt-8">
-              ※現在、詳細ページは準備中です。順次公開予定です。
-            </p>
+            <div dangerouslySetInnerHTML={{ __html: work.content }} />
           </div>
         </div>
       </FadeIn>

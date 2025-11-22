@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image"; // ▼ 追加
 import {
   Card,
   CardContent,
@@ -11,42 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { Calendar, ArrowRight } from "lucide-react";
 import { PageBreadcrumb } from "@/components/shared/PageBreadcrumb";
+import { works } from "@/app/data/works";
 
 export const metadata: Metadata = {
   title: "制作実績",
   description: "Relayoの制作実績・事例一覧です。",
 };
-
-// 実績データ（仮）
-const works = [
-  {
-    id: "salon-demo",
-    title: "美容サロン向け ホームページ",
-    description: "予約導線とメニュー回遊を整理し、来店予約の取りこぼしを減らす構成。",
-    category: "美容・サロン",
-    features: ["オンライン予約", "SNS連携"],
-    date: "2025.01",
-    imageColor: "bg-rose-50", // 画像がない場合の背景色
-  },
-  {
-    id: "clinic-demo",
-    title: "治療院向け 予約ページ",
-    description: "スマホからの予約を前提に、注意事項やメニュー選択を整理したページ構成。",
-    category: "医療・治療院",
-    features: ["Web予約", "メニュー表示"],
-    date: "2025.02",
-    imageColor: "bg-teal-50",
-  },
-  {
-    id: "corp-demo",
-    title: "小規模事業者向け コーポレートサイト",
-    description: "事業内容とお問い合わせ窓口をコンパクトにまとめた、シンプルな構成例。",
-    category: "士業・小規模事業",
-    features: ["会社概要", "お問い合わせ"],
-    date: "2025.03",
-    imageColor: "bg-slate-50",
-  },
-];
 
 export default function WorksPage() {
   return (
@@ -71,10 +42,22 @@ export default function WorksPage() {
               className="group block h-full"
             >
               <Card className="flex h-full flex-col overflow-hidden border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                {/* サムネイル画像エリア（仮で色ベタ） */}
-                <div className={`aspect-video w-full ${work.imageColor} flex items-center justify-center text-gray-400`}>
-                  <span className="text-xs">Image Area</span>
-                </div>
+                
+                {/* ▼ 画像表示ロジック */}
+                {work.thumbnail ? (
+                  <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
+                    <Image
+                      src={work.thumbnail}
+                      alt={work.title}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                ) : (
+                  <div className={`aspect-video w-full ${work.imageColor} flex items-center justify-center text-gray-400`}>
+                    <span className="text-xs">No Image</span>
+                  </div>
+                )}
                 
                 <CardHeader className="space-y-2 p-5">
                   <div className="flex items-center justify-between">
