@@ -43,15 +43,15 @@ export const META = {
   notes: {
     included: [
       "テンプレートを基にしたデザイン調整",
-      "基本的な検索対策・表示速度の最適化",
+      "Google検索対策（SEO）・表示スピード高速化",
       "お問い合わせフォーム（1種）",
-      "初期のアクセス計測設定",
-      "画像の最適化（最大20点）",
+      "アクセス解析ツールの初期設定",
+      "画像の軽量化・最適化（最大20点）",
     ],
     excluded: [
       "写真撮影",
-      "大規模な原稿作成",
-      "高度な機能開発（複雑な予約・権限管理・外部API多数連携など）",
+      "大量の原稿作成（ライティング）",
+      "高度な機能開発（複雑な予約・権限管理・外部システム連携など）",
       "大規模なデータ移行",
     ],
     payment:
@@ -60,7 +60,7 @@ export const META = {
       "検収前または公開後30日以内の上位プラン変更は、差額と追加仕様分のみご請求します。",
     disclaimers: [
       "表示価格はすべて税別です。",
-      "有料SaaSや外部決済手数料などの実費は別途となる場合があります。",
+      "有料ツールや外部決済手数料などの実費は別途となる場合があります。",
     ],
   },
 } as const;
@@ -90,10 +90,10 @@ export const SET_PLANS: readonly SetPlan[] = [
     form: "お問い合わせフォーム：1種",
     includes: [
       "トップまたはLP 1ページ＋簡易下層ページ（会社概要等）",
-      "スマホ最適化を前提としたデザイン・実装",
-      "基本的な検索対策（タイトル・説明文・見出し構造・OGP画像）",
+      "スマホ・タブレット対応（レスポンシブ）",
+      "Google検索対策（SEO）の基本設定（タイトル・OGP画像等）",
       "お問い合わせフォーム 1種（メール通知付き）",
-      "初期アクセス計測設定（例：Google アナリティクス等）",
+      "アクセス解析ツールの設定（例：Google アナリティクス等）",
     ],
     sla: {
       label: "翌営業日から対応開始",
@@ -168,8 +168,8 @@ export const LP_PACK: LpPack = {
   price: { text: "¥79,800", taxExcluded: true },
   includes: [
     "LP（テンプレート1ページ）＋ お問い合わせフォーム1種",
-    "初期セットアップ一式（ドメイン／DNS／SSL／計測／検索対策の初期設定／表示速度の最適化／OGP画像）",
-    "画像の最適化（最大20点）",
+    "初期セットアップ一式（ドメイン／DNS／SSL／解析／SEO初期設定／高速化／OGP画像）",
+    "画像の軽量化・最適化（最大20点）",
   ],
   sla: { label: "翌営業日から対応開始", p1: "翌営業日内", p2: "3営業日内" },
   leadTime: { note: "素材受領後 5〜10営業日" },
@@ -195,12 +195,12 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
     items: [
       {
         name:
-          "初期セットアップ一式（ドメイン／DNS／SSL／計測／検索対策の初期設定／表示速度の最適化／OGP画像）",
+          "初期セットアップ一式（ドメイン／DNS／SSL／解析／SEO初期設定／高速化／OGP画像）",
         price: { text: "¥29,800", taxExcluded: true },
         note: "各セットプランに含まれます",
       },
       {
-        name: "検索対策の初期設定（単体でご依頼の場合）",
+        name: "Google検索対策（SEO）の初期設定（単体でご依頼の場合）",
         price: { text: "¥6,800", taxExcluded: true },
       },
     ],
@@ -235,7 +235,7 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
         price: { text: "¥19,800", taxExcluded: true },
       },
       {
-        name: "画像の最適化（最大20点）",
+        name: "画像の軽量化・最適化（最大20点）",
         price: { text: "¥4,980", taxExcluded: true },
       },
       {
@@ -249,7 +249,7 @@ export const SOLO_GROUPS: readonly SoloGroup[] = [
     title: "機能追加",
     items: [
       {
-        name: "予約（既存SaaS設定の代行・カレンダー／通知連携）",
+        name: "予約（外部予約ツールの導入代行・カレンダー／通知連携）",
         price: { text: "¥29,800〜", taxExcluded: true },
       },
       {
@@ -332,8 +332,9 @@ export const MONTHLY_PLANS: readonly MonthlyPlan[] = [
     name: "Lite",
     price: { text: "¥3,980／月", taxExcluded: true },
     features: [
-      "稼働・フォームの簡易監視／バックアップ",
+      "稼働確認（死活監視）・フォーム動作チェック",
       "月1回：文言1箇所 または 画像3点までの軽微な更新",
+      "セキュリティ更新・データバックアップ",
     ],
     initial: "翌営業日",
   },
@@ -341,7 +342,10 @@ export const MONTHLY_PLANS: readonly MonthlyPlan[] = [
     code: "assist",
     name: "Assist",
     price: { text: "¥7,980／月", taxExcluded: true },
-    features: ["小さな修正：月2回まで", "Lite相当の監視・バックアップ"],
+    features: [
+      "小さな修正：月2回まで",
+      "Lite相当の監視・セキュリティ更新・バックアップ",
+    ],
     initial: "翌営業日",
   },
   {
@@ -349,7 +353,7 @@ export const MONTHLY_PLANS: readonly MonthlyPlan[] = [
     name: "Standard",
     price: { text: "¥14,800／月", taxExcluded: true },
     features: [
-      "監視・バックアップ",
+      "監視・セキュリティ更新・バックアップ",
       "毎月の改善：1回（例：セクション1ブロック追加）",
       "月1回：簡易レポート",
       "四半期ごと：表示速度・基本SEOの見直し",
@@ -361,8 +365,8 @@ export const MONTHLY_PLANS: readonly MonthlyPlan[] = [
     name: "Growth",
     price: { text: "¥39,800〜／月", taxExcluded: true },
     features: [
-      "監視・バックアップ",
-      "毎月の改善：2回＋比較検証（CTA等）月1本",
+      "監視・セキュリティ更新・バックアップ",
+      "毎月の改善：2回＋改善提案（ボタン配置等）月1本",
       "四半期ごと：LP 1本追加（テンプレート）または全体の見直し 1回",
     ],
     initial: "重大な不具合は4時間以内",

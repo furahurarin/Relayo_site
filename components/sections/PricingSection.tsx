@@ -25,9 +25,25 @@ export default function PricingSection() {
     ["lite", "assist", "standard", "growth"].includes(m.code),
   );
 
-  // テキスト：運用・保守プランの概要
+  // テキスト：運用・保守プランの概要（具体性を向上）
   const LITE_LINE =
-    "公開後の稼働確認や軽微な修正、システム更新などをまとめた、継続運用のための保守プランです。";
+    "公開後の稼働確認（死活監視）やセキュリティ更新、軽微な修正などをまとめた、安心運用のための保守プランです。";
+
+  // プラン名の日本語補足マッピング
+  const getPlanSubtitle = (code: string) => {
+    switch (code) {
+      case "starter_lp":
+        return "スターター（LP制作）";
+      case "essential":
+        return "エッセンシャル（基本プラン）";
+      case "standard":
+        return "スタンダード（標準プラン）";
+      case "growth":
+        return "グロース（拡張プラン）";
+      default:
+        return "";
+    }
+  };
 
   return (
     <section
@@ -60,30 +76,36 @@ export default function PricingSection() {
               >
                 <CardHeader className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-base font-semibold text-gray-900">
-                      {plan.name}
-                    </CardTitle>
+                    <div className="flex flex-col">
+                      <CardTitle className="text-base font-bold text-gray-900">
+                        {plan.name}
+                      </CardTitle>
+                      {/* 日本語名を追記して分かりやすく */}
+                      <span className="text-xs font-normal text-gray-500">
+                        {getPlanSubtitle(plan.code)}
+                      </span>
+                    </div>
                     {isPopular && (
-                      <Badge className="inline-flex items-center gap-1 bg-amber-500 text-[11px] font-semibold text-white hover:bg-amber-600">
+                      <Badge className="inline-flex items-center gap-1 bg-amber-500 text-xs font-semibold text-white hover:bg-amber-600">
                         <Star className="h-3 w-3" aria-hidden />
                         人気
                       </Badge>
                     )}
                   </div>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-xl font-bold text-gray-900">
                     {plan.price.text}
                     <span className="ml-1 text-xs font-normal text-gray-500">
                       （税別）
                     </span>
                   </p>
                   {plan.catch && (
-                    <CardDescription className="text-xs leading-relaxed text-gray-700">
+                    <CardDescription className="text-sm leading-relaxed text-gray-700">
                       {plan.catch}
                     </CardDescription>
                   )}
                 </CardHeader>
 
-                <CardContent className="flex flex-1 flex-col gap-3 text-xs text-gray-800">
+                <CardContent className="flex flex-1 flex-col gap-4 text-sm text-gray-800">
                   {/* 原稿の2文目に相当する補足 */}
                   {plan.code === "essential" && (
                     <p className="leading-relaxed">
@@ -103,11 +125,11 @@ export default function PricingSection() {
                     </p>
                   )}
 
-                  <ul className="mt-1 space-y-1">
+                  <ul className="mt-1 space-y-2">
                     {plan.includes.slice(0, 3).map((item) => (
-                      <li key={item} className="flex items-start gap-1.5">
+                      <li key={item} className="flex items-start gap-2">
                         <Check
-                          className="mt-[2px] h-3.5 w-3.5 text-blue-600"
+                          className="mt-[3px] h-4 w-4 text-blue-600"
                           aria-hidden
                         />
                         <span className="leading-snug text-gray-800">
@@ -117,7 +139,7 @@ export default function PricingSection() {
                     ))}
                   </ul>
 
-                  <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
+                  <p className="mt-2 text-xs leading-relaxed text-gray-500">
                     ページ数・機能・原稿量により、実際のお見積りは前後します。
                   </p>
                 </CardContent>
@@ -129,36 +151,37 @@ export default function PricingSection() {
         {/* 運用・保守プランのダイジェスト */}
         <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="rounded-2xl border border-blue-100 bg-blue-50/80 p-6 text-sm text-gray-900 shadow-sm">
-            <h3 className="text-sm font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-gray-900">
               運用・保守プラン　月額 ¥3,980〜
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-gray-800">
               {LITE_LINE}
             </p>
-            <div className="mt-3 grid gap-2 text-[11px] text-gray-800 sm:grid-cols-2">
+            {/* 文字サイズを text-[11px] から text-xs に拡大 */}
+            <div className="mt-4 grid gap-3 text-xs text-gray-800 sm:grid-cols-2">
               {monthlyDigest.map((m) => (
-                <div key={m.code} className="rounded-lg bg-white/60 p-3">
-                  <p className="text-xs font-semibold text-gray-900">
+                <div key={m.code} className="rounded-lg bg-white/60 p-4">
+                  <p className="text-sm font-semibold text-gray-900">
                     {m.name}
                   </p>
-                  <p className="text-xs font-bold text-gray-900">
+                  <p className="text-sm font-bold text-gray-900">
                     {m.price.text}
                     <span className="ml-1 font-normal text-gray-500">
                       （税別）
                     </span>
                   </p>
-                  <ul className="mt-1 space-y-0.5">
+                  <ul className="mt-2 space-y-1">
                     {m.features.slice(0, 2).map((f) => (
                       <li key={f} className="flex items-start gap-1.5">
                         <Check
-                          className="mt-[1px] h-3 w-3 text-blue-600"
+                          className="mt-[2px] h-3.5 w-3.5 text-blue-600"
                           aria-hidden
                         />
                         <span className="leading-snug">{f}</span>
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-1 text-[10px] text-gray-500">
+                  <p className="mt-2 text-xs text-gray-500">
                     対応開始目安：{m.initial}
                   </p>
                 </div>
@@ -169,7 +192,7 @@ export default function PricingSection() {
           {/* CTA + 詳細リンク */}
           <div className="flex flex-col justify-between gap-4">
             <div className="rounded-2xl border border-gray-200 bg-white p-5 text-center shadow-sm">
-              <p className="text-xs leading-relaxed text-gray-800">
+              <p className="text-sm leading-relaxed text-gray-800">
                 「どのプランが良いか分からない」という段階でも構いません。
                 現在の状況とご予算感を伺いながら、無理のないプランをご提案します。
               </p>
@@ -180,7 +203,7 @@ export default function PricingSection() {
             <div className="text-center">
               <Link
                 href="/pricing"
-                className="inline-flex items-center justify-center text-xs font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-900"
+                className="inline-flex items-center justify-center text-sm font-semibold text-blue-700 underline underline-offset-4 hover:text-blue-900"
                 aria-label="料金の詳細ページを見る"
               >
                 料金の詳細を見る
@@ -189,9 +212,11 @@ export default function PricingSection() {
           </div>
         </div>
 
-        {/* 備考 */}
-        <p className="mt-6 text-[11px] leading-relaxed text-gray-500">
-          表示価格はすべて税別です。有料SaaSや外部決済手数料などの実費は、別途ご負担となる場合があります。
+        {/* 備考：実費の目安を追記 */}
+        <p className="mt-6 text-xs leading-relaxed text-gray-500">
+          表示価格はすべて税別です。有料SaaSや外部決済手数料などの実費
+          （例：ドメイン・サーバー費用として年額1〜2万円程度）
+          は、別途ご負担となる場合があります。
         </p>
       </div>
     </section>
