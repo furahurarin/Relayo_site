@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
+import { PageBreadcrumb } from "@/components/shared/PageBreadcrumb";
 
 type FeatureProps = {
   icon: React.ReactNode;
@@ -41,6 +42,11 @@ export default function ServicesPageClient() {
   return (
     <main className="min-h-[calc(100vh-6rem)] bg-gray-50 py-12">
       <div className="container mx-auto max-w-5xl space-y-12 px-4 sm:px-6 lg:px-8">
+        {/* パンくずリスト */}
+        <div className="pt-4">
+          <PageBreadcrumb items={[{ label: "サービス内容" }]} />
+        </div>
+
         {/* ヘッダー */}
         <section className="space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold tracking-wide text-blue-700">

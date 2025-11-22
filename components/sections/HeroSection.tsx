@@ -15,6 +15,10 @@ export default function HeroSection() {
     >
       {/* 1. 背景画像（フルスクリーン） */}
       <div className="absolute inset-0 z-0">
+        {/* 注意: public/images/hero-mockup.png が存在しない場合、エラーになります。
+           画像がない場合は一旦 src を適当なダミー画像（例: https://placehold.co/1920x1080）にするか、
+           ファイルを配置してください。
+        */}
         <Image
           src="/images/hero-mockup.png"
           alt="Office Background"
@@ -23,13 +27,12 @@ export default function HeroSection() {
           priority
         />
         
-        {/* 2. オーバーレイ
-            左側（文字エリア）をしっかり暗くして可読性を確保しつつ、
-            右側は写真が見えるようにするグラデーション
-        */}
+        {/* 2. オーバーレイ */}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/70 to-slate-900/20" />
         
-        {/* ドットパターン（うっすらと質感をプラス） */}
+        {/* ドットパターン
+            注意: public/grid.svg が存在しない場合、背景に表示されません。
+        */}
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
       </div>
 
@@ -39,7 +42,7 @@ export default function HeroSection() {
           <FadeIn>
             <div className="max-w-3xl space-y-8">
               
-              {/* メイン見出し：日本語で堂々と */}
+              {/* メイン見出し */}
               <h1
                 id="hero-heading"
                 className="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-7xl"
@@ -57,7 +60,7 @@ export default function HeroSection() {
                 デザインの美しさと、成果を出すための設計を両立。
               </p>
 
-              {/* 特徴リスト（アイコンのみ青にしてアクセントに） */}
+              {/* 特徴リスト */}
               <div className="flex flex-wrap gap-y-3 gap-x-6 text-sm font-medium text-slate-300 sm:text-base">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-blue-400" />
@@ -75,18 +78,20 @@ export default function HeroSection() {
 
               {/* CTA ボタン群 */}
               <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-                {/* 問い合わせボタン（少し光らせて目立たせる） */}
+                {/* 問い合わせボタン */}
                 <div className="shadow-lg shadow-blue-900/40 transition-transform hover:scale-105">
                   <ContactCTA />
                 </div>
                 
+                {/* ▼▼▼ 修正箇所: リンク先を #pricing から /pricing に変更 ▼▼▼ */}
                 <Link
-                  href="#pricing"
+                  href="/pricing"
                   className="group flex items-center gap-2 px-4 py-2 text-base font-semibold text-white transition-all hover:text-blue-200"
                 >
                   料金とプランを見る
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
+                {/* ▲▲▲ 修正ここまで ▲▲▲ */}
               </div>
 
             </div>

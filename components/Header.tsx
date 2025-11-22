@@ -16,16 +16,17 @@ type NavItem = {
 
 /**
  * グローバルナビ：
- *   - ホーム内のセクションへ： /#services, /#pricing, /#process, /#faq, /#company
- *   - ホーム： /
+ * - ブログと制作実績を一時的に隠蔽
  */
 const NAV: NavItem[] = [
   { href: "/", label: "ホーム" },
-  { href: "/#services", label: "サービス" },
-  { href: "/#pricing", label: "料金" },
-  { href: "/#process", label: "制作の流れ" },
-  { href: "/#faq", label: "FAQ" },
-  { href: "/#company", label: "運営者情報" },
+  { href: "/services", label: "サービス" },
+  // { href: "/works", label: "制作実績" }, // 準備中のため隠す
+  { href: "/pricing", label: "料金" },
+  { href: "/process", label: "制作の流れ" },
+  // { href: "/blog", label: "ブログ" },    // 準備中のため隠す
+  { href: "/company", label: "運営者情報" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 export default function Header() {
@@ -42,12 +43,10 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // パスベースの簡易アクティブ判定（/ とそれ以外）
+  // パスベースのアクティブ判定
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
-    // /#section は「ホーム」扱いとし、パスが / のときだけアクティブ風に
-    if (href.startsWith("/#")) return pathname === "/";
-    return pathname === href;
+    return pathname.startsWith(href);
   };
 
   const linkBase =
@@ -76,14 +75,13 @@ export default function Header() {
               height={32}
               priority
             />
-            {/* ロゴ内に「Relayo」の文字が含まれているため、表示テキストは隠しつつアクセシビリティ用に残す */}
             <span className="sr-only">{BRAND.name}</span>
           </Link>
         </div>
 
         {/* Desktop Nav */}
         <nav
-          className="hidden items-center gap-6 md:flex"
+          className="hidden items-center gap-6 lg:flex"
           aria-label="グローバルナビゲーション"
         >
           {NAV.map((n) => {
@@ -109,7 +107,7 @@ export default function Header() {
         {/* Mobile menu button（ハンバーガー） */}
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:text-gray-200 dark:hover:bg-gray-900 dark:focus:ring-offset-gray-950 md:hidden"
+          className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:text-gray-200 dark:hover:bg-gray-900 dark:focus:ring-offset-gray-950 lg:hidden"
           aria-label={open ? "メニューを閉じる" : "メニューを開く"}
           onClick={() => setOpen((v) => !v)}
         >
@@ -117,9 +115,9 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Nav（ハンバーガーを押したときに開くメニュー） */}
+      {/* Mobile Nav */}
       {open && (
-        <div className="border-t border-gray-200 bg-white/95 px-4 pb-4 pt-2 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/95 md:hidden">
+        <div className="border-t border-gray-200 bg-white/95 px-4 pb-4 pt-2 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/95 lg:hidden">
           <nav
             className="flex flex-col gap-1"
             aria-label="モバイル用グローバルナビゲーション"
@@ -143,7 +141,6 @@ export default function Header() {
               );
             })}
 
-            {/* モバイルでも入口を統一 */}
             <div className="pt-2">
               <ContactCTA />
             </div>

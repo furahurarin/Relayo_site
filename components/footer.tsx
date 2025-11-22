@@ -1,189 +1,95 @@
 ﻿// components/footer.tsx
 import Link from "next/link";
 import Image from "next/image";
-import { Building, MapPin, Mail } from "lucide-react";
-import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
 
-export default function Footer() {
-  const year = new Date().getFullYear();
+// サイトマップ用リンク（ブログ・実績を除外）
+const SITEMAP = [
+  { label: "ホーム", href: "/" },
+  { label: "サービス", href: "/services" },
+  // { label: "制作実績", href: "/works" },
+  { label: "料金プラン", href: "/pricing" },
+  { label: "制作の流れ", href: "/process" },
+  // { label: "ブログ・お知らせ", href: "/blog" },
+  { label: "運営者情報", href: "/company" },
+  { label: "FAQ", href: "/faq" },
+];
 
+// 法的情報リンク
+const LEGAL = [
+  { label: "プライバシーポリシー", href: "/legal/privacy" },
+  { label: "特定商取引法に基づく表記", href: "/legal/tokusho" },
+  { label: "利用規約", href: "/legal/terms" },
+];
+
+export default function Footer() {
   return (
-    <footer
-      className="bg-gray-900 py-16 text-white"
-      role="contentinfo"
-      aria-label={`${BRAND.name} フッター`}
-    >
+    <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-4">
-          {/* Company Info */}
-          <div className="space-y-4 lg:col-span-2">
-            {/* ロゴ（横長ロゴを小さめに表示） */}
-            <div className="inline-flex items-center">
+        <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
+          {/* ブランド情報 */}
+          <div className="space-y-4">
+            <Link href="/" className="inline-block">
               <Image
                 src={BRAND.logo}
                 alt={BRAND.name}
-                width={132}
-                height={32}
-                priority={false}
+                width={120}
+                height={30}
+                className="h-8 w-auto"
               />
-              <span className="sr-only">{BRAND.name}</span>
-            </div>
-
-            <h2 className="text-2xl font-bold mt-2">{BRAND.name}</h2>
-            <p className="max-w-md leading-relaxed text-gray-300">
-              {BRAND.name}
-              （リレイオ）は、中小企業・スタートアップ・個人事業主のための
-              ホームページ制作・運用サービスです。
-              <br className="hidden sm:block" />
-              必要なページだけに絞ったシンプルな構成で
-              「まずは小さく立ち上げ」、公開後も更新・保守までまとめてお任せいただけます。
-              全国対応・オンライン中心でご相談いただけます。
+            </Link>
+            <p className="text-xs leading-relaxed text-gray-500 max-w-xs">
+              中小企業・スタートアップのためのホームページ制作・運用サービス。
+              「小さく始めて、大きく育てる」サイトづくりを支援します。
             </p>
-
-            <div className="space-y-3" aria-label="運営情報">
-              <div className="flex items-center space-x-3">
-                <Building className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                <span className="text-gray-300">個人事業（将来法人化予定）</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                <span className="text-gray-300">拠点：オンライン／全国対応</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                {/* CTA統一のため mailto は貼らず情報表示のみ */}
-                <span className="text-gray-300">{BRAND.email}</span>
-              </div>
-            </div>
           </div>
 
-          {/* Menu */}
-          <nav aria-label="メニュー" className="space-y-4">
-            <h3 className="text-lg font-semibold">メニュー</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li>
-                <Link
-                  href="/#services"
-                  className="transition-colors hover:text-white"
-                >
-                  サービス内容
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#pricing"
-                  className="transition-colors hover:text-white"
-                >
-                  料金とプラン
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#faq"
-                  className="transition-colors hover:text-white"
-                >
-                  よくある質問
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#company"
-                  className="transition-colors hover:text-white"
-                >
-                  運営者情報
-                </Link>
-              </li>
-            </ul>
-          </nav>
-
-          {/* Site / Legal */}
-          <nav aria-label="各種ページ" className="space-y-4">
-            <h3 className="text-lg font-semibold">各種ページ</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li>
-                <Link href="/" className="transition-colors hover:text-white">
-                  ホーム
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pricing"
-                  className="transition-colors hover:text-white"
-                >
-                  料金ページ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/faq"
-                  className="transition-colors hover:text-white"
-                >
-                  FAQページ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/campaign"
-                  className="transition-colors hover:text-white"
-                >
-                  キャンペーン
-                </Link>
-              </li>
-              <li>
-                {/* 入口はフォームに統一 */}
-                <Link
-                  href="/contact"
-                  className="transition-colors hover:text-white"
-                >
-                  お問い合わせ
-                </Link>
-              </li>
-            </ul>
-
-            <h3 className="mt-6 text-lg font-semibold">法的情報</h3>
-            <ul className="space-y-2 text-gray-300">
-              <li>
-                <Link
-                  href="/legal/terms"
-                  className="transition-colors hover:text-white"
-                >
-                  利用規約
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/privacy"
-                  className="transition-colors hover:text-white"
-                >
-                  プライバシーポリシー
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/tokusho"
-                  className="transition-colors hover:text-white"
-                >
-                  特定商取引法に基づく表記
-                </Link>
-              </li>
-            </ul>
-          </nav>
+          {/* リンク集 */}
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-4">
+              <h4 className="text-sm font-bold text-gray-900">Menu</h4>
+              <ul className="space-y-2 text-xs text-gray-600">
+                {/* 前半4つを表示 (worksを除外しているので調整) */}
+                {SITEMAP.slice(0, 3).map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="hover:text-blue-700 hover:underline">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h4 className="text-sm font-bold text-gray-900">Support</h4>
+              <ul className="space-y-2 text-xs text-gray-600">
+                {/* 後半を表示 */}
+                {SITEMAP.slice(3).map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="hover:text-blue-700 hover:underline">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+             <div className="space-y-4 col-span-2 sm:col-span-1 lg:col-span-1">
+              <h4 className="text-sm font-bold text-gray-900">Legal</h4>
+              <ul className="space-y-2 text-xs text-gray-600">
+                {LEGAL.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="hover:text-blue-700 hover:underline">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
 
-        {/* CTA + Copyright */}
-        <div className="mt-12 border-t border-gray-800 pt-8">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <p className="text-sm text-gray-400">
-              © {year} {BRAND.name}. All rights reserved.
-            </p>
-            {/* CTAはフォームへ一本化 */}
-            <div className="w-full sm:w-auto">
-              <ContactCTA small full={false} />
-            </div>
-          </div>
-          <p className="mt-2 text-center text-xs text-gray-500">
-            お問い合わせは24時間受付。通常1〜2営業日以内にメールでご連絡いたします。
+        <div className="mt-16 border-t border-gray-100 pt-8 text-center">
+          <p className="text-[10px] text-gray-400">
+            &copy; {new Date().getFullYear()} {BRAND.name}. All rights reserved.
           </p>
         </div>
       </div>

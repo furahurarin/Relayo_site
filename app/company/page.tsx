@@ -1,27 +1,29 @@
-// components/sections/CompanySection.tsx
+// app/company/page.tsx
+import type { Metadata } from "next";
 import { Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ContactCTA from "@/components/cta/ContactCTA";
 import { BRAND } from "@/lib/constants";
+import { FadeIn } from "@/components/ui/FadeIn";
 
-export default function CompanySection() {
+export const metadata: Metadata = {
+  title: "運営者情報",
+  description: "Relayo（リレイオ）の運営者情報と事業方針について。",
+};
+
+export default function CompanyPage() {
   return (
-    <section
-      id="company"
-      aria-label="運営者情報とお問い合わせ"
-      className="bg-gray-50 py-16 sm:py-20 lg:py-24"
-    >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* 見出し */}
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+    <main className="container mx-auto min-h-[calc(100vh-10rem)] px-4 py-16 sm:px-6 lg:px-8">
+      <FadeIn>
+        <div className="mx-auto max-w-3xl text-center mb-12">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             運営者情報とお問い合わせ
-          </h2>
+          </h1>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)]">
           {/* 説明テキスト */}
-          <div className="space-y-4 text-sm leading-relaxed text-gray-800">
+          <div className="space-y-5 text-sm leading-relaxed text-gray-800">
             <p>
               Relayo（リレイオ）は、中小企業・個人事業主向けに、
               オンライン完結でのホームページ制作と運用支援を行う個人事業です。
@@ -36,7 +38,7 @@ export default function CompanySection() {
               まずは、今お考えのことや気になっている点をお聞かせください。
             </p>
 
-            <div className="mt-6">
+            <div className="pt-4">
               <ContactCTA />
             </div>
           </div>
@@ -85,15 +87,10 @@ export default function CompanySection() {
                   </p>
                 </div>
               </div>
-
-              <p className="mt-2 text-[11px] leading-relaxed text-gray-500">
-                ご相談内容やご状況に応じて、オンライン面談のご案内や、
-                必要な情報の整理からサポートいたします。
-              </p>
             </CardContent>
           </Card>
         </div>
-      </div>
-    </section>
+      </FadeIn>
+    </main>
   );
 }

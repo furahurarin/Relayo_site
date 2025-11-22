@@ -1,4 +1,4 @@
-// components\sections\PortfolioSection.tsx
+// components/sections/PortfolioSection.tsx
 "use client";
 
 import Link from "next/link";
@@ -143,8 +143,9 @@ export default function PortfolioSection() {
                     <Clock className="h-3.5 w-3.5" aria-hidden />
                     <span>制作期間の目安：2〜4週間前後</span>
                   </div>
+                  {/* リンク先を /works に変更 */}
                   <Link
-                    href="/services"
+                    href="/works"
                     className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 hover:text-blue-900"
                     aria-label="制作例の詳細を見る"
                   >

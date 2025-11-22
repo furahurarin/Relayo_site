@@ -1,149 +1,134 @@
 ﻿// app/page.tsx
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, FileText, LayoutTemplate, Users } from "lucide-react";
 import HeroSection from "@/components/sections/HeroSection";
-import PortfolioSection from "@/components/sections/PortfolioSection";
-import ServicesSection from "@/components/sections/ServicesSection";
-import PricingSection from "@/components/sections/PricingSection";
-import ProcessSection from "@/components/sections/ProcessSection";
-import FAQSection from "@/components/sections/FAQSection";
-import CompanySection from "@/components/sections/CompanySection";
-import ContactCTA from "@/components/cta/ContactCTA";
-import { Shield, FileText, Clock } from "lucide-react";
 import { FadeIn } from "@/components/ui/FadeIn";
+import ContactCTA from "@/components/cta/ContactCTA";
+import { Button } from "@/components/ui/button";
 
-/**
- * ✅ レイアウトで title テンプレート（`%s | BRAND`）を使っているため、
- * ここではプレーンなタイトル文字列だけを指定します。
- */
 const siteDescription =
-  "中小企業・スタートアップのための、迷わないホームページ制作。必要なページだけを分かりやすい料金で、最短2〜4週間で公開。その後の運用・保守まで継続して伴走します。全国対応・オンライン完結・スマホ対応・高速表示・Google検索対策（SEO）も標準対応です。";
+  "中小企業・スタートアップのための、迷わないホームページ制作。必要なページだけを分かりやすい料金で、最短2〜4週間で公開。その後の運用・保守まで継続して伴走します。";
 
 export const metadata: Metadata = {
   title: "中小企業・個人事業主向け ホームページ制作",
   description: siteDescription,
 };
 
-const showPortfolio = process.env.NEXT_PUBLIC_SHOW_PORTFOLIO === "true";
-
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* HeroSection 内ですでに FadeIn を使用しているため、ここはラップしない */}
       <HeroSection />
 
-      {/* 制作例（実績）は環境変数で制御 */}
-      {showPortfolio && (
-        <section id="portfolio">
+      {/* サービス概要セクション */}
+      <section className="bg-gray-50 py-16 sm:py-20">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <PortfolioSection />
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                Service
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-gray-700">
+                中小企業・スタートアップに特化した、
+                <br className="hidden sm:inline" />
+                「小さく始めて、大きく育てる」Web制作サービスです。
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-6 sm:grid-cols-3">
+              <div className="rounded-xl bg-white p-6 shadow-sm">
+                <LayoutTemplate className="mb-4 h-8 w-8 text-blue-600" />
+                <h3 className="font-bold text-gray-900">Small Start</h3>
+                <p className="mt-2 text-xs leading-relaxed text-gray-600">
+                  まずは必要なページだけに絞り、最短2週間での公開を実現します。
+                </p>
+              </div>
+              <div className="rounded-xl bg-white p-6 shadow-sm">
+                <FileText className="mb-4 h-8 w-8 text-blue-600" />
+                <h3 className="font-bold text-gray-900">Design</h3>
+                <p className="mt-2 text-xs leading-relaxed text-gray-600">
+                  採用や集客など、目的に合わせて導線を設計します。
+                </p>
+              </div>
+              <div className="rounded-xl bg-white p-6 shadow-sm">
+                <Users className="mb-4 h-8 w-8 text-blue-600" />
+                <h3 className="font-bold text-gray-900">Support</h3>
+                <p className="mt-2 text-xs leading-relaxed text-gray-600">
+                  公開後の更新や保守も、専任の担当者が継続してサポートします。
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-10 text-center">
+              <Button asChild variant="outline" className="gap-2">
+                <Link href="/services">
+                  サービス詳細を見る <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
           </FadeIn>
-        </section>
-      )}
-
-      {/* 悩み → Relayo の説明 → 3つの特徴 → サービス内容 */}
-      <FadeIn>
-        <ServicesSection />
-      </FadeIn>
-
-      {/* 料金とプラン（アンカー用に id を付与） */}
-      <section id="pricing">
-        <FadeIn>
-          <PricingSection />
-        </FadeIn>
+        </div>
       </section>
 
-      {/* 制作の流れ */}
-      <section id="process">
-        <FadeIn>
-          <ProcessSection />
-        </FadeIn>
-      </section>
+      {/* NOTE: 制作実績(Portfolio)とブログ(Journal)は
+        コンテンツ準備中のため一時的に非表示にしています。
+        準備ができたらここにセクションを戻してください。
+      */}
 
-      {/* サポート体制・セキュリティ・法令配慮 */}
-      <section
-        id="trust"
-        aria-label="trust"
-        className="container mx-auto my-12 px-4 sm:px-6 lg:px-8"
-      >
-        <FadeIn>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
-            {/* サポート体制 */}
-            <div className="rounded-2xl border bg-white/90 p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
-              <div className="mb-3 flex items-center gap-2">
-                <Clock className="h-5 w-5" aria-hidden />
-                <h3 className="text-base font-semibold">サポート体制（対応目安）</h3>
-              </div>
-              <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                <p>
-                  重大な不具合については、原則
-                  <span className="whitespace-nowrap">4時間以内</span>
-                  の対応開始を目安としています。
-                  その他のご相談や中程度の不具合については、翌営業日以降、順次対応します。
-                  軽微な修正については、週内での対応を基本とし（ご契約プランにより異なります）、
-                  運用に支障が出ない状態を保ちます。
+      {/* 制作の流れ・会社情報・お問い合わせへの誘導 */}
+      <section className="py-16 sm:py-24">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <div className="grid gap-8 md:grid-cols-2">
+              {/* 制作の流れ */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+                <h3 className="text-xl font-bold text-gray-900">Process</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  お問い合わせからヒアリング、制作、公開までの流れをご案内します。
                 </p>
-                <p>
-                  運用中のご質問やご相談は、メールにて随時受け付けています。
-                  「少し気になる」「判断に迷っている」といった段階でも、お気軽にご相談ください。
+                <div className="mt-6">
+                  <Link
+                    href="/process"
+                    className="inline-flex items-center text-sm font-semibold text-blue-700 hover:text-blue-900"
+                  >
+                    制作の流れを見る &rarr;
+                  </Link>
+                </div>
+              </div>
+
+              {/* 運営者情報 */}
+              <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+                <h3 className="text-xl font-bold text-gray-900">About</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  Relayoの運営方針や、私たちが大切にしていることについて。
                 </p>
+                <div className="mt-6">
+                  <Link
+                    href="/company"
+                    className="inline-flex items-center text-sm font-semibold text-blue-700 hover:text-blue-900"
+                  >
+                    運営者情報を見る &rarr;
+                  </Link>
+                </div>
               </div>
             </div>
 
-            {/* セキュリティ */}
-            <div className="rounded-2xl border bg-white/90 p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
-              <div className="mb-3 flex items-center gap-2">
-                <Shield className="h-5 w-5" aria-hidden />
-                <h3 className="text-base font-semibold">セキュリティ</h3>
-              </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                アカウントは原則お客様名義で運用し、二要素認証と最小限の権限で管理します。
-                将来の乗り換えや引き継ぎを見据え、アクセス権限と変更履歴を整理した形で運用します。
+            {/* 最終CTA */}
+            <div className="mt-16 rounded-3xl bg-gray-900 py-12 text-center sm:py-16 px-4">
+              <h2 className="text-2xl font-bold text-white sm:text-3xl">
+                まずは、お気軽にご相談ください
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-sm text-gray-300">
+                「何から始めればいいか分からない」という段階でも構いません。
+                現状の課題やご予算に合わせて、最適なプランをご提案します。
               </p>
-            </div>
-
-            {/* 法令・アクセシビリティ */}
-            <div className="rounded-2xl border bg-white/90 p-6 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
-              <div className="mb-3 flex items-center gap-2">
-                <FileText className="h-5 w-5" aria-hidden />
-                <h3 className="text-base font-semibold">法令・アクセシビリティ</h3>
+              <div className="mt-8 flex justify-center">
+                <ContactCTA />
               </div>
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                個人情報の取り扱い・特定商取引法などのルールに配慮し、
-                読みやすく誤解のない表現を心がけます。
-                アクセシビリティは国内指針（JIS X 8341-3のAA相当）を参考に設計します。
-              </p>
             </div>
-          </div>
-        </FadeIn>
+          </FadeIn>
+        </div>
       </section>
-
-      {/* 中腹CTA（/contact に統一） */}
-      <section
-        aria-label="mid-cta"
-        className="container mx-auto my-12 px-4 sm:px-6 lg:px-8"
-      >
-        <FadeIn>
-          <div className="rounded-2xl border bg-white/90 p-6 text-center shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/90">
-            <h2 className="mb-3 text-xl font-semibold">お問い合わせ</h2>
-            <p className="mx-auto mb-4 max-w-2xl text-sm text-gray-700 dark:text-gray-300">
-              約2分で完了。営業電話はいたしません。ご案内はメールでお送りします。
-            </p>
-            <div className="flex justify-center">
-              <ContactCTA />
-            </div>
-          </div>
-        </FadeIn>
-      </section>
-
-      {/* FAQ（よくある質問） */}
-      <section id="faq">
-        <FadeIn>
-          <FAQSection />
-        </FadeIn>
-      </section>
-
-      {/* 運営者情報とお問い合わせ */}
-      <CompanySection />
     </main>
   );
 }
