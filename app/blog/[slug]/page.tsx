@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import { FadeIn } from "@/components/ui/FadeIn";
+import { PageBreadcrumb } from "@/components/shared/PageBreadcrumb";
 
 // 仮のデータ取得関数
 async function getBlogPost(slug: string) {
@@ -17,11 +18,15 @@ async function getBlogPost(slug: string) {
 }
 
 type Props = {
-  params: { slug: string };
+  // ▼▼▼ 修正: params を Promise 型に変更 ▼▼▼
+  params: Promise<{ slug: string }>;
 };
 
 export default async function BlogDetailPage({ params }: Props) {
-  const post = await getBlogPost(params.slug);
+  // ▼▼▼ 修正: params を await して展開 ▼▼▼
+  const { slug } = await params;
+  
+  const post = await getBlogPost(slug);
 
   if (!post) {
     notFound();
@@ -30,6 +35,13 @@ export default async function BlogDetailPage({ params }: Props) {
   return (
     <main className="container mx-auto min-h-[calc(100vh-10rem)] px-4 py-16 sm:px-6 lg:px-8">
       <FadeIn>
+        <PageBreadcrumb 
+          items={[
+            { label: "ブログ・お知らせ", href: "/blog" },
+            { label: post.title }
+          ]} 
+        />
+
         <div className="mx-auto max-w-3xl">
           <div className="mb-8">
             <Button variant="ghost" size="sm" asChild className="pl-0 hover:bg-transparent hover:text-blue-700">
@@ -55,7 +67,6 @@ export default async function BlogDetailPage({ params }: Props) {
 
             <div className="prose prose-sm sm:prose-base prose-blue max-w-none text-gray-800">
               <p>{post.content}</p>
-              {/* 以下、ダミーテキスト */}
               <p className="mt-8 text-gray-400 text-xs">
                 （※ここは詳細ページのテンプレートです。実際には記事ごとに固有の内容が表示されます）
               </p>

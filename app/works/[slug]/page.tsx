@@ -1,3 +1,4 @@
+// app/works/[slug]/page.tsx
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -5,11 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { PageBreadcrumb } from "@/components/shared/PageBreadcrumb";
 
-// 将来的にはCMSやDBから取得
-// ここではビルドエラーを防ぐためのダミー詳細データ取得関数
 async function getWorkDetail(slug: string) {
-  // デモ用：どのslugが来ても同じデータを返す（IDだけ書き換え）
-  // 実運用では slug に一致するデータを検索して返す
   return {
     id: slug,
     title: "制作実績詳細サンプル",
@@ -20,11 +17,15 @@ async function getWorkDetail(slug: string) {
 }
 
 type Props = {
-  params: { slug: string };
+  // ▼▼▼ 修正: params を Promise 型に変更 ▼▼▼
+  params: Promise<{ slug: string }>;
 };
 
 export default async function WorkDetailPage({ params }: Props) {
-  const work = await getWorkDetail(params.slug);
+  // ▼▼▼ 修正: params を await して展開 ▼▼▼
+  const { slug } = await params;
+
+  const work = await getWorkDetail(slug);
 
   if (!work) {
     notFound();
@@ -41,7 +42,6 @@ export default async function WorkDetailPage({ params }: Props) {
         />
 
         <div className="mx-auto max-w-3xl">
-          {/* 戻るボタン */}
           <div className="mb-8">
             <Button variant="ghost" size="sm" asChild className="pl-0 hover:bg-transparent hover:text-blue-700">
               <Link href="/works">
@@ -51,7 +51,6 @@ export default async function WorkDetailPage({ params }: Props) {
             </Button>
           </div>
 
-          {/* ヘッダー情報 */}
           <div className="mb-8 space-y-4">
             <div className="flex items-center gap-3 text-sm text-gray-500">
               <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">
@@ -64,12 +63,10 @@ export default async function WorkDetailPage({ params }: Props) {
             </h1>
           </div>
 
-          {/* 画像エリア（仮） */}
           <div className="mb-10 aspect-video w-full rounded-xl bg-gray-100 flex items-center justify-center text-gray-400">
             Main Visual Area
           </div>
 
-          {/* 本文エリア */}
           <div className="prose prose-gray max-w-none">
             <p>{work.content}</p>
             <p className="text-sm text-gray-500 mt-8">
