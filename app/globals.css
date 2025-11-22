@@ -1,157 +1,81 @@
-/* app/globals.css — Link color = body text (no underline) */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ================================
-   Color tokens (light / dark)
-   ================================ */
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222 47% 10%;
+    /* ベース：清潔感のある白 */
+    --background: 0 0% 100%;
+    /* 文字色：深いネイビーグレーで知的に */
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
     --card-foreground: var(--foreground);
-
     --popover: 0 0% 100%;
     --popover-foreground: var(--foreground);
 
-    --primary: 221 83% 53%;
+    /* プライマリー：鮮やかなテックブルー */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 16% 96%;
-    --secondary-foreground: var(--foreground);
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --muted: 210 16% 96%;
-    --muted-foreground: 215 16% 35%;
-
-    --accent: 210 16% 96%;
-    --accent-foreground: var(--foreground);
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 215 16% 84%;
-    --input: 220 9% 46%;
-    --ring: var(--primary);
-
-    --chart-1: 221 83% 53%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 56%;
-    --chart-5: 27 87% 57%;
-
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
 
-    /* ▼ Link tokens are aligned to body text */
-    --link: var(--foreground);
-    --link-hover: var(--foreground);
-
-    /* ▼ CTA（問い合わせ）ボタン用トークン */
-    --cta: 221 83% 53%;          /* #2563eb */
-    --cta-hover: 224 76% 48%;    /* #1d4ed8 */
-    --cta-active: 226 71% 40%;   /* #1e40af */
-    --cta-foreground: 0 0% 100%; /* #ffffff */
-    --cta-ring: 224 76% 48%;
-
-    /* ▼ ゴースト（文字のみ）用：ライトは“明るめ”で見やすく（AA 5.17:1） */
-    --cta-ghost: 221 83% 53%;    /* #2563eb（blue-600） */
+    /* リンク色 */
+    --link: var(--primary);
+    --link-hover: 221 83% 53%;
   }
 
   .dark {
-    --background: 220 49% 8%;
-    --foreground: 210 20% 96%;
-
-    --card: 223 40% 10%;
-    --card-foreground: var(--foreground);
-
-    --popover: 223 40% 10%;
-    --popover-foreground: var(--foreground);
-
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 222 30% 15%;
-    --secondary-foreground: 210 20% 96%;
-
-    --muted: 222 20% 15%;
-    --muted-foreground: 220 12% 70%;
-
-    --accent: 222 30% 15%;
-    --accent-foreground: 210 20% 96%;
-
-    --destructive: 0 62% 46%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 222 15% 22%;
-    --input: 220 9% 62%;
-    --ring: var(--primary);
-
-    --link: var(--foreground);
-    --link-hover: var(--foreground);
-
-    /* ダークはリング/文字色を明るめに */
-    --cta-ring: 212 96% 78%;     /* #93c5fd */
-    --cta-ghost: 212 96% 78%;    /* #93c5fd（blue-300付近） */
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
   }
 }
 
-/* ================================
-   Base & Links
-   ================================ */
 @layer base {
   html { color-scheme: light dark; }
   * { @apply border-border; }
-
+  
   body {
     @apply bg-background text-foreground;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    /* 修正点：palt を削除し、標準的な kern のみに戻す */
     font-feature-settings: "kern";
+    /* 行間と文字間隔を安全な値に調整 */
+    line-height: 1.6;
+    letter-spacing: 0.02em;
   }
 
-  ::selection {
-    background: hsl(var(--primary) / 0.18);
-    color: hsl(var(--foreground));
-  }
-
-  /* Links: same color as text, no underline.
-     Discoverability: hoverでうっすら面を付け、focusで確実に見える */
-  a {
-    color: inherit;                   /* 本文色と同一 */
-    text-decoration: none;            /* 下線なし */
-    transition: background-color .15s ease, color .15s ease;
-    border-radius: .25rem;            /* 面ハイライトを自然に */
-  }
-  a:hover {
-    /* 背景にごく薄い面（light/darkで最適化） */
-    background-color: hsl(var(--foreground) / 0.07);
-  }
-  a:active {
-    background-color: hsl(var(--foreground) / 0.11);
-  }
-  a:focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-  }
-  a:visited:not([data-cta]) { color: inherit; }  /* CTAには適用しない */
-  a[disabled] {
-    pointer-events: none;
-    opacity: .5;
-  }
-
-  img, svg, video, canvas { display: block; max-width: 100%; height: auto; }
-
-  input, select, textarea, button {
-    color: hsl(var(--foreground));
-    background-color: hsl(var(--background));
-    border-color: hsl(var(--input));
-  }
-
-  /* ハイコントラスト志向の環境では面の強調を少し増やす */
-  @media (prefers-contrast: more) {
-    a:hover { background-color: hsl(var(--foreground) / 0.12); }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight text-slate-900 dark:text-slate-100;
+    /* 見出しも安全な設定に戻す */
+    font-feature-settings: "kern"; 
   }
 }
