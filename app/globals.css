@@ -4,20 +4,14 @@
 
 @layer base {
   :root {
-    /* ベース：清潔感のある白 */
     --background: 0 0% 100%;
-    /* 文字色：深いネイビーグレーで知的に */
     --foreground: 222 47% 11%;
-
     --card: 0 0% 100%;
-    --card-foreground: var(--foreground);
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: var(--foreground);
-
-    /* プライマリー：鮮やかなテックブルー */
+    --popover-foreground: 222 47% 11%;
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11.2%;
     --muted: 210 40% 96.1%;
@@ -26,20 +20,17 @@
     --accent-foreground: 222 47% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
-
-    /* リンク色 */
     --link: var(--primary);
     --link-hover: 221 83% 53%;
   }
-
   .dark {
     --background: 222 47% 11%;
     --foreground: 210 40% 98%;
+    /* ... */
     --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
@@ -66,16 +57,109 @@
   
   body {
     @apply bg-background text-foreground;
-    /* 修正点：palt を削除し、標準的な kern のみに戻す */
-    font-feature-settings: "kern";
-    /* 行間と文字間隔を安全な値に調整 */
-    line-height: 1.6;
-    letter-spacing: 0.02em;
+    font-feature-settings: normal;
+    line-height: 1.8;
+    letter-spacing: 0.05em;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight text-slate-900 dark:text-slate-100;
-    /* 見出しも安全な設定に戻す */
-    font-feature-settings: "kern"; 
+    @apply font-bold text-slate-900 dark:text-slate-100;
+    font-feature-settings: normal;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
   }
+}
+
+@layer components {
+  .article-body {
+    @apply text-slate-800 text-[16px] sm:text-[17px];
+  }
+
+  /* --- 見出し --- */
+  .article-body h2 {
+    @apply mt-16 mb-8 px-6 py-4 bg-slate-50 border-b-4 border-blue-500 text-2xl font-bold text-slate-900 rounded-t-lg shadow-sm;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
+  }
+
+  .article-body h3 {
+    @apply mt-12 mb-6 pl-5 border-l-[6px] border-blue-500 text-xl font-bold text-slate-900;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
+  }
+
+  .article-body h4 {
+    @apply mt-10 mb-4 text-lg font-bold text-slate-900;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
+  }
+
+  /* --- 本文 --- */
+  .article-body p {
+    @apply mb-8 text-slate-700;
+    line-height: 2.0; 
+    letter-spacing: 0.06em;
+  }
+
+  /* --- リスト --- */
+  .article-body ul {
+    @apply mb-8 pl-2 space-y-3;
+  }
+  .article-body ul li {
+    @apply relative pl-6 text-slate-700;
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+  }
+  .article-body ul li::before {
+    content: "";
+    @apply absolute left-0 top-[0.7em] w-2 h-2 bg-blue-400 rounded-full;
+  }
+
+  .article-body ol {
+    @apply mb-8 pl-8 list-decimal space-y-3 marker:text-blue-600 marker:font-bold text-slate-700;
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+  }
+
+  /* --- 装飾 (下線修正) --- */
+  .article-body strong {
+    /* decoration-clone: 改行時にもスタイルを複製 */
+    @apply font-bold text-slate-900 inline decoration-clone;
+    
+    /* マーカー風背景 */
+    background-image: linear-gradient(to bottom, transparent 60%, #bfdbfe 60%);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    
+    padding: 0 2px;
+    margin: 0 1px;
+  }
+
+  .article-body a {
+    @apply text-blue-600 underline decoration-blue-200 underline-offset-4 hover:text-blue-800 transition-colors font-medium;
+  }
+
+  .article-body blockquote {
+    @apply my-8 pl-5 py-4 border-l-4 border-slate-300 text-slate-600 italic bg-slate-50 rounded-r-lg;
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+  }
+
+  .article-body img {
+    @apply my-10 rounded-xl border border-slate-100 shadow-md w-full h-auto;
+  }
+
+  /* --- 特殊ボックス --- */
+  .box-gray {
+    @apply bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8;
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+  }
+  .box-blue {
+    @apply bg-blue-50 p-6 rounded-xl border border-blue-100 mb-8 text-slate-800 shadow-sm;
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+  }
+  .box-gray ul, .box-blue ul, .box-gray ol, .box-blue ol { @apply mb-0; }
+  .box-gray p:last-child, .box-blue p:last-child { @apply mb-0; }
 }

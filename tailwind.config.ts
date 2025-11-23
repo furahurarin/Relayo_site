@@ -85,6 +85,9 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@tailwindcss/typography'), // ブログ記事の装飾用に必須
+  ],
 };
 export default config;

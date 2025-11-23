@@ -1,64 +1,69 @@
-// components/sections/JournalSection.tsx
 import Link from "next/link";
-import Image from "next/image"; // ▼ 追加
-import { ArrowRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ArrowRight, Calendar, Tag } from "lucide-react";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { posts } from "@/app/data/posts";
 
-export default function JournalSection() {
-  // 最新3件のみ取得
-  const latestPosts = posts.slice(0, 3);
+export function JournalSection() {
+  // 最新3件を取得
+  const recentPosts = posts.slice(0, 3);
 
   return (
-    <section className="bg-gray-50 py-16 sm:py-24">
+    <section className="py-24 sm:py-32 bg-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn>
-          <div className="mx-auto max-w-3xl text-center mb-12">
-            <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+          {/* ヘッダー部分：中央揃えに統一 */}
+          <div className="mx-auto max-w-2xl text-center mb-16">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
               Journal
             </h2>
-            <p className="mt-4 text-sm text-gray-600">
-              お知らせ・Web活用のヒント
+            <p className="mt-4 text-lg text-gray-600">
+              Web制作のノウハウや、Relayoからのお知らせをお届けします。
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {latestPosts.map((post) => (
+          {/* 記事グリッド */}
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {recentPosts.map((post) => (
               <Link 
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group block h-full transition-all duration-200 hover:-translate-y-1"
+                className="group block h-full"
               >
-                <Card className="flex h-full flex-col overflow-hidden border-gray-100 hover:border-blue-100 hover:shadow-md transition-all">
-                  {/* ▼ 画像表示エリア */}
-                  {post.thumbnail ? (
-                    <div className="relative aspect-[1.91/1] w-full overflow-hidden bg-gray-200">
+                <Card className="flex h-full flex-col overflow-hidden border-gray-100 bg-white shadow-sm hover:shadow-lg hover:shadow-blue-100/50 hover:-translate-y-1 transition-all duration-300 rounded-2xl">
+                  <div className="relative aspect-[1.91/1] w-full overflow-hidden bg-gray-100">
+                    {post.thumbnail ? (
                       <Image
                         src={post.thumbnail}
                         alt={post.title}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                    </div>
-                  ) : (
-                    <div className="aspect-[1.91/1] w-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">
-                      No Image
-                    </div>
-                  )}
-
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <time className="text-xs text-gray-400 font-mono">{post.date}</time>
-                      <span className="inline-block rounded bg-blue-50 px-2 py-0.5 text-[10px] font-medium text-blue-600">
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-gray-400 text-sm">
+                        No Image
+                      </div>
+                    )}
+                    {/* カテゴリラベル */}
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-flex items-center rounded-md bg-white/90 backdrop-blur px-2 py-1 text-[10px] font-bold text-blue-700 shadow-sm border border-white/50">
+                        <Tag className="mr-1 h-3 w-3" />
                         {post.category}
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-3 line-clamp-2">
+                  </div>
+
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="flex items-center gap-2 mb-3 text-xs text-gray-500">
+                      <Calendar className="h-3 w-3" />
+                      <time className="font-mono">{post.date}</time>
+                    </div>
+                    <h3 className="text-base font-bold text-gray-900 group-hover:text-blue-700 transition-colors mb-3 line-clamp-2 leading-snug">
                       {post.title}
                     </h3>
-                    <p className="text-xs leading-relaxed text-gray-600 line-clamp-3 mt-auto">
+                    <p className="text-xs leading-relaxed text-gray-600 line-clamp-2 mt-auto">
                       {post.excerpt}
                     </p>
                   </div>
@@ -67,10 +72,12 @@ export default function JournalSection() {
             ))}
           </div>
 
-          <div className="mt-12 text-center">
-            <Button asChild variant="outline" className="gap-2">
+          {/* ボタンエリア：中央揃えに統一 */}
+          <div className="mt-12 flex justify-center">
+            <Button variant="outline" size="lg" className="group" asChild>
               <Link href="/blog">
-                記事一覧を見る <ArrowRight className="h-4 w-4" />
+                すべての記事を見る 
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>
@@ -79,3 +86,5 @@ export default function JournalSection() {
     </section>
   );
 }
+
+export default JournalSection;
