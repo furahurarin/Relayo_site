@@ -1,13 +1,10 @@
-﻿// components/Header.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
-import ContactCTA from "@/components/cta/ContactCTA";
-import { BRAND } from "@/lib/constants";
+import { FileSpreadsheet, Menu, X } from "lucide-react";
+import { DOCUMENT_POC } from "@/lib/constants";
 
 type NavItem = {
   href: string;
@@ -15,14 +12,11 @@ type NavItem = {
 };
 
 const NAV: NavItem[] = [
-  { href: "/", label: "ホーム" },
-  { href: "/services", label: "サービス" },
-  { href: "/works", label: "制作実績" },
-  { href: "/pricing", label: "料金" },
-  { href: "/process", label: "制作の流れ" },
-  { href: "/blog", label: "ブログ" },
-  { href: "/company", label: "運営者情報" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/#overview", label: "サービス概要" },
+  { href: "/#documents", label: "対応帳票" },
+  { href: "/#process", label: "PoCの流れ" },
+  { href: "/#pricing", label: "料金" },
+  { href: "/#safety", label: "確認事項" },
 ];
 
 export default function Header() {
@@ -31,123 +25,90 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
+    const onScroll = () => setIsScrolled(window.scrollY > 0);
     onScroll();
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // ▼▼▼ 追加・修正箇所 ▼▼▼
-  // デモページ（URLが /demo から始まる場合）は、この共通ヘッダーを表示しない
-  // ※Hooksのルールを守るため、useEffectなどの後に記述します
   if (pathname?.startsWith("/demo")) {
     return null;
   }
-  // ▲▲▲ 追加ここまで ▲▲▲
-
-  // パスベースのアクティブ判定
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname?.startsWith(href);
-  };
-
-  const linkBase =
-    "text-sm text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white transition-colors";
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-950/80 ${
+      className={`sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur ${
         isScrolled ? "shadow-sm" : ""
       }`}
       aria-label="サイト全体のナビゲーション"
     >
       <div className="container mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="inline-flex items-center hover:opacity-90"
-            aria-label={`${BRAND.name} ホームへ`}
-            rel="home"
-          >
-            <Image
-              src={BRAND.logo}
-              alt={BRAND.name}
-              width={132}
-              height={32}
-              priority
-            />
-            <span className="sr-only">{BRAND.name}</span>
-          </Link>
-        </div>
+        <Link
+          href="/"
+          className="inline-flex min-w-0 items-center gap-2 text-gray-900 hover:opacity-80"
+          aria-label={`${DOCUMENT_POC.name} ホームへ`}
+          rel="home"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-gray-900 text-white">
+            <FileSpreadsheet className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <span className="truncate text-sm font-bold sm:text-base">
+            {DOCUMENT_POC.name}
+          </span>
+        </Link>
 
-        {/* Desktop Nav */}
         <nav
-          className="hidden items-center gap-6 lg:flex"
+          className="hidden items-center gap-5 lg:flex"
           aria-label="グローバルナビゲーション"
         >
-          {NAV.map((n) => {
-            const active = isActive(n.href);
-            return (
-              <Link
-                key={n.href}
-                href={n.href}
-                aria-current={active ? "page" : undefined}
-                className={`${linkBase} ${
-                  active ? "font-semibold text-black dark:text-white" : ""
-                }`}
-              >
-                {n.label}
-              </Link>
-            );
-          })}
-
-          {/* 入口は /contact に統一 */}
-          <ContactCTA />
+          {NAV.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sm text-gray-700 transition-colors hover:text-gray-950"
+            >
+              {item.label}
+            </Link>
+          ))}
+          <Link
+            href={DOCUMENT_POC.contactHref}
+            className="inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-blue-700"
+          >
+            PoCを相談する
+          </Link>
         </nav>
 
-        {/* Mobile menu button（ハンバーガー） */}
         <button
           type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:text-gray-200 dark:hover:bg-gray-900 dark:focus:ring-offset-gray-950 lg:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 lg:hidden"
           aria-label={open ? "メニューを閉じる" : "メニューを開く"}
-          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          onClick={() => setOpen((current) => !current)}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
-      {/* Mobile Nav */}
       {open && (
-        <div className="border-t border-gray-200 bg-white/95 px-4 pb-4 pt-2 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-950/95 lg:hidden">
-          <nav
-            className="flex flex-col gap-1"
-            aria-label="モバイル用グローバルナビゲーション"
-          >
-            {NAV.map((n) => {
-              const active = isActive(n.href);
-              return (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  aria-current={active ? "page" : undefined}
-                  className={`rounded-md px-2 py-2 text-sm ${
-                    active
-                      ? "bg-gray-100 font-semibold text-gray-900 dark:bg-gray-900 dark:text-white"
-                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-900"
-                  }`}
-                  onClick={() => setOpen(false)}
-                >
-                  {n.label}
-                </Link>
-              );
-            })}
-
-            <div className="pt-2">
-              <ContactCTA />
-            </div>
+        <div className="border-t border-gray-200 bg-white px-4 pb-4 pt-2 shadow-sm lg:hidden">
+          <nav className="flex flex-col gap-1" aria-label="モバイル用ナビゲーション">
+            {NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-md px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-950"
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+            <Link
+              href={DOCUMENT_POC.contactHref}
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700"
+              onClick={() => setOpen(false)}
+            >
+              PoCを相談する
+            </Link>
           </nav>
         </div>
       )}
