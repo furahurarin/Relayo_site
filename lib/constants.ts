@@ -10,6 +10,14 @@ export const BRAND = {
   icon: "/images/relayo-icon.png", // サイト内で使うシンボル（小さな装飾など）
 } as const;
 
+export const DOCUMENT_POC = {
+  name: "帳票データ化PoC",
+  description:
+    "PDF・FAX・スキャンされた注文書や帳票を読み取り、Excel・CSVへの転記を小さく有料検証するサービスです。",
+  priceFrom: "9,800円〜",
+  contactHref: "/contact",
+} as const;
+
 export const CAMPAIGN = {
   // キャンペーン名
   name: "短納期・低コスト Webサイト制作キャンペーン",
