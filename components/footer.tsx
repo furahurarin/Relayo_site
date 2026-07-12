@@ -1,67 +1,73 @@
-﻿// components/footer.tsx
-"use client"; // ▼ 追加: パス判定のためにクライアントコンポーネント化
+"use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation"; // ▼ 追加
-import { BRAND } from "@/lib/constants";
+import { usePathname } from "next/navigation";
+import { BarChart3, CheckCircle2 } from "lucide-react";
+import { BRAND, EC_INVENTORY_POC } from "@/lib/constants";
 
-// サイトマップ用リンク（シンプルに統合）
 const SITEMAP = [
-  { label: "ホーム", href: "/" },
-  { label: "サービス", href: "/services" },
-  { label: "料金プラン", href: "/pricing" },
-  { label: "制作の流れ", href: "/process" },
-  { label: "運営者情報", href: "/company" },
-  { label: "FAQ", href: "/faq" },
-  // 準備ができたらコメントアウトを解除
-  // { label: "制作実績", href: "/works" },
-  // { label: "ブログ", href: "/blog" },
-];
-
-// 法的情報リンク
-const LEGAL = [
-  { label: "プライバシーポリシー", href: "/legal/privacy" },
-  { label: "特定商取引法に基づく表記", href: "/legal/tokusho" },
-  { label: "利用規約", href: "/legal/terms" },
+  { label: "サービス概要", href: "/#overview" },
+  { label: "見本レポート", href: "/#sample-report" },
+  { label: "対象・対象外", href: "/#eligibility" },
+  { label: "進め方", href: "/#process" },
+  { label: "価格・共同検証枠", href: "/#pricing" },
+  { label: "FAQ", href: "/#faq" },
+  { label: "共同検証に応募", href: EC_INVENTORY_POC.contactHref },
 ];
 
 export default function Footer() {
-  const pathname = usePathname(); // ▼ 追加
+  const pathname = usePathname();
 
-  // ▼ 追加: デモページ（/demo/〜）の場合はメインフッターを表示しない
   if (pathname?.startsWith("/demo")) {
     return null;
   }
 
   return (
-    <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
+    <footer className="border-t border-slate-200 bg-slate-950 pb-8 pt-14 text-white">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[2fr_1fr_1fr]">
-          {/* ブランド情報 */}
-          <div className="space-y-4">
-            <Link href="/" className="inline-block">
-              <Image
-                src={BRAND.logo}
-                alt={BRAND.name}
-                width={120}
-                height={30}
-                className="h-8 w-auto"
-              />
+        <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr_0.8fr]">
+          <div>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 font-bold text-white transition-opacity hover:opacity-80"
+              aria-label={`${EC_INVENTORY_POC.name} ホームへ`}
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500 text-white">
+                <BarChart3 className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span>{EC_INVENTORY_POC.name}</span>
             </Link>
-            <p className="text-xs leading-relaxed text-gray-500 max-w-xs">
-              中小企業・スタートアップのためのホームページ制作・運用サービス。
-              「小さく始めて、大きく育てる」サイトづくりを支援します。
+            <p className="mt-4 max-w-lg text-sm leading-7 text-slate-300">
+              販売・在庫データから、赤字SKUや滞留在庫、在庫原価を整理し、
+              値下げ・再出品・仕入停止の候補をレポートにまとめます。
             </p>
+            <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-300">
+              {["Relayo運営", "EC販売経験あり", "古物商許可保有", "オンライン対応"].map(
+                (item) => (
+                  <li key={item} className="inline-flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+                    {item}
+                  </li>
+                )
+              )}
+            </ul>
           </div>
 
-          {/* リンク集：Menu（統合版） */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-bold text-gray-900">Menu</h4>
-            <ul className="space-y-2 text-xs text-gray-600">
+          <div>
+            <h2 className="text-sm font-bold text-white">メニュー</h2>
+            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-slate-300 lg:grid-cols-1">
               {SITEMAP.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="hover:text-blue-700 hover:underline">
+                  <Link
+                    href={item.href}
+                    className="hover:text-white hover:underline hover:underline-offset-4"
+                    {...(item.href === EC_INVENTORY_POC.contactHref
+                      ? {
+                          "data-umami-event": "ec_design_partner_cta_click",
+                          "data-umami-event-location": "footer",
+                        }
+                      : {})}
+                  >
                     {item.label}
                   </Link>
                 </li>
@@ -69,23 +75,39 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* リンク集：Legal */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-bold text-gray-900">Legal</h4>
-            <ul className="space-y-2 text-xs text-gray-600">
-              {LEGAL.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="hover:text-blue-700 hover:underline">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+          <div>
+            <h2 className="text-sm font-bold text-white">ポリシー</h2>
+            <ul className="mt-4 space-y-2 text-xs text-slate-300">
+              <li>
+                <Link
+                  href="/legal/terms"
+                  className="hover:text-white hover:underline hover:underline-offset-4"
+                >
+                  利用規約
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/legal/tokusho"
+                  className="hover:text-white hover:underline hover:underline-offset-4"
+                >
+                  特定商取引法に基づく表記
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/legal/privacy"
+                  className="hover:text-white hover:underline hover:underline-offset-4"
+                >
+                  プライバシーポリシー
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-16 border-t border-gray-100 pt-8 text-center">
-          <p className="text-[10px] text-gray-400">
+        <div className="mt-12 border-t border-slate-800 pt-6 text-center">
+          <p className="text-[11px] text-slate-500">
             &copy; {new Date().getFullYear()} {BRAND.name}. All rights reserved.
           </p>
         </div>
