@@ -80,6 +80,22 @@ export default function Footer() {
             <ul className="mt-4 space-y-2 text-xs text-slate-300">
               <li>
                 <Link
+                  href="/legal/terms"
+                  className="hover:text-white hover:underline hover:underline-offset-4"
+                >
+                  利用規約
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/legal/tokusho"
+                  className="hover:text-white hover:underline hover:underline-offset-4"
+                >
+                  特定商取引法に基づく表記
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/legal/privacy"
                   className="hover:text-white hover:underline hover:underline-offset-4"
                 >

@@ -83,23 +83,28 @@ const excluded = [
 const steps = [
   {
     title: "共同検証へ応募",
-    description: "フォームでは事業者情報と現状だけを伺います。CSVや実データは送らないでください。",
+    description:
+      "フォームでは事業者情報と現状だけを伺います。送信だけでは契約は成立せず、費用も発生しません。",
   },
   {
-    title: "対象条件を確認",
-    description: "販路、SKU数、CSVまたはExcelの出力可否を確認します。",
+    title: "個別条件を確認",
+    description:
+      "対象、データ形式、価格、納期、データ取扱いを提示し、同意後にRelayoが承諾通知を送ります。",
   },
   {
-    title: "匿名化済みデータを受領",
-    description: "条件合意後、Relayoから項目と匿名化方法をご案内してから受領します。",
+    title: "前払い・データ受領",
+    description:
+      "請求書発行から3営業日以内に銀行振込で全額前払い後、案内に沿った匿名化済みデータを受領します。",
   },
   {
-    title: "アクションレポートを作成",
-    description: "粗利・滞留状況を整理し、次に試す行動の候補をまとめます。",
+    title: "レポートを作成・納品",
+    description:
+      "契約・入金・必要データが揃った日の翌営業日から原則3営業日以内にExcelまたはPDFで納品します。",
   },
   {
-    title: "フィードバック",
-    description: "15分程度で、見やすさや判断への使いやすさを伺います。",
+    title: "確認・修正",
+    description:
+      "納品後5営業日以内に確認いただき、入力データの訂正または計算誤りは原則1回修正します。",
   },
 ];
 
@@ -144,7 +149,7 @@ const faqs = [
   {
     question: "共同検証への応募で料金が発生しますか？",
     answer:
-      "応募した時点では、料金は発生せず、契約や有料サービスの購入も確定しません。共同検証の条件はヒアリング後に個別にご案内します。正式PoC予定価格は5,500円です。",
+      "応募した時点では、料金は発生せず、契約や有料サービスの購入も確定しません。共同検証の条件はヒアリング後に個別にご案内します。正式PoCは5,500円（税込）、銀行振込による全額前払いです。",
   },
   {
     question: "PC商品を対象にできますか？",
@@ -376,10 +381,11 @@ export default function Home() {
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-sm font-bold tracking-wide text-blue-700">PROCESS</p>
               <h2 className="mt-3 text-2xl font-bold text-slate-950 sm:text-3xl">
-                応募からフィードバックまで
+                応募から納品・確認まで
               </h2>
               <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base">
-                まず対象条件を確認し、合意後にはじめて匿名化済みデータをご案内します。
+                応募は契約ではありません。個別条件への同意とRelayoの承諾通知で契約が成立し、
+                入金確認と匿名化済みデータの受領後に作業を開始します。
               </p>
             </div>
 
@@ -420,19 +426,35 @@ export default function Home() {
                     共同検証枠 {EC_INVENTORY_POC.partnerSlots}
                   </h2>
                   <p className="mt-4 text-sm leading-7 text-blue-100">
-                    条件はヒアリング後に個別にご案内します。
+                    共同検証の対象と条件は、ヒアリング後に個別にご案内します。
                   </p>
                 </div>
 
                 <div className="p-7 sm:p-10">
-                  <p className="text-sm font-bold text-slate-500">正式PoC予定価格</p>
+                  <p className="text-sm font-bold text-slate-500">正式PoC</p>
                   <p className="mt-2 text-3xl font-extrabold text-slate-950 sm:text-4xl">
-                    {EC_INVENTORY_POC.plannedPrice}
+                    {EC_INVENTORY_POC.price}
                   </p>
                   <p className="mt-4 text-sm leading-7 text-slate-600">
-                    正式PoCは、非PC商材・1〜2販路・最大300 SKUを対象とする予定です。
-                    共同検証の条件は応募後のヒアリングで確認します。
+                    非PC商材・1〜2販路・最大300 SKUが標準範囲です。
                   </p>
+                  <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-700">
+                    {[
+                      "銀行振込による全額前払い（請求書発行日から3営業日以内・振込手数料は顧客負担）",
+                      "契約成立・入金確認・匿名化済みデータ受領が全て完了した後に作業開始",
+                      "全条件が揃った日の翌営業日から原則3営業日以内にExcelまたはPDFで納品",
+                      "入力データの訂正または計算誤りに関する修正1回（納品後5営業日以内に申出）",
+                      "納品後5営業日以内に具体的な不備の連絡がなければ確認済みとして取扱い",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-2.5">
+                        <CheckCircle2
+                          className="mt-1 h-4 w-4 shrink-0 text-emerald-700"
+                          aria-hidden="true"
+                        />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                   <Button
                     asChild
                     size="lg"

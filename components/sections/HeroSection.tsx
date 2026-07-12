@@ -105,9 +105,9 @@ export default function HeroSection() {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">正式PoC予定価格</p>
+                <p className="text-xs text-slate-400">正式PoC</p>
                 <p className="mt-1 text-lg font-bold text-white">
-                  {EC_INVENTORY_POC.plannedPrice}
+                  {EC_INVENTORY_POC.price}
                 </p>
               </div>
             </div>

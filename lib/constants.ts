@@ -14,7 +14,7 @@ export const EC_INVENTORY_POC = {
   name: "Relayo EC在庫・粗利診断",
   description:
     "販売・在庫データから赤字SKUや60日・90日以上の滞留在庫、在庫原価を整理し、次に試すアクション候補をまとめる共同検証サービスです。",
-  plannedPrice: "5,500円",
+  price: "5,500円（税込）",
   partnerSlots: "1〜2社",
   contactHref: "/contact?type=ec_inventory_partner",
   sampleReportHref: "/samples/relayo-ec-inventory-validation-kit.xlsx",

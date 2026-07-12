@@ -21,6 +21,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly" as const,
       priority: 0.4,
     },
+    {
+      route: "/legal/terms",
+      changeFrequency: "yearly" as const,
+      priority: 0.4,
+    },
+    {
+      route: "/legal/tokusho",
+      changeFrequency: "yearly" as const,
+      priority: 0.4,
+    },
   ].map(({ route, changeFrequency, priority }) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
