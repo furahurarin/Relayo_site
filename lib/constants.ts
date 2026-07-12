@@ -10,12 +10,15 @@ export const BRAND = {
   icon: "/images/relayo-icon.png", // サイト内で使うシンボル（小さな装飾など）
 } as const;
 
-export const DOCUMENT_POC = {
-  name: "帳票データ化PoC",
+export const EC_INVENTORY_POC = {
+  name: "Relayo EC在庫・粗利診断",
   description:
-    "PDF・FAX・スキャンされた注文書や帳票を読み取り、Excel・CSVへの転記を小さく有料検証するサービスです。",
-  priceFrom: "9,800円〜",
-  contactHref: "/contact",
+    "販売・在庫データから赤字SKUや60日・90日以上の滞留在庫、在庫原価を整理し、次に試すアクション候補をまとめる共同検証サービスです。",
+  plannedPrice: "5,500円",
+  partnerSlots: "1〜2社",
+  contactHref: "/contact?type=ec_inventory_partner",
+  sampleReportHref: "/samples/relayo-ec-inventory-validation-kit.xlsx",
+  sampleReportImage: "/images/ec-inventory-sample-report.png",
 } as const;
 
 export const CAMPAIGN = {
@@ -39,11 +42,10 @@ export const CAMPAIGN = {
 
   // サイト全体の meta description 用（layout.tsx 相当と整合）
   // ※ 恒常的・中立的な説明に寄せ、キャンペーン固有文言は含めない
-  metaDescription:
-    "中小企業・個人事業主向けのWeb/アプリ制作。Next.js + Tailwindで高速・保守しやすいサイトを短納期で提供。予約/会員/決済、LINE連携、運用保守まで一気通貫。",
+  metaDescription: EC_INVENTORY_POC.description,
 
   // メール件名（mailto: の subject に利用）
-  mailSubject: "料金・制作のご相談",
+  mailSubject: "Relayoへのお問い合わせ",
 
   // ボタン等のラベル（任意で参照）
   labels: {
@@ -59,24 +61,11 @@ export const CAMPAIGN = {
 } as const;
 
 export const CONTACT = {
-  // クリックで件名＆本文の雛形が入ったメール作成を開く
-  mailto: `mailto:${BRAND.email}?subject=${encodeURIComponent(
-    CAMPAIGN.mailSubject
-  )}&body=${encodeURIComponent(
-    [
-      "以下、わかる範囲でご記入のうえ、そのまま送信してください。",
-      "未定の項目は「未定」とご記入いただいて構いません。",
-      "",
-      "■会社名／屋号：",
-      "■ご担当者名：",
-      "■ご連絡先（電話番号・任意）：",
-      "■ご相談概要：",
-      "■ご希望の公開時期：",
-      "■ご予算の目安：",
-      "",
-      "（本メールはサイトの「メールで相談する」ボタンから送信されています）",
-    ].join("\n")
-  )}`,
+  mailto:
+    "mailto:" +
+    BRAND.email +
+    "?subject=" +
+    encodeURIComponent(CAMPAIGN.mailSubject),
 } as const;
 
 export const PLANS = {

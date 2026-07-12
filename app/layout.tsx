@@ -4,34 +4,40 @@ import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/footer";
 import Analytics from "@/components/analytics/Analytics";
-import { BRAND, DOCUMENT_POC } from "@/lib/constants";
+import { BRAND, EC_INVENTORY_POC } from "@/lib/constants";
 
 export const viewport = {
   themeColor: "#111827",
   colorScheme: "light",
 };
 
-const siteDescription =
-  "PDF・FAX・スキャンされた注文書や帳票を、Excel・CSVへデータ化。まずは1社1帳票から、人による確認付きで小さく有料検証します。";
+const siteDescription = EC_INVENTORY_POC.description;
 
 export const metadata: Metadata = {
   metadataBase: new URL(BRAND.siteUrl),
   title: {
-    default: `${DOCUMENT_POC.name} | PDF・帳票をExcel・CSVへ`,
-    template: `%s | ${DOCUMENT_POC.name}`,
+    default: `${EC_INVENTORY_POC.name} | 赤字SKU・滞留在庫を次のアクションへ`,
+    template: `%s | ${EC_INVENTORY_POC.name}`,
   },
   description: siteDescription,
+  keywords: [
+    "EC在庫管理",
+    "粗利分析",
+    "滞留在庫",
+    "赤字SKU",
+    "在庫原価",
+  ],
   openGraph: {
-    title: `${DOCUMENT_POC.name} | PDF・帳票をExcel・CSVへ`,
+    title: `${EC_INVENTORY_POC.name} | 赤字SKU・滞留在庫を次のアクションへ`,
     description: siteDescription,
     url: BRAND.siteUrl,
-    siteName: DOCUMENT_POC.name,
+    siteName: EC_INVENTORY_POC.name,
     type: "website",
     locale: "ja_JP",
   },
   twitter: {
-    card: "summary",
-    title: `${DOCUMENT_POC.name} | PDF・帳票をExcel・CSVへ`,
+    card: "summary_large_image",
+    title: `${EC_INVENTORY_POC.name} | 赤字SKU・滞留在庫を次のアクションへ`,
     description: siteDescription,
   },
   alternates: { canonical: "/" },
@@ -60,13 +66,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const serviceLd = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: DOCUMENT_POC.name,
+    name: EC_INVENTORY_POC.name,
     description: siteDescription,
+    serviceType: "EC在庫・粗利診断",
     provider: {
       "@type": "Organization",
       name: BRAND.name,
     },
     areaServed: "JP",
+    audience: {
+      "@type": "BusinessAudience",
+      audienceType: "非PC商材を扱うEC事業者",
+    },
   };
 
   return (
@@ -80,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
 
         <Script
-          src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
           strategy="afterInteractive"
         />
 
